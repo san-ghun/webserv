@@ -52,7 +52,6 @@ show:
 		@printf "NAME  		: $(NAME)\n"
 		@printf "CC		: $(CC)\n"
 		@printf "CFLAGS		: $(CFLAGS)\n"
-		@printf "MLX_FLAGS	: $(MLX_FLAGS)\n"
 		@printf "SRC		: $(SRC_NAME)\n"
 		@printf "OBJ		: $(OBJ_NAME)\n"
 
