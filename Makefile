@@ -38,7 +38,9 @@ re: fclean all
 	@$(CC) $(CFLAGS) -c $< -o $@ $(HEADERS)
 
 dev:
+	@echo "$(YELLOW)Building $@...$(RESET)"
 	@$(CC) $(CFLAGS) -g3 -o $(NAME) $(SRC_NAME) $(HEADERS)
+	@echo "$(GREEN)Done.$(RESET)"
 
 $(NAME): $(OBJ_NAME)
 	@echo "$(YELLOW)Building $@...$(RESET)"
