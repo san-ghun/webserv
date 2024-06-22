@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/22 21:05:14 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/06/23 00:12:12 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/06/23 00:24:23 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,7 +163,7 @@ void run_server(int port) {
 static void	ft_sigint_handler(int sig)
 {
 	(void)sig;
-	std::cout << "\rserver shutting down...\n" << std::endl;
+	std::cout << "\rserver shutting down..." << std::endl;
 	exit(0);
 }
 

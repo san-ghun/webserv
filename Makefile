@@ -28,7 +28,7 @@ clean:
 
 fclean: clean
 	@$(RM) $(NAME)
-	@$(RM) $(NAME).dSYM
+	@rm -rf $(NAME).dSYM
 
 re: fclean all
 
