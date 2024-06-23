@@ -1,0 +1,26 @@
+http {
+    types {
+        text/css    css;
+        text/html   html;
+    }
+
+    server {
+        listen 8080;
+        root ./static;
+
+        location /fruits {
+            root ./static;
+        }
+
+        location /obst {
+            alias ./static/fruits;
+        }
+
+        location /vegetables {
+            root ./static;
+            try_files /vegetables/veggies.html /index.html =404;
+        }
+    }
+}
+
+events {}
