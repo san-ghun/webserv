@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/22 21:05:14 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/06/23 01:00:49 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/06/23 16:33:22 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,14 +60,16 @@ int create_and_bind(int port)
 
     // Create a socket
     listen_sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (listen_sock < 0) {
+    if (listen_sock < 0)
+	{
         perror("socket");
         return -1;
     }
 
     // Set the SO_REUSEADDR option to allow reusing the address
     int opt = 1;
-    if (setsockopt(listen_sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
+    if (setsockopt(listen_sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
+	{
         perror("setsockopt");
         close(listen_sock);
         return -1;
@@ -79,21 +81,24 @@ int create_and_bind(int port)
     server_addr.sin_port = htons(port);
 
     // Bind the socket to the address and port
-    if (bind(listen_sock, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
+    if (bind(listen_sock, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0)
+	{
         perror("bind");
         close(listen_sock);
         return -1;
     }
 
     // Listen for incoming connections
-    if (listen(listen_sock, SOMAXCONN) < 0) {
+    if (listen(listen_sock, SOMAXCONN) < 0)
+	{
         perror("listen");
         close(listen_sock);
         return -1;
     }
 
     // Set the socket to non-blocking
-    if (set_nonblocking(listen_sock) < 0) {
+    if (set_nonblocking(listen_sock) < 0)
+	{
         perror("set_nonblocking");
         close(listen_sock);
         return -1;
@@ -121,10 +126,13 @@ std::string handle_request(const std::string& request)
 	// Log the request method, path, and version
     std::cout << "\r" << method << " | " << path << " | " << version << std::endl;
 
-    if (method == "GET") {
+    if (method == "GET")
+	{
         // Handle GET request
         return handle_get(path);
-    } else {
+    } 
+	else
+	{
         // Handle other HTTP methods
         // Return a 405 Method Not Allowed response
         return "HTTP/1.1 405 Method Not Allowed\r\n\r\n";
@@ -149,7 +157,8 @@ std::string handle_get(const std::string& path)
     std::ifstream ifs (file_path.data());
     
     // Check if the file is open
-    if (!ifs.is_open()) {
+    if (!ifs.is_open())
+	{
         // If not, return a 404 Not Found response
         return "HTTP/1.1 404 Not Found\r\n\r\n";
     }
@@ -175,7 +184,8 @@ std::string handle_get(const std::string& path)
 void run_server(int port)
 {
     int listen_sock = create_and_bind(port);
-    if (listen_sock == -1) {
+    if (listen_sock == -1)
+	{
         perror("Failed to bind socket");
         exit(EXIT_FAILURE);
     }
@@ -187,20 +197,27 @@ void run_server(int port)
     fds.push_back((struct pollfd){listen_sock, POLLIN, 0});
 
     // Main server loop
-    while (true) {
+    while (true)
+	{
         int poll_count = poll(fds.data(), fds.size(), -1);
-        if (poll_count == -1) {
+        if (poll_count == -1)
+		{
             perror("poll");
             exit(EXIT_FAILURE);
         }
 
         // Process the events that occurred
-        for (size_t i = 0; i < fds.size(); i++) {
-            if (fds[i].revents & POLLIN) {
-                if (fds[i].fd == listen_sock) {
+        for (size_t i = 0; i < fds.size(); i++)
+		{
+            if (fds[i].revents & POLLIN)
+			{
+                if (fds[i].fd == listen_sock)
+				{
                     // Accept new connections
                     acceptNewConnections(listen_sock, fds);
-                } else {
+                }
+				else
+				{
                     // Handle data from clients
                     handleClientData(fds[i].fd, fds, i);
                 }
@@ -216,12 +233,17 @@ void run_server(int port)
  */
 void acceptNewConnections(int listen_sock, std::vector<pollfd>& fds)
 {
-    while (true) {
+    while (true)
+	{
         int client_sock = accept(listen_sock, NULL, NULL);
-        if (client_sock == -1) {
-            if (errno == EAGAIN || errno == EWOULDBLOCK) {
+        if (client_sock == -1)
+		{
+            if (errno == EAGAIN || errno == EWOULDBLOCK)
+			{
                 break;
-            } else {
+            }
+			else
+			{
                 perror("accept");
                 break;
             }
@@ -242,17 +264,23 @@ void handleClientData(int client_sock, std::vector<pollfd>& fds, size_t idx)
 {
     char buffer[BUFSIZE];
     ssize_t count = read(client_sock, buffer, sizeof(buffer));
-    if (count == -1) {
-        if (errno != EAGAIN && errno != EWOULDBLOCK) {
+    if (count == -1)
+	{
+        if (errno != EAGAIN && errno != EWOULDBLOCK)
+		{
             perror("read");
             close(client_sock);
             fds.erase(fds.begin() + idx);
         }
-    } else if (count == 0) {
+    }
+	else if (count == 0)
+	{
         // Client closed connection
         close(client_sock);
         fds.erase(fds.begin() + idx);
-    } else {
+    }
+	else
+	{
         // Process the request and send a response
         std::string request(buffer, count);
         std::string response = handle_request(request);
