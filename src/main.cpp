@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/22 21:05:14 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/06/23 16:33:22 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/06/23 22:47:25 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,15 +20,11 @@ void		run_server(int port);
 void		acceptNewConnections(int listen_sock, std::vector<pollfd>& fds);
 void		handleClientData(int client_sock, std::vector<pollfd>& fds, size_t idx);
 
-/**
- * @brief Set a file descriptor to non-blocking mode.
- * 
- * @param fd The file descriptor.
- * @return The result of the operation. 0 on success, -1 on failure.
- * 
- * This function sets the file descriptor to non-blocking mode, allowing
- * for asynchronous I/O operations.
- */
+/// @brief Set a file descriptor to non-blocking mode.
+/// @param fd The file descriptor.
+/// @return The result of the operation. 0 on success, -1 on failure.
+/// This function sets the file descriptor to non-blocking mode, allowing
+/// for asynchronous I/O operations.
 int set_nonblocking(int fd)
 {
     // Get the current file descriptor flags
@@ -44,15 +40,11 @@ int set_nonblocking(int fd)
     return fcntl(fd, F_SETFL, flags);
 }
 
-/**
- * @brief Create and bind a socket to a specific port.
- * 
- * @param port The port number to bind the socket to.
- * @return The socket file descriptor on success, -1 on failure.
- * 
- * This function creates a socket, sets the SO_REUSEADDR option, 
- * binds the socket to the specified port, and makes the socket non-blocking.
- */
+/// @brief Create and bind a socket to a specific port.
+/// @param port The port number to bind the socket to.
+/// @return The socket file descriptor on success, -1 on failure.
+/// This function creates a socket, sets the SO_REUSEADDR option, 
+/// binds the socket to the specified port, and makes the socket non-blocking.
 int create_and_bind(int port)
 {
     int listen_sock;
@@ -108,14 +100,10 @@ int create_and_bind(int port)
 }
 
 
-/**
- * Parses an HTTP request and handles it.
- * 
- * @param request The HTTP request to parse and handle.
- * @return The HTTP response to send back to the client.
- * 
- * @throws None
- */
+/// @brief Parses an HTTP request and handles it.
+/// @param request The HTTP request to parse and handle.
+/// @return The HTTP response to send back to the client.
+/// @throws None
 std::string handle_request(const std::string& request)
 {
     // Parse the HTTP request
@@ -140,14 +128,10 @@ std::string handle_request(const std::string& request)
 }
 
 
-/**
- * @brief Handle GET request by reading the file and returning an HTTP response.
- * 
- * @param path The path of the file to read.
- * @return The HTTP response containing the file contents.
- * 
- * In case the file is not found, a 404 Not Found response is returned.
- */
+/// @brief Handle GET request by reading the file and returning an HTTP response.
+/// @param path The path of the file to read.
+/// @return The HTTP response containing the file contents.
+/// In case the file is not found, a 404 Not Found response is returned.
 std::string handle_get(const std::string& path)
 {
     // Prepend the current directory to the file path
@@ -177,10 +161,8 @@ std::string handle_get(const std::string& path)
 }
 
 
-/**
- * Main server loop that listens for incoming connections and handles requests.
- * @param port The port number to listen on.
- */
+/// @brief server loop that listens for incoming connections and handles requests.
+/// @param port The port number to listen on.
 void run_server(int port)
 {
     int listen_sock = create_and_bind(port);
@@ -226,11 +208,9 @@ void run_server(int port)
     }
 }
 
-/**
- * Accepts new incoming connections and adds them to the list of file descriptors.
- * @param listen_sock The listening socket.
- * @param fds The vector of file descriptors.
- */
+/// @brief Accepts new incoming connections and adds them to the list of file descriptors.
+/// @param listen_sock The listening socket.
+/// @param fds The vector of file descriptors.
 void acceptNewConnections(int listen_sock, std::vector<pollfd>& fds)
 {
     while (true)
@@ -254,12 +234,10 @@ void acceptNewConnections(int listen_sock, std::vector<pollfd>& fds)
     }
 }
 
-/**
- * Handles the data received from a client.
- * @param client_sock The socket of the client.
- * @param fds The vector of file descriptors.
- * @param idx The index of the client socket in the vector.
- */
+/// @brief the data received from a client.
+/// @param client_sock The socket of the client.
+/// @param fds The vector of file descriptors.
+/// @param idx The index of the client socket in the vector.
 void handleClientData(int client_sock, std::vector<pollfd>& fds, size_t idx)
 {
     char buffer[BUFSIZE];
@@ -292,12 +270,10 @@ void handleClientData(int client_sock, std::vector<pollfd>& fds, size_t idx)
 /// ----------------------------------------
 // Code End
 
-/**
- * Handles the SIGINT signal by printing a message and exiting the program.
- * @param sig the signal number
- * @return void
- * @throws None
- */
+/// @brief Handles the SIGINT signal by printing a message and exiting the program.
+/// @param sig the signal number
+/// @return void
+/// @throws None
 static void	ft_sigint_handler(int sig)
 {
 	(void)sig;
@@ -305,18 +281,15 @@ static void	ft_sigint_handler(int sig)
 	exit(0);
 }
 
-/**
- * The main function of the program.
- * It reads the port number from the command line arguments and runs the server.
- * 
- * @param argc The number of command line arguments.
- * @param argv An array of character pointers to command line arguments.
- * @return The exit status of the program.
- * 
- * The program expects one command line argument: the path to the configuration file.
- * If the argument is missing, the program prints the usage message and exits with status 1.
- * Otherwise, it runs the server on the specified port.
- */
+/// @brief The main function of the program.
+/// It reads the port number from the command line arguments and runs the server.
+/// @param argc The number of command line arguments.
+/// @param argv An array of character pointers to command line arguments.
+/// @return The exit status of the program.
+/// 
+/// The program expects one command line argument: the path to the configuration file.
+/// If the argument is missing, the program prints the usage message and exits with status 1.
+/// Otherwise, it runs the server on the specified port.
 int main(int argc, char *argv[])
 {
 	// Check if the correct number of arguments is provided
