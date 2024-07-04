@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/03 17:42:45 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/04 15:59:03 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,8 @@
 # define STATICFILEHANDLER_HPP
 
 # include <string>
-# include "HTTPRequest.hpp"
-# include "HTTPResponse.hpp"
+# include "HttpRequest.hpp"
+# include "HttpResponse.hpp"
 
 class	StaticFileHandler
 {
@@ -23,7 +23,7 @@ class	StaticFileHandler
 		StaticFileHandler();
 		~StaticFileHandler();
 
-		HTTPResponse	handleRequest(const HTTPRequest request);
+		HttpResponse	handleRequest(const HttpRequest request);
 
 	private:
 		std::string		getMimeType(const std::string path) const;

@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/22 21:05:14 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/03 20:25:03 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/04 15:59:03 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,13 +100,13 @@ int create_and_bind(int port)
 }
 
 
-/// @brief Parses an HTTP request and handles it.
-/// @param request The HTTP request to parse and handle.
-/// @return The HTTP response to send back to the client.
+/// @brief Parses an Http request and handles it.
+/// @param request The Http request to parse and handle.
+/// @return The Http response to send back to the client.
 /// @throws None
 std::string handle_request(const std::string& request)
 {
-    // Parse the HTTP request
+    // Parse the Http request
     std::istringstream request_stream(request);
     std::string method, path, version;
     request_stream >> method >> path >> version;
@@ -121,16 +121,16 @@ std::string handle_request(const std::string& request)
     } 
 	else
 	{
-        // Handle other HTTP methods
+        // Handle other Http methods
         // Return a 405 Method Not Allowed response
-        return "HTTP/1.1 405 Method Not Allowed\r\n\r\n";
+        return "Http/1.1 405 Method Not Allowed\r\n\r\n";
     }
 }
 
 
-/// @brief Handle GET request by reading the file and returning an HTTP response.
+/// @brief Handle GET request by reading the file and returning an Http response.
 /// @param path The path of the file to read.
-/// @return The HTTP response containing the file contents.
+/// @return The Http response containing the file contents.
 /// In case the file is not found, a 404 Not Found response is returned.
 std::string handle_get(const std::string& path)
 {
@@ -144,14 +144,14 @@ std::string handle_get(const std::string& path)
     if (!ifs.is_open())
 	{
         // If not, return a 404 Not Found response
-        return "HTTP/1.1 404 Not Found\r\n\r\n";
+        return "Http/1.1 404 Not Found\r\n\r\n";
     }
 
-    // Create a string stream to hold the HTTP response
+    // Create a string stream to hold the Http response
     std::stringstream response;
     
-    // Add the HTTP response headers
-    response << "HTTP/1.1 200 OK\r\n";
+    // Add the Http response headers
+    response << "Http/1.1 200 OK\r\n";
     response << "Content-Type: text/html\r\n";
     response << "Connection: close\r\n\r\n";
     

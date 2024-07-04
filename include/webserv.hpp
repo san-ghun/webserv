@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/22 21:04:39 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/03 17:55:13 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/04 15:59:03 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,8 +45,8 @@
 // # include "Server.hpp"
 // # include "RequestHandler.hpp"
 // # include "StaticFileHandler.hpp"
-// # include "HTTPRequest.hpp"
-// # include "HTTPResponse.hpp"
+// # include "HttpRequest.hpp"
+// # include "HttpResponse.hpp"
 // # include "Socket.hpp"
 // # include "Poller.hpp"
 

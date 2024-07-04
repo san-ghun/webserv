@@ -59,6 +59,17 @@
     "vector": "cpp",
     "algorithm": "cpp",
     "csignal": "cpp",
-    "*.ipp": "cpp"
+    "*.ipp": "cpp",
+    "any": "cpp",
+    "cfenv": "cpp",
+    "codecvt": "cpp",
+    "condition_variable": "cpp",
+    "coroutine": "cpp",
+    "future": "cpp",
+    "list": "cpp",
+    "shared_mutex": "cpp",
+    "source_location": "cpp",
+    "thread": "cpp",
+    "typeindex": "cpp"
   }
 }

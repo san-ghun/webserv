@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/03 17:42:58 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/04 15:59:33 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,11 +16,11 @@
 # include <string>
 # include <map>
 
-class	HTTPRequest
+class	HttpRequest
 {
 	public:
-		HTTPRequest();
-		~HTTPRequest();
+		HttpRequest();
+		~HttpRequest();
 
 		bool								parse(const std::string requestData);
 

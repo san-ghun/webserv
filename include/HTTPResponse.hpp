@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/04 10:56:05 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/04 15:59:46 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,11 +16,11 @@
 # include <string>
 # include <map>
 
-class	HTTPResponse
+class	HttpResponse
 {
 	public:
-		HTTPResponse();
-		~HTTPResponse();
+		HttpResponse();
+		~HttpResponse();
 
 		void								setStatusCode(int code, const std::string statusMessage);
 		void								setHeader(const std::string key, const std::string value);
@@ -28,15 +28,15 @@ class	HTTPResponse
 
 		std::string							toString() const;
 
-		static HTTPResponse					fromFile(const std::string filePath);
-		static HTTPResponse					badRequest_400();
-		static HTTPResponse					forbidden_403();
-		static HTTPResponse					notFound_404();
-		static HTTPResponse					methodNotAllowed_405();
-		static HTTPResponse					requestTimeout_408();
-		static HTTPResponse					requestEntityTooLarge_413();
-		static HTTPResponse					imaTeapot_418();
-		static HTTPResponse					internalServerError_500();
+		static HttpResponse					fromFile(const std::string filePath);
+		static HttpResponse					badRequest_400();
+		static HttpResponse					forbidden_403();
+		static HttpResponse					notFound_404();
+		static HttpResponse					methodNotAllowed_405();
+		static HttpResponse					requestTimeout_408();
+		static HttpResponse					requestEntityTooLarge_413();
+		static HttpResponse					imaTeapot_418();
+		static HttpResponse					internalServerError_500();
 
 	private:
 		int									_statusCode;

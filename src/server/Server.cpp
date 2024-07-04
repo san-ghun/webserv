@@ -6,12 +6,17 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:46 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/04 10:51:14 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/04 15:39:45 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserv.hpp"
 #include "Server.hpp"
+
+// Server::Server(Config config)
+// 	: _serverPort(std::to_string(config.getPort()))
+// 	, _maxBodySize(0)
+// {}
 
 Server::Server(int port)
 	: _serverPort(std::to_string(port))
@@ -20,11 +25,31 @@ Server::Server(int port)
 
 Server::~Server()
 {
+	stop();
+	
 	// TODO: Delete all locations
 }
 
 void	Server::start()
-{}
+{
+	_listenSocket.bind(_port);
+	_listenSocket.listen();
+	_poller.addSocket(_listenSocket);
+
+	_running = true;
+	// Logger::info("Server started on port %d", port);
+
+	while (running) {
+		auto events = poller.poll();
+		for (auto& event : events) {
+			if (event.socket.getFd() == listenSocket.getFd()) {
+				handleNewConnection();
+			} else {
+				handleClientData(event);
+			}
+		}
+	}
+}
 
 void	Server::stop()
 {}
