@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/22 21:04:39 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/06/22 23:12:12 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/03 17:55:13 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,14 +39,16 @@
 // # include <algorithm>
 
 // Custom headers
-/// TODO: These are just some examples 
-// # include "util.hpp"
-// # include "config.hpp"
-// # include "server.hpp"
-// # include "request.hpp"
-// # include "response.hpp"
-// # include "logger.hpp"
-// # include "http_parser.hpp"
+// # include "Config.hpp"
+// # include "Location.hpp"
+// # include "Logger.hpp"
+// # include "Server.hpp"
+// # include "RequestHandler.hpp"
+// # include "StaticFileHandler.hpp"
+// # include "HTTPRequest.hpp"
+// # include "HTTPResponse.hpp"
+// # include "Socket.hpp"
+// # include "Poller.hpp"
 
 // Macros
 #define MAX_EVENTS 100   // TEST PURPOSE ONLY
