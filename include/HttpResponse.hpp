@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   HTTPResponse.hpp                                   :+:      :+:    :+:   */
+/*   HttpResponse.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/04 15:59:46 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/08 22:27:34 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,24 @@
 
 # include <string>
 # include <map>
+
+enum e_status_code
+{
+	STATUS_SUCCESS = 200,
+	STATUS_CREATED = 201,
+	STATUS_NO_CONTENT = 204,
+	STATUS_MOVED = 301,
+	STATUS_BAD_REQUEST = 400,
+	STATUS_FORBIDDEN = 403,
+	STATUS_NOT_FOUND = 404,
+	STATUS_NOT_ALLOWED = 405,
+	STATUS_CONFLICT = 409,
+	STATUS_LENGTH_REQUIRED = 411,
+	STATUS_TOO_LARGE = 413,
+	STATUS_URI_TOO_LONG = 414,
+	STATUS_INTERNAL_ERR = 500,
+	STATUS_NOT_IMPLEMENTED = 501
+};
 
 class	HttpResponse
 {
@@ -25,7 +43,7 @@ class	HttpResponse
 		void								setStatusCode(int code, const std::string statusMessage);
 		void								setHeader(const std::string key, const std::string value);
 		void								setBody(const std::string bodyContent);
-
+		
 		std::string							toString() const;
 
 		static HttpResponse					fromFile(const std::string filePath);
@@ -41,8 +59,9 @@ class	HttpResponse
 	private:
 		int									_statusCode;
 		std::string							_statusMessage;
-		std::map<std::string, std::string>	_headers;
 		std::string							_body;
+		
+		std::map<std::string, std::string>	_headers;
 
 		std::string							_getStatusLine() const;
 		std::string							_getHeadersString() const;

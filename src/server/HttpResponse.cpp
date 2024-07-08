@@ -1,72 +1,141 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   HTTPResponse_.cpp                                  :+:      :+:    :+:   */
+/*   HttpResponse.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/04 10:55:55 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/08 22:58:39 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserv.hpp"
-#include "HTTPResponse.hpp"
+#include "HttpResponse.hpp"
 
-HTTPResponse::HTTPResponse()
-{}
+HttpResponse::HttpResponse()
+	: _statusCode(200), _statusMessage("OK")
+{
+}
 
-HTTPResponse::~HTTPResponse()
-{}
+HttpResponse::~HttpResponse()
+{
+}
 
-void								HTTPResponse::setStatusCode(int code, const std::string statusMessage)
-{}
+void	HttpResponse::setStatusCode(int code, const std::string statusMessage)
+{
+	_statusCode = code;
+	_statusMessage = statusMessage;
+}
 
-void								HTTPResponse::setHeader(const std::string key, const std::string value)
-{}
+void	HttpResponse::setHeader(const std::string key, const std::string value)
+{
+	_headers.insert(std::pair<std::string, std::string>(key, value));
+}
 
-void								HTTPResponse::setBody(const std::string bodyContent)
-{}
+void	HttpResponse::setBody(const std::string bodyContent)
+{
+	_body = bodyContent;
+}
 
-std::string							HTTPResponse::toString() const
-{}
+std::string	HttpResponse::toString() const
+{
+	return (_getHeadersString() + "\r\n\r\n" + _body);
+}
 
-HTTPResponse					HTTPResponse::fromFile(const std::string filePath)
-{}
 
-HTTPResponse					HTTPResponse::badRequest_400()
-{}
+/// @brief Creates an HttpResponse object by reading the contents of a file.
+/// 
+/// @param filePath The path to the file to be read.
+/// @return HttpResponse The created HttpResponse object.
+HttpResponse	HttpResponse::fromFile(const std::string filePath)
+{
+	HttpResponse	resp;
+	std::ifstream file(filePath, std::ios::binary | std::ios::ate);
 
-HTTPResponse					HTTPResponse::forbidden_403()
-{}
+	if (!file.is_open())
+		return (notFound_404());
+    std::streamsize fileSize = file.tellg();
+    file.seekg(0, std::ios::beg);
+    std::vector<char> buffer(fileSize);
+    if (file.read(buffer.data(), fileSize))
+        resp.setBody(std::string(buffer.data(), fileSize));
+	else
+        resp = internalServerError_500();
+    file.close();
+	return (resp);
+}
 
-HTTPResponse					HTTPResponse::notFound_404()
-{}
+HttpResponse	HttpResponse::badRequest_400()
+{
+	HttpResponse	resp;
+	resp.setStatusCode(400, "Bad Request");
+	return (resp);
+}
 
-HTTPResponse					HTTPResponse::methodNotAllowed_405()
-{}
+HttpResponse	HttpResponse::forbidden_403()
+{
+	HttpResponse	resp;
+	resp.setStatusCode(403, "Forbidden");
+	return (resp);
+}
 
-HTTPResponse					HTTPResponse::requestTimeout_408()
-{}
+HttpResponse	HttpResponse::notFound_404()
+{
+	HttpResponse	resp;
+	resp.setStatusCode(404, "Not Found");
+	return (resp);
+}
 
-HTTPResponse					HTTPResponse::requestEntityTooLarge_413()
-{}
+HttpResponse	HttpResponse::methodNotAllowed_405()
+{
+	HttpResponse	resp;
+	resp.setStatusCode(405, "Method Not Allowed");
+	return (resp);
+}
 
-HTTPResponse					HTTPResponse::imaTeapot_418()
-{}
+HttpResponse	HttpResponse::requestTimeout_408()
+{
+	HttpResponse	resp;
+	resp.setStatusCode(408, "Request Timeout");
+	return (resp);
+}
 
-HTTPResponse					HTTPResponse::internalServerError_500()
-{}
+HttpResponse	HttpResponse::requestEntityTooLarge_413()
+{
+	HttpResponse	resp;
+	resp.setStatusCode(413, "Request Entity Too Large");
+	return (resp);
+}
 
-/**
-int									_statusCode
-std::string							_statusMessage
-std::map<std::string, std::string>	_headers
-std::string							_body
- */
+HttpResponse	HttpResponse::imaTeapot_418()
+{
+	HttpResponse resp;
+	resp.setStatusCode(418, "I'm a Teapot");
+	return (resp);
+}
 
-std::string							HTTPResponse::_getStatusLine() const
-{}
+HttpResponse	HttpResponse::internalServerError_500()
+{
+	HttpResponse resp;
+	resp.setStatusCode(500, "Internal Server Error");
+	return (resp);
+}
 
-std::string							HTTPResponse::_getHeadersString() const
-{}
+std::string	HttpResponse::_getHeadersString() const
+{
+	std::string headers;
+	for (std::map<std::string, std::string>::const_iterator it =_headers.begin();
+															it != _headers.end();
+															it++)
+	{
+		headers += it->first + ": " + it->second + "\r\n";
+	}
+	return (headers);
+}
+
+/// @todo Implement _getStatusLine() function -> log design
+std::string HttpResponse::_getStatusLine() const
+{
+	return ("HTTP/1.1 " + std::to_string(_statusCode) + " " + _statusMessage + "\r\n");
+}
