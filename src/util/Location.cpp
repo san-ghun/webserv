@@ -1,60 +1,71 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Location.hpp                                       :+:      :+:    :+:   */
+/*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/02 22:02:42 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/08 23:40:55 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef LOCATION_HPP
-# define LOCATION_HPP
+#include "webserv.hpp"
+#include "Location.hpp"
 
-# include "webserv.hpp"
-# include "Server.hpp"
+Location::Location(Server* server, std::string path)
+{}
 
-class	Server;
+Location::~Location()
+{}
 
-class	Location
-{
-	public:
-		Location(Server* server, std::string path);
-		~Location();
+Server*	Location::getServer() const
+{}
 
-		// Getters
-		Server*								getServer() const;
-		std::string							getPath() const;
-		std::string							getRootPath() const;
-		std::string							getUploadPath() const;
-		std::string							getIndex() const;
-		std::vector<std::string>			getAllowedMethods() const;
-		std::string							getRedirectPath() const;
-		bool								isRedirect() const;
-		int									getRedirectCode() const;
-		std::map<std::string, std::string>	getCgi() const;
-		// Setters
-		void								setPath(std::string path);
-		void								setRootPath(std::string rootPath);
-		void								setUploadPath(std::string uploadPath);
-		void								setIndex(std::string index);
-		void								setAllowedMethods(std::vector<std::string> allowedMethods);
-		void								setRedirect(std::string redirectPath);
-		void								setCgi(std::string cgi);
+std::string	Location::getPath() const
+{}
 
-	private:
-		Server*								_server;
-		std::string							_path;
-		std::string							_rootPath;
-		std::string							_uploadPath;
-		std::string							_index;
-		std::vector<std::string>			_allowedMethods;
-		std::string							_redirectPath;
-		bool								_isRedirect;
-		int									_redirectCode;
-		std::map<std::string, std::string>	_cgi;
-};
+std::string	Location::getRootPath() const
+{}
 
-#endif
+std::string	Location::getUploadPath() const
+{}
+
+std::string	Location::getIndex() const
+{}
+
+std::vector<std::string>	Location::getAllowedMethods() const
+{}
+
+std::string	Location::getRedirectPath() const
+{}
+
+bool	Location::isRedirect() const
+{}
+
+int	Location::getRedirectCode() const
+{}
+
+std::map<std::string, std::string>	Location::getCgi() const
+{}
+
+void	Location::setPath(std::string path)
+{}
+
+void	Location::setRootPath(std::string rootPath)
+{}
+
+void	Location::setUploadPath(std::string uploadPath)
+{}
+
+void	Location::setIndex(std::string index)
+{}
+
+void	Location::setAllowedMethods(std::vector<std::string> allowedMethods)
+{}
+
+void	Location::setRedirect(std::string redirectPath)
+{}
+
+void	Location::setCgi(std::string cgi)
+{}
