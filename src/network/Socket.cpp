@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Socket_.cpp                                        :+:      :+:    :+:   */
+/*   Socket.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/03 16:23:55 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/03 20:25:05 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/05 20:30:38 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,15 +77,15 @@ void	Socket::listen()
 	}
 }
 
-void	Socket::set_nonblocking(int fd)
+void	Socket::set_nonblocking()
 {
-	int flags = fcntl(fd, F_GETFL, 0);
+	int flags = fcntl(_socketfd, F_GETFL, 0);
 	if (flags == -1)
 	{
 		throw std::runtime_error("Failed to get file descriptor flags");
 	}
 	flags |= O_NONBLOCK;
-	if (fcntl(fd, F_SETFL, flags) == -1)
+	if (fcntl(_socketfd, F_SETFL, flags) == -1)
 	{
 		throw std::runtime_error("Failed to set file descriptor flags to non-blocking");
 	}

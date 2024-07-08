@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/03 16:23:55 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/03 20:18:42 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/05 20:30:35 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ class	Socket
 
 		void		bind(int port);
 		void		listen();
-		void		set_nonblocking(int fd);
+		void		set_nonblocking();
 		Socket		accept();
 		void		connet(const std::string host, int port);
 		ssize_t		recv(char* buf, size_t len);
