@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/10 09:50:25 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/10 10:21:32 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,8 @@ void	HttpResponse::setBody(const std::string bodyContent)
 	_body = bodyContent;
 }
 
+/// @todo  how return valuse used in other functions?
+///			- check Server.cpp
 std::string	HttpResponse::toString() const
 {
 	return (_getHeadersString() + "\r\n\r\n" + _body);
@@ -65,6 +67,34 @@ HttpResponse	HttpResponse::fromFile(const std::string filePath)
 	file.close();
 	return (resp);
 }
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// std::string	HttpResponse::_getHeadersString() const
+/// std::string HttpResponse::_getStatusLine() const
+/// @todo log design
+
+std::string	HttpResponse::_getHeadersString() const
+{
+	std::string headers;
+	for (std::map<std::string, std::string>::const_iterator it =_headers.begin();
+															it != _headers.end();
+															it++)
+	{
+		headers += it->first + ": " + it->second + "\r\n";
+	}
+	return (headers);
+}
+
+std::string HttpResponse::_getStatusLine() const
+{
+	return ("HTTP/1.1 " + std::to_string(_statusCode) + " " + _statusMessage + "\r\n");
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+/// @brief static functions to create HttpResponse objects with specific status codes.
+/// @return HttpResponse The created HttpResponse object.
+///
+/// @todo think about seperate functions to another class.
 
 HttpResponse	HttpResponse::badRequest_400()
 {
@@ -120,22 +150,4 @@ HttpResponse	HttpResponse::internalServerError_500()
 	HttpResponse resp;
 	resp.setStatusCode(500, "Internal Server Error");
 	return (resp);
-}
-
-std::string	HttpResponse::_getHeadersString() const
-{
-	std::string headers;
-	for (std::map<std::string, std::string>::const_iterator it =_headers.begin();
-															it != _headers.end();
-															it++)
-	{
-		headers += it->first + ": " + it->second + "\r\n";
-	}
-	return (headers);
-}
-
-/// @todo Implement _getStatusLine() function -> log design
-std::string HttpResponse::_getStatusLine() const
-{
-	return ("HTTP/1.1 " + std::to_string(_statusCode) + " " + _statusMessage + "\r\n");
 }

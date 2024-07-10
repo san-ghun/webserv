@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/10 10:00:58 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/10 10:21:47 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,6 @@ bool								HttpRequest::isConnectionClose() const
 
 
 /////////////////////////////////////////////////////////////////////////////////////
-
 /// @todo Update all parseXXX functions to include new line parsing logic.
 ///       - Verify the trim logic used in this function.
 ///       - Ensure future param values (parse memberfunction == key) are handled.
