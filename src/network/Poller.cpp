@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/04 15:53:22 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/05 20:25:39 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,15 +27,20 @@ void	Poller::removeSocket(const Socket socket)
 	_pollfds.erase(_pollfds.begin() + _findSocketIndex(socket.getFd()));
 }
 
+void	Poller::removeAllSockets()
+{
+	_pollfds.clear();
+}
+
 std::vector<struct pollfd>	Poller::getPollfds() const
 {
 	return (_pollfds);
 }
 
-std::vector<Poller::Event>	Poller::poll(int timeout)
+std::vector<Poller::t_event>	Poller::poll(int timeout)
 {
 	std::vector<struct pollfd>	pollfds = getPollfds();
-	std::vector<Event>			events;
+	std::vector<t_event>		events;
 	if (::poll(pollfds.data(), pollfds.size(), timeout) < 0)
 	{
 		throw std::runtime_error("Poll failed");
@@ -44,7 +49,7 @@ std::vector<Poller::Event>	Poller::poll(int timeout)
 	{
 		if (pollfds[i].revents & POLLIN)
 		{
-			Event event;
+			t_event event;
 			event.socket = Socket(pollfds[i].fd);
 			event.events = pollfds[i].revents;
 			events.push_back(event);

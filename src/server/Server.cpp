@@ -1,18 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Server_.cpp                                        :+:      :+:    :+:   */
+/*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:46 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/04 15:39:45 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/08 22:48:41 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserv.hpp"
 #include "Server.hpp"
 
+// TODO: Implement Config
 // Server::Server(Config config)
 // 	: _serverPort(std::to_string(config.getPort()))
 // 	, _maxBodySize(0)
@@ -32,131 +33,232 @@ Server::~Server()
 
 void	Server::start()
 {
-	_listenSocket.bind(_port);
+	// TODO: Implement and replace stoi() function
+	_listenSocket.bind(stoi(_serverPort));
 	_listenSocket.listen();
-	_poller.addSocket(_listenSocket);
+	_listenSocket.set_nonblocking();
+	_poller.addSocket(_listenSocket, POLLIN);
 
 	_running = true;
 	// Logger::info("Server started on port %d", port);
 
-	while (running) {
-		auto events = poller.poll();
-		for (auto& event : events) {
-			if (event.socket.getFd() == listenSocket.getFd()) {
-				handleNewConnection();
+	while (_running) {
+		std::vector<Poller::t_event> events = _poller.poll(1000);
+		for (size_t i = 0; i < events.size(); i++ )
+		{
+			Poller::t_event event = events[i];
+			if (event.socket.getFd() == _listenSocket.getFd()) {
+				_handleNewConnection();
 			} else {
-				handleClientData(event);
+				_handleClientData(event);
 			}
 		}
 	}
 }
 
+// Try-Catch implementation for start()
+void	Server::start()
+{
+	try {
+		// TODO: Implement and replace stoi() function
+		_listenSocket.bind(stoi(_serverPort));
+		_listenSocket.listen();
+		_listenSocket.set_nonblocking();
+		_poller.addSocket(_listenSocket, POLLIN);
+
+		_running = true;
+		// Logger::info("Server started on port %d", port);
+
+		while (_running) {
+			std::vector<Poller::t_event> events = _poller.poll(1000);
+			for (size_t i = 0; i < events.size(); i++ )
+			{
+				Poller::t_event event = events[i];
+				if (event.socket.getFd() == _listenSocket.getFd()) {
+					_handleNewConnection();
+				} else {
+					_handleClientData(event);
+				}
+			}
+		}
+	} 
+	catch (const std::exception& e)
+	{
+		// Print the error message
+		std::cerr << "Error: " << e.what() << std::endl;
+		// Logger::Error("Server error: %s", e.what());
+		stop();
+	}
+}
+
 void	Server::stop()
-{}
+{
+	if (_running)
+	{
+		_running = false;
+		_listenSocket.close();
+		_poller.removeAllSockets();
+		// Logger::info("Server stopped");
+	}
+}
 
 // Getters
 std::vector<std::string>	Server::getServerNames() const
-{}
+{
+	return (_serverNames);
+}
 
-std::string					Server::getServerHost() const
-{}
+std::string	Server::getServerHost() const
+{
+	return (_serverHost);
+}
 
-std::string					Server::getServerPort() const
-{}
+std::string	Server::getServerPort() const
+{
+	return (_serverPort);
+}
 
-size_t						Server::getMaxBodySize() const
-{}
+size_t	Server::getMaxBodySize() const
+{
+	return (_maxBodySize);
+}
 
 // size_t								Server::getMaxConnection() const {}
 
 // size_t								Server::getMaxHeader() const {}
 
-std::string							Server::getServerRoot() const
-{}
+std::string	Server::getServerRoot() const
+{
+	return (_serverRoot);
+}
 
-std::string							Server::getServerIndex() const
-{}
+std::string	Server::getServerIndex() const
+{
+	return (_serverIndex);
+}
 
-std::vector<Location*>				Server::getLocations() const
-{}
+std::vector<Location*>	Server::getLocations() const
+{
+	return (_locations);
+}
 
 std::map<int, const std::string>	Server::getServerErrorPages() const
-{}
+{
+	return (_serverErrorPages);
+}
 
-std::string							Server::getServerUploadPath() const
-{}
+std::string	Server::getServerUploadPath() const
+{
+	return (_serverUploadPath);
+}
 
 // std::string							Server::getServerAccessLogPath() const {}
 
 // std::string							Server::getServerErrorLogPath() const {}
 
-std::string							Server::getServerCgiPath() const
-{}
+std::string	Server::getServerCgiPath() const
+{
+	return (_serverCgiPath);
+}
 
 // Setters
-void								Server::setServerNames(std::vector<std::string> serverNames)
-{}
+void	Server::setServerNames(std::vector<std::string> serverNames)
+{
+	_serverNames = serverNames;
+}
 
-void								Server::setServerHost(std::string serverHost)
-{}
+void	Server::setServerHost(std::string serverHost)
+{
+	_serverHost = serverHost;
+}
 
-void								Server::setServerPort(std::string serverPort)
-{}
+void	Server::setServerPort(std::string serverPort)
+{
+	_serverPort = serverPort;
+}
 
-void								Server::setMaxBodySize(size_t maxBodySize)
-{}
+void	Server::setMaxBodySize(size_t maxBodySize)
+{
+	_maxBodySize = maxBodySize;
+}
 
 // void								Server::setMaxConnection(size_t maxConnection) {}
 
 // void								Server::setMaxHeader(size_t maxHeader) {}
 
-void								Server::setServerRoot(std::string serverRoot)
-{}
+void	Server::setServerRoot(std::string serverRoot)
+{
+	_serverRoot = serverRoot;
+}
 
-void								Server::setServerIndex(std::string serverIndex)
-{}
+void	Server::setServerIndex(std::string serverIndex)
+{
+	_serverIndex = serverIndex;
+}
 
-void								Server::addLocation(Location* location)
-{}
+void	Server::addLocation(Location* location)
+{
+	_locations.push_back(location);
+}
 
-void								Server::setServerErrorPages(std::map<int, const std::string> serverErrorPage)
-{}
+void	Server::setServerErrorPages(std::map<int, const std::string> serverErrorPage)
+{
+	_serverErrorPages = serverErrorPage;
+}
 
-void								Server::setServerUploadPath(std::string serverUploadPath)
-{}
+void	Server::setServerUploadPath(std::string serverUploadPath)
+{
+	_serverUploadPath = serverUploadPath;
+}
 
 // void								Server::setServerAccessLogPath(std::string serverAccessLogPath) {}
 
 // void								Server::setServerErrorLogPath(std::string serverErrorLogPath) {}
 
-void								Server::setServerCgiPath(std::string serverCgiPath)
-{}
+void	Server::setServerCgiPath(std::string serverCgiPath)
+{
+	_serverCgiPath = serverCgiPath;
+}
 
 
-void								Server::_handleNewConnection()
-{}
+void	Server::_handleNewConnection()
+{
+	// Suggestion: maybe use try-catch ?
+	Socket	clientSocket = _listenSocket.accept();
+	clientSocket.set_nonblocking();
+	_poller.addSocket(clientSocket, POLLIN);
+	// Logger::info("Client accepted: %d", clientSocket.getFd());
+}
 
-void								Server::_handleClientData(Poller::Event event)
-{}
+void	Server::_handleClientData(Poller::t_event event)
+{
+	// Suggestion: maybe use try-catch ?
+	char	buffer[1024];
+	ssize_t	count = read(event.socket.getFd(), buffer, sizeof(buffer));
+	if (count <= 0)
+	{
+		_poller.removeSocket(event.socket);
+		event.socket.close();
+		return ;
+	}
 
-/**
-bool								_running
-Socket								_listenSocket
-Poller								_poller
-RequestHandler						_requestHandler
-
-std::vector<std::string>			_serverNames
-std::string							_serverHost
-std::string							_serverPort
-size_t								_maxBodySize
-// size_t								_maxConnection
-// size_t								_maxHeader
-std::string							_serverRoot
-std::string							_serverIndex
-std::vector<Location*>				_locations
-std::map<int, const std::string>	_serverErrorPages
-std::string							_serverUploadPath
-// std::string							_serverAccessLogPath
-// std::string							_serverErrorLogPath
-std::string							_serverCgiPath
-*/
+	std::string	requestData(buffer, count);
+	HttpRequest	request;
+	if (!request.parse(requestData))
+	{
+		_poller.removeSocket(event.socket);
+		event.socket.close();
+		return ;
+	}
+	
+	// Process the request and send a response
+	HttpResponse	response = _requestHandler.handleRequest(request);
+	std::string		responseData = response.toString();
+	write(event.socket.getFd(), responseData.c_str(), responseData.size());
+	
+	if (request.isConnectionClose())
+	{
+		_poller.removeSocket(event.socket);
+		event.socket.close();
+	}
+}

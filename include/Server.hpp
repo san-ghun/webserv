@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:46 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/03 19:23:09 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/04 16:35:08 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ class	Server
 		RequestHandler						_requestHandler;
 
 		void								_handleNewConnection();
-		void								_handleClientData(Poller::Event event);
+		void								_handleClientData(Poller::t_event event);
 
 		std::vector<std::string>			_serverNames;
 		std::string							_serverHost;
