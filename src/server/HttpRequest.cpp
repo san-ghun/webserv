@@ -6,19 +6,22 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/08 22:55:17 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/10 10:00:58 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserv.hpp"
 #include "HttpRequest.hpp"
 
+/// @todo check for necessary initialization
 HttpRequest::HttpRequest()
 {}
 
 HttpRequest::~HttpRequest()
 {}
 
+
+/// @todo check the `requestData` formats
 bool								HttpRequest::parse(const std::string requestData)
 {
 	std::istringstream iss(requestData);
@@ -34,6 +37,9 @@ bool								HttpRequest::parse(const std::string requestData)
 	_parseBody(bodylines);
 	return (true);
 }
+
+
+/////////////////////////////////////////////////////////////////////////////////////
 
 std::string							HttpRequest::getMethod() const
 {
@@ -71,13 +77,12 @@ bool								HttpRequest::isConnectionClose() const
 }
 
 
-/**
-std::string							_method
-std::string							_path
-std::string							_version
-std::map<std::string, std::string>	_headers
-std::string							_body
- */
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+/// @todo Update all parseXXX functions to include new line parsing logic.
+///       - Verify the trim logic used in this function.
+///       - Ensure future param values (parse memberfunction == key) are handled.
 
 void								HttpRequest::_parseRequestLine(const std::string requestLine)
 {
@@ -92,11 +97,14 @@ void								HttpRequest::_parseHeaders(const std::string headerLines)
 void								HttpRequest::_parseBody(const std::string bodylines)
 {}
 
+
+# define WHITESPACE	" \t"			// [?] add /r/n
+/// @todo check the trim logic in this function
 std::string							HttpRequest::_trim(const std::string& str)
 {
-    size_t first = str.find_first_not_of(' ');
+    size_t first = str.find_first_not_of(WHITESPACE);
     if (first == std::string::npos)
         return "";
-    size_t last = str.find_last_not_of(' ');
-    return str.substr(first, last - first + 1);
+    size_t last = str.find_last_not_of(WHITESPACE);
+    return (str.substr(first, last - first + 1));
 }

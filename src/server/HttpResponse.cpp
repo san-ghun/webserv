@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/08 22:58:39 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/10 09:50:25 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,14 +55,14 @@ HttpResponse	HttpResponse::fromFile(const std::string filePath)
 
 	if (!file.is_open())
 		return (notFound_404());
-    std::streamsize fileSize = file.tellg();
-    file.seekg(0, std::ios::beg);
-    std::vector<char> buffer(fileSize);
-    if (file.read(buffer.data(), fileSize))
-        resp.setBody(std::string(buffer.data(), fileSize));
+	std::streamsize fileSize = file.tellg();
+	file.seekg(0, std::ios::beg);
+	std::vector<char> buffer(fileSize);
+	if (file.read(buffer.data(), fileSize))
+		resp.setBody(std::string(buffer.data(), fileSize));
 	else
-        resp = internalServerError_500();
-    file.close();
+		resp = internalServerError_500();
+	file.close();
 	return (resp);
 }
 
