@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/22 21:05:14 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/03 19:22:47 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/08 22:49:29 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,24 +51,15 @@ int main(int argc, char *argv[])
 	signal(SIGINT, ft_sigint_handler);
 
 	// try-catch block for error handling
-	try
-	{
-		// Create a Config object with the provided configuration file
-		// Config config(argv[1]);
-		// Create a Logger object with the Config object
-        // Logger logger(config);
-        // Create a Server object with the Config object
-		// Server server(config);
-		Server server(8080);
-		// Start the server
-		server.start();
-	}
-	catch (const std::exception &e)
-	{
-		// Print the error message and exit with status 1
-		std::cerr << "Error: " << e.what() << std::endl;
-		return (1);
-	}
+	// Create a Config object with the provided configuration file
+	// Config config(argv[1]);
+	// Create a Logger object with the Config object
+	// Logger logger(config);
+	// Create a Server object with the Config object
+	// Server server(config);
+	Server server(8080);
+	// Start the server
+	server.start();
 
 	// Exit with status 0
 	return (0);
