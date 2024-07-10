@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   HTTPRequest.hpp                                    :+:      :+:    :+:   */
+/*   HttpRequest.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/04 15:59:33 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/08 22:47:33 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,8 @@ class	HttpRequest
 		void								_parseRequestLine(const std::string requestLine);
 		void								_parseHeaders(const std::string headerLines);
 		void								_parseBody(const std::string bodylines);
+
+		static std::string					_trim(const std::string& str);
 };
 
 #endif
