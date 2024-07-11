@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/08 22:47:33 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/11 20:02:56 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,35 +16,35 @@
 # include <string>
 # include <map>
 
+# define WHITESPACE	" \t\r\n"
+
 class	HttpRequest
 {
 	public:
 		HttpRequest();
 		~HttpRequest();
 
-		bool								parse(const std::string requestData);
+		bool								parse(const std::string& requestData);
 
 		std::string							getMethod() const;
-		std::string							getPath() const;
+		std::string							getUri() const;
 		std::string							getVersion() const;
 
 		std::map<std::string, std::string>	getHeaders() const;
 		std::string							getBody() const;
 
 		bool								isConnectionClose() const;
-
+		static std::string					trim(const std::string& str);
 	private:
 		std::string							_method;
-		std::string							_path;
+		std::string							_uri;
 		std::string							_version;
 		std::map<std::string, std::string>	_headers;
 		std::string							_body;
 
-		void								_parseRequestLine(const std::string requestLine);
-		void								_parseHeaders(const std::string headerLines);
-		void								_parseBody(const std::string bodylines);
-
-		static std::string					_trim(const std::string& str);
+		bool								_parseRequestLine(const std::string requestLine);
+		bool								_parseHeaders(const std::string headerLines);
+		bool								_parseBody(const std::string bodylines);
 };
 
 #endif

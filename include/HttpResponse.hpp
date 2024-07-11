@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/08 22:27:34 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/11 19:49:27 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,8 @@ class	HttpResponse
 		static HttpResponse					requestEntityTooLarge_413();
 		static HttpResponse					imaTeapot_418();
 		static HttpResponse					internalServerError_500();
+		static HttpResponse					success_200();
+		static HttpResponse					notImplemented_501();
 
 	private:
 		int									_statusCode;

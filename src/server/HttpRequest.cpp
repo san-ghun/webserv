@@ -6,52 +6,33 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/10 10:21:47 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/11 20:42:00 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserv.hpp"
 #include "HttpRequest.hpp"
 
-/// @todo check for necessary initialization
+/// TODO check for necessary initialization
 HttpRequest::HttpRequest()
 {}
 
 HttpRequest::~HttpRequest()
 {}
 
-
-/// @todo check the `requestData` formats
-bool								HttpRequest::parse(const std::string requestData)
-{
-	std::istringstream iss(requestData);
-	std::string requestLine;
-	std::string headerLines;
-	std::string bodylines;
-	
-	iss >> requestLine;
-	_parseRequestLine(requestLine);
-	iss >> headerLines;
-	_parseHeaders(headerLines);
-	iss >> bodylines;
-	_parseBody(bodylines);
-	return (true);
-}
-
-
 /////////////////////////////////////////////////////////////////////////////////////
 
-std::string							HttpRequest::getMethod() const
+std::string	HttpRequest::getMethod() const
 {
 	return (_method);
 }
 
-std::string							HttpRequest::getPath() const
+std::string	HttpRequest::getUri() const
 {
-	return (_path);
+	return (_uri);
 }
 
-std::string							HttpRequest::getVersion() const
+std::string	HttpRequest::getVersion() const
 {
 	return (_version);
 }
@@ -61,14 +42,14 @@ std::map<std::string, std::string>	HttpRequest::getHeaders() const
 	return (_headers);
 }
 
-std::string							HttpRequest::getBody() const
+std::string	HttpRequest::getBody() const
 {
 	if (_body.empty())
 		return ("");
 	return (_body);
 }
 
-bool								HttpRequest::isConnectionClose() const
+bool HttpRequest::isConnectionClose() const
 {
 	std::map<std::string, std::string>::const_iterator it = _headers.find("Connection");
 	if (it != _headers.end() && it->second == "close")
@@ -76,34 +57,98 @@ bool								HttpRequest::isConnectionClose() const
 	return (false);
 }
 
-
-
 /////////////////////////////////////////////////////////////////////////////////////
-/// @todo Update all parseXXX functions to include new line parsing logic.
-///       - Verify the trim logic used in this function.
-///       - Ensure future param values (parse memberfunction == key) are handled.
 
-void								HttpRequest::_parseRequestLine(const std::string requestLine)
+/// @brief This function parses the request data and extracts
+///			the method, path, version, headers, and body.
+/// @param requestData The request data to be parsed. 
+/// @return bool
+bool HttpRequest::parse(const std::string& requestData)
 {
-	std::string trimmedLine = _trim(requestLine);
-	std::istringstream iss(trimmedLine);
-	iss >> _method >> _path >> _version;
+	std::istringstream	iss(requestData);
+	std::string			requestLine;
+	std::string			headerLines;
+	std::string			bodylines;
+
+	if (requestData.empty())
+		return (false);
+	iss >> requestLine;
+	iss >> headerLines;
+	iss >> bodylines;
+	if (!_parseRequestLine(requestLine))
+		return (false);
+	if (!_parseHeaders(headerLines))
+		return (false);
+	if (!_parseBody(bodylines))
+		return (false);
+	return (true);
 }
 
-void								HttpRequest::_parseHeaders(const std::string headerLines)
-{}
 
-void								HttpRequest::_parseBody(const std::string bodylines)
-{}
-
-
-# define WHITESPACE	" \t"			// [?] add /r/n
-/// @todo check the trim logic in this function
-std::string							HttpRequest::_trim(const std::string& str)
+/// @brief Parses the request line and extracts the method, path, and version.
+/// @param requestLine _method _uri _version, example: GET /path/resource HTTP/1.1
+/// @return bool
+bool HttpRequest::_parseRequestLine(const std::string requestLine)
 {
-    size_t first = str.find_first_not_of(WHITESPACE);
-    if (first == std::string::npos)
-        return "";
-    size_t last = str.find_last_not_of(WHITESPACE);
-    return (str.substr(first, last - first + 1));
+	std::string			trimmedLine = trim(requestLine);
+	std::istringstream	iss(trimmedLine);
+
+	if (requestLine.empty() || trimmedLine.empty())
+		return (false);
+	iss >> _method >> _uri >> _version;
+	if (_method.empty() || _uri.empty() || _version.empty())
+		return (false);
+	return (true);
+}
+
+/// @brief Parses the header lines and extracts the headers.
+/// @param headerLines key:value pairs separated by \r\n
+/// @return bool
+bool HttpRequest::_parseHeaders(const std::string headerLines)
+{
+	if (headerLines.empty())
+		return (false);
+	std::istringstream	iss(headerLines);
+	std::string			line;
+
+	while (std::getline(iss, line))
+	{
+		if (line.empty())
+			continue;
+		std::string	key = trim(line.substr(0, line.find(":")));
+		if (key.empty())
+			return (false);
+		std::string	value = trim(line.substr(line.find(":") + 1));
+		if (value.empty())
+			return (false);
+		_headers.insert(std::make_pair(key, value));
+		line.clear();
+	}
+	return (true);
+}
+
+/// @brief Parses the body and extracts the body.
+/// @param bodylines exameple key1=value1&key2=value2
+/// @return bool
+bool HttpRequest::_parseBody(const std::string bodylines)
+{
+	if (bodylines.empty())
+		return (false);
+	_body = bodylines;
+	return (true);
+}
+
+/// @brief Trims the string by removing leading and trailing whitespace.
+/// @details Whitespace includes: space, tab, carriage return, and newline.
+/// @param str The string to be trimmed.
+/// @return The trimmed string.
+std::string HttpRequest::trim(const std::string& str)
+{
+	std::string::size_type first = str.find_first_not_of(WHITESPACE);
+	if (first == std::string::npos)
+		return ("");
+	std::string::size_type last = str.find_last_not_of(WHITESPACE);
+	if (last == std::string::npos)
+		return ("");
+	return (str.substr(first, last - first + 1));
 }

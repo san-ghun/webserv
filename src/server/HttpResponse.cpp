@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/10 10:21:32 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/11 20:23:07 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,14 +38,14 @@ void	HttpResponse::setBody(const std::string bodyContent)
 	_body = bodyContent;
 }
 
-/// @todo  how return valuse used in other functions?
+/// @todo  How will the return value be used in other functions?
 ///			- check Server.cpp
 std::string	HttpResponse::toString() const
 {
 	return (_getHeadersString() + "\r\n\r\n" + _body);
 }
 
-
+/// TODO test this function
 /// @brief Creates an HttpResponse object by reading the contents of a file.
 /// 
 /// @param filePath The path to the file to be read.
@@ -53,22 +53,22 @@ std::string	HttpResponse::toString() const
 HttpResponse	HttpResponse::fromFile(const std::string filePath)
 {
 	HttpResponse	resp;
-	std::ifstream file(filePath, std::ios::binary | std::ios::ate);
+	std::ifstream file(filePath.c_str(), std::ios::binary | std::ios::ate);
 
 	if (!file.is_open())
 		return (notFound_404());
-	std::streamsize fileSize = file.tellg();
+	std::streamsize	fileSize = file.tellg();
 	file.seekg(0, std::ios::beg);
 	std::vector<char> buffer(fileSize);
-	if (file.read(buffer.data(), fileSize))
-		resp.setBody(std::string(buffer.data(), fileSize));
-	else
-		resp = internalServerError_500();
+	if (!file.read(buffer.data(), fileSize))
+		return (file.close(), internalServerError_500());
+	resp.setBody(std::string(buffer.data(), fileSize));
 	file.close();
 	return (resp);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
+
 /// std::string	HttpResponse::_getHeadersString() const
 /// std::string HttpResponse::_getStatusLine() const
 /// @todo log design
@@ -87,10 +87,13 @@ std::string	HttpResponse::_getHeadersString() const
 
 std::string HttpResponse::_getStatusLine() const
 {
-	return ("HTTP/1.1 " + std::to_string(_statusCode) + " " + _statusMessage + "\r\n");
+	std::stringstream statusLine;
+	statusLine << "HTTP/1.1 " << _statusCode << " " << _statusMessage << "\r\n";
+	return (statusLine.str());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
+
 /// @brief static functions to create HttpResponse objects with specific status codes.
 /// @return HttpResponse The created HttpResponse object.
 ///
@@ -149,5 +152,19 @@ HttpResponse	HttpResponse::internalServerError_500()
 {
 	HttpResponse resp;
 	resp.setStatusCode(500, "Internal Server Error");
+	return (resp);
+}
+
+HttpResponse	HttpResponse::success_200()
+{
+	HttpResponse resp;
+	resp.setStatusCode(200, "OK");
+	return (resp);
+}
+
+HttpResponse	HttpResponse::notImplemented_501()
+{
+	HttpResponse resp;
+	resp.setStatusCode(501, "Not Implemented");
 	return (resp);
 }

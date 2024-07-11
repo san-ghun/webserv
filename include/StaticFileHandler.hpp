@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   StaticFileHandler.hpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/04 15:59:03 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/11 20:44:09 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define STATICFILEHANDLER_HPP
 
 # include <string>
+# include <sys/stat.h>
 # include "HttpRequest.hpp"
 # include "HttpResponse.hpp"
 
@@ -26,8 +27,11 @@ class	StaticFileHandler
 		HttpResponse	handleRequest(const HttpRequest request);
 
 	private:
+		static std::map<std::string, std::string>	_mimeTypes;
+
 		std::string		getMimeType(const std::string path) const;
 		bool			fileExists(const std::string path) const;
+		static void		initializeMimeTypes();
 };
 
 #endif
