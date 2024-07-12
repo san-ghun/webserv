@@ -6,13 +6,14 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/12 14:52:10 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/12 15:13:24 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserv.hpp"
 #include "StaticFileHandler.hpp"
 
+std::map<std::string, std::string> StaticFileHandler::_mimeTypes;
 
 StaticFileHandler::StaticFileHandler()
 {

@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/11 20:02:56 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/12 17:53:13 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,14 @@
 # include <map>
 
 # define WHITESPACE	" \t\r\n"
+
+typedef struct s_read_request {
+    std::string					request;
+    std::vector<std	::string>	headers;
+    std::string	body;
+	bool						iscomplete;
+
+}	t_read_request;
 
 class	HttpRequest
 {
@@ -43,8 +51,12 @@ class	HttpRequest
 		std::string							_body;
 
 		bool								_parseRequestLine(const std::string requestLine);
-		bool								_parseHeaders(const std::string headerLines);
+		bool								_parseHeaders(const std::vector<std	::string> headerLines);
 		bool								_parseBody(const std::string bodylines);
+		t_read_request						_separateRequestData(const std::string& requestData);
+		std::vector<std	::string>			_dataToHeaders(std::istringstream& iss);
+		std::string 						_dataToBody(std::istringstream& iss);
+
 };
 
 #endif

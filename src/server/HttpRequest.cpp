@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/12 14:44:09 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/12 17:57:01 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ std::map<std::string, std::string>	HttpRequest::getHeaders() const
 std::string	HttpRequest::getBody() const
 {
 	if (_body.empty())
-		return ("");
+		return ("");	
 	return (_body);
 }
 
@@ -59,6 +59,49 @@ bool HttpRequest::isConnectionClose() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
+std::vector<std	::string> HttpRequest::_dataToHeaders(std::istringstream& iss)
+{
+	std::string					readline;
+	std::vector<std	::string>	res;
+
+	while (std::getline(iss, readline) && readline != "\r")
+		res.push_back(readline);
+	return (res);
+}
+
+std::string HttpRequest::_dataToBody(std::istringstream& iss)
+{
+	std::string			readline;
+	std::string			drafts;
+
+	while (std::getline(iss, readline))
+		drafts += readline;
+	if (drafts.empty())
+		return ("");
+	return (drafts);
+}
+
+t_read_request HttpRequest::_separateRequestData(const std::string& requestData)
+{
+	t_read_request		data;
+	std::istringstream	iss(requestData);
+	std::string			readline;
+	std::string			drafts;
+
+	data.iscomplete = false;
+
+	if (requestData.empty())
+		return (data);
+	if (!std::getline(iss, readline))
+		return (data);
+	data.request = readline;
+	data.headers = _dataToHeaders(iss);
+	if (data.headers.empty())
+		return (data);
+	data.body = _dataToBody(iss);
+	data.iscomplete = true;
+	return (data);
+}
 
 /// @brief This function parses the request data and extracts
 ///			the method, path, version, headers, and body.
@@ -66,22 +109,16 @@ bool HttpRequest::isConnectionClose() const
 /// @return bool
 bool HttpRequest::parse(const std::string& requestData)
 {
-	std::istringstream	iss(requestData);
-	std::string			requestLine;
-	std::string			headerLines;
-	std::string			bodylines;
+	t_read_request separatedData = _separateRequestData(requestData);
+	if (!separatedData.iscomplete)
+		return (false);
+	if (!_parseRequestLine(separatedData.request))
+		return (false);
+	if (!_parseHeaders(separatedData.headers))
+		return (false);
+	if (_method == "POST" && !_parseBody(separatedData.body))
+		return (false);
 
-	if (requestData.empty())
-		return (false);
-	iss >> requestLine;
-	iss >> headerLines;
-	iss >> bodylines;
-	if (!_parseRequestLine(requestLine))
-		return (false);
-	if (!_parseHeaders(headerLines))
-		return (false);
-	if (!_parseBody(bodylines))
-		return (false);
 	return (true);
 }
 
@@ -105,25 +142,27 @@ bool HttpRequest::_parseRequestLine(const std::string requestLine)
 /// @brief Parses the header lines and extracts the headers.
 /// @param headerLines key:value pairs separated by `\r\n`
 /// @return bool
-bool HttpRequest::_parseHeaders(const std::string headerLines)
+bool HttpRequest::_parseHeaders(const std::vector<std::string> headerLines)
 {
 	if (headerLines.empty())
-		return (false);
-	std::istringstream	iss(headerLines);
-	std::string			line;
-
-	while (std::getline(iss, line))
+		return false;
+	for (std::vector<std::string>::const_iterator	it = headerLines.begin();
+													it != headerLines.end();
+													++it)
 	{
+		const std::string& line = *it;
 		if (line.empty())
 			continue;
-		std::string	key = trim(line.substr(0, line.find(":")));
+		size_t colonPos = line.find(':');
+		if (colonPos == std::string::npos)
+			return (false);
+		std::string key = trim(line.substr(0, colonPos));
 		if (key.empty())
 			return (false);
-		std::string	value = trim(line.substr(line.find(":") + 1));
+		std::string value = trim(line.substr(colonPos + 1));
 		if (value.empty())
 			return (false);
 		_headers.insert(std::make_pair(key, value));
-		line.clear();
 	}
 	return (true);
 }

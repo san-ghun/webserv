@@ -6,11 +6,16 @@ CFLAGS = -Wall -Wextra -Werror -std=c++98
 
 RM = rm -f
 
-# SRC_NAME = ./src/main.cpp \
-# 		./src/server/Server.cpp \
-# 		./src/network/Poller.cpp \
-# 		./src/network/Socket.cpp
-SRC_NAME = $(shell find ./src -iname "*.cpp")
+SRC_NAME = ./src/main.cpp \
+		./src/server/Server.cpp \
+		./src/network/Poller.cpp \
+		./src/network/Socket.cpp \
+		./src/server/RequestHandler.cpp \
+		./src/server/HttpRequest.cpp \
+		./src/server/HttpResponse.cpp \
+		./src/server/StaticFileHandler.cpp
+
+# SRC_NAME = $(shell find ./src -iname "*.cpp")
 OBJ_NAME = $(SRC_NAME:.cpp=.o)
 
 HEADERS = -I ./include
