@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/11 20:42:00 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/12 14:44:09 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ HttpRequest::HttpRequest()
 HttpRequest::~HttpRequest()
 {}
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 std::string	HttpRequest::getMethod() const
 {
@@ -57,7 +57,8 @@ bool HttpRequest::isConnectionClose() const
 	return (false);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
 
 /// @brief This function parses the request data and extracts
 ///			the method, path, version, headers, and body.
@@ -86,7 +87,7 @@ bool HttpRequest::parse(const std::string& requestData)
 
 
 /// @brief Parses the request line and extracts the method, path, and version.
-/// @param requestLine _method _uri _version, example: GET /path/resource HTTP/1.1
+/// @param requestLine `_method` `_uri` `_version`, example: GET /path/resource HTTP/1.1
 /// @return bool
 bool HttpRequest::_parseRequestLine(const std::string requestLine)
 {
@@ -102,7 +103,7 @@ bool HttpRequest::_parseRequestLine(const std::string requestLine)
 }
 
 /// @brief Parses the header lines and extracts the headers.
-/// @param headerLines key:value pairs separated by \r\n
+/// @param headerLines key:value pairs separated by `\r\n`
 /// @return bool
 bool HttpRequest::_parseHeaders(const std::string headerLines)
 {
@@ -139,8 +140,8 @@ bool HttpRequest::_parseBody(const std::string bodylines)
 }
 
 /// @brief Trims the string by removing leading and trailing whitespace.
-/// @details Whitespace includes: space, tab, carriage return, and newline.
-/// @param str The string to be trimmed.
+/// @details `WHITESPACE`: Whitespace includes: space, tab, carriage return, and newline.
+/// @param str `const std::string&`, The string to be trimmed.
 /// @return The trimmed string.
 std::string HttpRequest::trim(const std::string& str)
 {

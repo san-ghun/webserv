@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RequestHandler.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/04 15:59:03 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/12 11:12:44 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 

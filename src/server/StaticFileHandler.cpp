@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/11 20:43:38 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/12 14:52:10 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,18 +23,30 @@ StaticFileHandler::StaticFileHandler()
 StaticFileHandler::~StaticFileHandler()
 {}
 
+// TODO check the logic, how to work with path/request
 HttpResponse StaticFileHandler::handleRequest(const HttpRequest request)
 {
-	if (!fileExists(request.getUri()))
+	std::string filePath = /* path + */ request.getUri();
+
+	// test
+	std::cout << "[test] file path: " << filePath << std::endl;
+
+	if (!fileExists(filePath))
 		return (HttpResponse::notFound_404());
 	
+	
+	std::string mimeType = getMimeType(filePath);
+	
+	// test
+	std::cout << "[test] mime type: " << mimeType << std::endl;
+
+	HttpResponse resp = HttpResponse::fromFile(filePath);
+	resp.setHeader(getMimeType(filePath), mimeType);
+
+	return (resp);
 }
 
-void testPrint(std::string target)
-{
-	std::cout << target << std::endl;
-}
-
+// TODO test result, parse part
 std::string StaticFileHandler::getMimeType(const std::string path) const
 {
 	std::string::size_type dotPosition = path.find_last_of(".");
@@ -53,6 +65,7 @@ bool StaticFileHandler::fileExists(const std::string path) const
 	return (stat(path.c_str(), &buffer) == 0);
 }
 
+/// @brief Initializes the mimeTypes map with the default mime types.
 void StaticFileHandler::initializeMimeTypes()
 {
 	_mimeTypes.insert(std::make_pair(".html", "text/html"));

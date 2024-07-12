@@ -6,12 +6,14 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/11 20:23:07 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/12 14:49:20 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserv.hpp"
 #include "HttpResponse.hpp"
+
+// TODO add doc
 
 HttpResponse::HttpResponse()
 	: _statusCode(200), _statusMessage("OK")
@@ -38,8 +40,8 @@ void	HttpResponse::setBody(const std::string bodyContent)
 	_body = bodyContent;
 }
 
-/// @todo  How will the return value be used in other functions?
-///			- check Server.cpp
+// TODO  How will the return value be used in other functions?
+//			- check Server.cpp
 std::string	HttpResponse::toString() const
 {
 	return (_getHeadersString() + "\r\n\r\n" + _body);
@@ -67,11 +69,11 @@ HttpResponse	HttpResponse::fromFile(const std::string filePath)
 	return (resp);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 /// std::string	HttpResponse::_getHeadersString() const
 /// std::string HttpResponse::_getStatusLine() const
-/// @todo log design
+// TODO log design, doc
 
 std::string	HttpResponse::_getHeadersString() const
 {
@@ -92,12 +94,12 @@ std::string HttpResponse::_getStatusLine() const
 	return (statusLine.str());
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 /// @brief static functions to create HttpResponse objects with specific status codes.
 /// @return HttpResponse The created HttpResponse object.
 ///
-/// @todo think about seperate functions to another class.
+// TODO think about seperate functions to another class.
 
 HttpResponse	HttpResponse::badRequest_400()
 {
