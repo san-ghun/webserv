@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/22 21:05:14 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/08 22:49:29 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/09 23:16:14 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,7 @@ int main(int argc, char *argv[])
 	// Set the signal handler for SIGINT signal
 	signal(SIGINT, ft_sigint_handler);
 
+	(void)argv;
 	// try-catch block for error handling
 	// Create a Config object with the provided configuration file
 	// Config config(argv[1]);

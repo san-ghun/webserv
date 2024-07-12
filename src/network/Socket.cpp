@@ -6,12 +6,13 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/03 16:23:55 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/05 20:30:38 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/10 23:07:54 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserv.hpp"
 #include "Socket.hpp"
+#include "cstring"
 
 Socket::Socket()
 	: _socketfd(-1)
@@ -56,7 +57,7 @@ void	Socket::_bindAddress(int port)
 {
 	memset(&_address, 0, sizeof(_address));
 	_address.sin_family = AF_INET;
-	_address.sin_addr.s_addr = htonl(INADDR_ANY);
+	_address.sin_addr.s_addr = INADDR_ANY;
 	_address.sin_port = htons(port);
 	if (::bind(_socketfd, (struct sockaddr*)&_address, sizeof(_address)) < 0)
 	{
@@ -93,14 +94,16 @@ void	Socket::set_nonblocking()
 
 Socket	Socket::accept()
 {
+	std::cout << "\rSocket fd again: " << _socketfd << std::endl;
 	int clientfd = ::accept(_socketfd, NULL, NULL);
-	if (clientfd < 0)
-	{
-		throw std::runtime_error("Failed to accept connection");
-	}
+	// if (clientfd < 0)
+	// {
+	// 	throw std::runtime_error("Failed to accept connection");
+	// }
 	return Socket(clientfd);
 }
 
+/*
 void	Socket::connet(const std::string host, int port)
 {}
 
@@ -109,6 +112,7 @@ ssize_t	Socket::recv(char* buf, size_t len)
 
 ssize_t	Socket::send(const char* buf, size_t len)
 {}
+*/
 
 void	Socket::close()
 {

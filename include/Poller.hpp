@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/05 20:17:00 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/09 23:25:27 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ class	Poller
 		void						removeSocket(const Socket socket);
 		void						removeAllSockets();
 		std::vector<struct pollfd>	getPollfds() const;
-		std::vector<t_event>			poll(int timeout);
+		std::vector<t_event>		poll(int timeout);
 
 	private:
 		std::vector<struct pollfd>	_pollfds;

@@ -6,12 +6,18 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/05 20:25:39 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/09 23:46:15 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserv.hpp"
 #include "Poller.hpp"
+
+Poller::Poller()
+{}
+
+Poller::~Poller()
+{}
 
 void	Poller::addSocket(const Socket socket, short events)
 {
@@ -47,7 +53,7 @@ std::vector<Poller::t_event>	Poller::poll(int timeout)
 	}
 	for (size_t i = 0; i < pollfds.size(); i++)
 	{
-		if (pollfds[i].revents & POLLIN)
+		if (pollfds[i].revents != 0)
 		{
 			t_event event;
 			event.socket = Socket(pollfds[i].fd);
