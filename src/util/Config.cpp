@@ -1,18 +1,39 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Config.hpp                                         :+:      :+:    :+:   */
+/*   Config.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/06/30 16:24:32 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/08 23:45:02 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CONFIG_HPP
-# define CONFIG_HPP
+#include "webserv.hpp"
+#include "Config.hpp"
 
-# include "webserv.hpp"
+Config::Config()
+{
+	// TODO: Set default value at here if necessary
+}
 
-#endif
+Config::~Config()
+{
+	// TODO: Destruct at here if necessary
+}
+
+void	Config::load(const std::string filename)
+{}
+
+std::string	Config::get(const std::string key)
+{}
+
+int	Config::getInt(const std::string key)
+{}
+
+int	Config::getPort()
+{}
+
+void	Config::_parseConfigFile(const std::string filename)
+{}

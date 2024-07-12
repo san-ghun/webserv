@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:46 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/04 16:35:08 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/10 21:23:36 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,10 @@
 # include "RequestHandler.hpp"
 
 // class	Config;
+class	Location;
+class	Socket;
+class	Poller;
+// class	RequestHandler;
 
 class	Server
 {
@@ -68,10 +72,14 @@ class	Server
 		bool								_running;
 		Socket								_listenSocket;
 		Poller								_poller;
-		RequestHandler						_requestHandler;
+		std::vector<pollfd>					_pollfds;
+		// RequestHandler						_requestHandler;
 
 		void								_handleNewConnection();
 		void								_handleClientData(Poller::t_event event);
+
+		void								_acceptNewConnection();
+		void								_handleClientData_2(int clientSocket, size_t idx);
 
 		std::vector<std::string>			_serverNames;
 		std::string							_serverHost;
