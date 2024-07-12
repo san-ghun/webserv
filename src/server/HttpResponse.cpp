@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/12 14:49:20 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/12 15:02:09 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ std::string	HttpResponse::toString() const
 	return (_getHeadersString() + "\r\n\r\n" + _body);
 }
 
-/// TODO test this function
+/// TODO test: function, check if it works (internalServerError_500())
 /// @brief Creates an HttpResponse object by reading the contents of a file.
 /// 
 /// @param filePath The path to the file to be read.
