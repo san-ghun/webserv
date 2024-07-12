@@ -6,6 +6,10 @@ CFLAGS = -Wall -Wextra -Werror -std=c++98
 
 RM = rm -f
 
+# SRC_NAME = ./src/main.cpp \
+# 		./src/server/Server.cpp \
+# 		./src/network/Poller.cpp \
+# 		./src/network/Socket.cpp
 SRC_NAME = $(shell find ./src -iname "*.cpp")
 OBJ_NAME = $(SRC_NAME:.cpp=.o)
 

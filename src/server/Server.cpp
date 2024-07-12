@@ -6,12 +6,75 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:46 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/10 22:11:51 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/12 15:06:24 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserv.hpp"
 #include "Server.hpp"
+
+// ----------------------------------------------------
+
+/// @brief Handle GET request by reading the file and returning an Http response.
+/// @param path The path of the file to read.
+/// @return The Http response containing the file contents.
+/// In case the file is not found, a 404 Not Found response is returned.
+static std::string handle_get(const std::string& path)
+{
+    // Prepend the current directory to the file path
+    std::string file_path = "./www/static" + path;
+    
+    // Open the file
+    std::ifstream ifs (file_path.data());
+    
+    // Check if the file is open
+    if (!ifs.is_open())
+	{
+        // If not, return a 404 Not Found response
+        return "Http/1.1 404 Not Found\r\n\r\n";
+    }
+
+    // Create a string stream to hold the Http response
+    std::stringstream response;
+    
+    // Add the Http response headers
+    response << "Http/1.1 200 OK\r\n";
+    response << "Content-Type: text/html\r\n";
+    response << "Connection: close\r\n\r\n";
+    
+    // Read the file contents into the response and return it
+    response << ifs.rdbuf();
+    return response.str();
+}
+
+/// @brief Parses an Http request and handles it.
+/// @param request The Http request to parse and handle.
+/// @return The Http response to send back to the client.
+/// @throws None
+static std::string handle_request(const std::string& request)
+{
+    // Parse the Http request
+    std::istringstream request_stream(request);
+    std::string method, path, version;
+    request_stream >> method >> path >> version;
+
+	// Log the request method, path, and version
+    std::cout << "\r" << method << " | " << path << " | " << version << std::endl;
+
+    if (method == "GET")
+	{
+        // Handle GET request
+        return handle_get(path);
+    } 
+	else
+	{
+        // Handle other Http methods
+        // Return a 405 Method Not Allowed response
+        return "Http/1.1 405 Method Not Allowed\r\n\r\n";
+    }
+}
+
+// ----------------------------------------------------
 
 // TODO: Implement Config
 // Server::Server(Config config)
@@ -20,9 +83,11 @@
 // {}
 
 Server::Server(int port)
-	: _serverPort(std::to_string(port))
-	, _maxBodySize(0)
-{}
+	: _serverPort(std::string("8080"))
+	, _maxBodySize(1024)
+{
+	(void)port;
+}
 
 Server::~Server()
 {
@@ -31,6 +96,7 @@ Server::~Server()
 	// TODO: Delete all locations
 }
 
+/* 
 void	Server::start()
 {
 	// TODO: Implement and replace stoi() function
@@ -55,29 +121,47 @@ void	Server::start()
 		}
 	}
 }
+*/
 
 // Try-Catch implementation for start()
 void	Server::start()
 {
 	try {
 		// TODO: Implement and replace stoi() function
-		_listenSocket.bind(stoi(_serverPort));
+		// _listenSocket.bind(stoi(_serverPort));
+		_listenSocket.bind(8080);
 		_listenSocket.listen();
 		_listenSocket.set_nonblocking();
-		_poller.addSocket(_listenSocket, POLLIN);
+		// _poller.addSocket(_listenSocket, POLLIN);
+		_pollfds.push_back((struct pollfd){_listenSocket.getFd(), POLLIN, 0});
 
 		_running = true;
 		// Logger::info("Server started on port %d", port);
+		std::cout << "\rServer started on port " << _serverPort << "..." << std::endl;
 
-		while (_running) {
-			std::vector<Poller::t_event> events = _poller.poll(1000);
-			for (size_t i = 0; i < events.size(); i++ )
-			{
-				Poller::t_event event = events[i];
-				if (event.socket.getFd() == _listenSocket.getFd()) {
-					_handleNewConnection();
-				} else {
-					_handleClientData(event);
+		while (_running) 
+		{
+			// std::vector<Poller::t_event> events = _poller.poll(-1);
+			// for (size_t i = 0; i < events.size(); i++ )
+			// {
+			// 	Poller::t_event event = events[i];
+			// 	if (event.events & POLLIN) {
+			// 		if (event.socket.getFd() == _listenSocket.getFd()) {
+			// 			_handleNewConnection();
+			// 		} else {
+			// 			_handleClientData(event);
+			// 		}
+			// 	}
+			// }
+
+			poll(_pollfds.data(), _pollfds.size(), -1);
+			for (size_t i = 0; i < _pollfds.size(); i++) {
+				if (_pollfds[i].revents & POLLIN) {
+					if (_pollfds[i].fd == _listenSocket.getFd()) {
+						_acceptNewConnection();
+					} else {
+						_handleClientData_2(_pollfds[i].fd, i);
+					}
 				}
 			}
 		}
@@ -99,7 +183,101 @@ void	Server::stop()
 		_listenSocket.close();
 		_poller.removeAllSockets();
 		// Logger::info("Server stopped");
+		std::cout << "\rServer stopped" << std::endl;
 	}
+}
+
+void	Server::_acceptNewConnection()
+{
+	while (true)
+	{
+		int clientfd = accept(_listenSocket.getFd(), NULL, NULL);
+		if (clientfd < 0)
+		{
+			// throw std::runtime_error("Failed to accept connection");
+			break ;
+		}
+		
+		// Set nonblocking mode
+		int flags = fcntl(clientfd, F_GETFL, 0);
+		if (flags == -1)
+		{
+			throw std::runtime_error("Failed to get file descriptor flags");
+		}
+		flags |= O_NONBLOCK;
+		if (fcntl(clientfd, F_SETFL, flags) == -1)
+		{
+			throw std::runtime_error("Failed to set file descriptor flags to non-blocking");
+		}
+
+		_pollfds.push_back((struct pollfd){clientfd, POLLIN, 0});
+	}
+}
+
+void	Server::_handleClientData_2(int clientSocket, size_t idx)
+{
+	char	buffer[1024];
+	ssize_t	count = read(clientSocket, buffer, sizeof(buffer));
+	if (count <= 0)
+	{
+		close(clientSocket);
+		_pollfds.erase(_pollfds.begin() + idx);
+	}
+
+	std::string	requestData(buffer, count);
+	std::string	responseData = handle_request(requestData);
+	write(clientSocket, responseData.c_str(), responseData.size());
+	close(clientSocket);
+	_pollfds.erase(_pollfds.begin() + idx);
+}
+
+void	Server::_handleNewConnection()
+{
+	// Suggestion: maybe use try-catch ?
+	Socket	clientSocket = _listenSocket.accept();
+	clientSocket.set_nonblocking();
+	_poller.addSocket(clientSocket, POLLIN);
+	// Logger::info("Client accepted: %d", clientSocket.getFd());
+	std::cout << "\rClient accepted: " << clientSocket.getFd() << "..." << std::endl;
+}
+
+void	Server::_handleClientData(Poller::t_event event)
+{
+	// Suggestion: maybe use try-catch ?
+	char	buffer[1024];
+	ssize_t	count = read(event.socket.getFd(), buffer, sizeof(buffer));
+	if (count <= 0)
+	{
+		_poller.removeSocket(event.socket);
+		event.socket.close();
+		return ;
+	}
+
+	std::string	requestData(buffer, count);
+	/*
+	HttpRequest	request;
+	if (!request.parse(requestData))
+	{
+		_poller.removeSocket(event.socket);
+		event.socket.close();
+		return ;
+	}
+	
+	// Process the request and send a response
+	HttpResponse	response = _requestHandler.handleRequest(request);
+	std::string	responseData = response.toString();
+	*/
+	std::string	responseData = handle_request(requestData);
+	write(event.socket.getFd(), responseData.c_str(), responseData.size());
+	_poller.removeSocket(event.socket);
+	event.socket.close();
+	/*
+	if (request.isConnectionClose())
+	{
+		_poller.removeSocket(event.socket);
+		event.socket.close();
+	}
+	*/
 }
 
 // Getters
@@ -218,47 +396,4 @@ void	Server::setServerUploadPath(std::string serverUploadPath)
 void	Server::setServerCgiPath(std::string serverCgiPath)
 {
 	_serverCgiPath = serverCgiPath;
-}
-
-
-void	Server::_handleNewConnection()
-{
-	// Suggestion: maybe use try-catch ?
-	Socket	clientSocket = _listenSocket.accept();
-	clientSocket.set_nonblocking();
-	_poller.addSocket(clientSocket, POLLIN);
-	// Logger::info("Client accepted: %d", clientSocket.getFd());
-}
-
-void	Server::_handleClientData(Poller::t_event event)
-{
-	// Suggestion: maybe use try-catch ?
-	char	buffer[1024];
-	ssize_t	count = read(event.socket.getFd(), buffer, sizeof(buffer));
-	if (count <= 0)
-	{
-		_poller.removeSocket(event.socket);
-		event.socket.close();
-		return ;
-	}
-
-	std::string	requestData(buffer, count);
-	HttpRequest	request;
-	if (!request.parse(requestData))
-	{
-		_poller.removeSocket(event.socket);
-		event.socket.close();
-		return ;
-	}
-	
-	// Process the request and send a response
-	HttpResponse	response = _requestHandler.handleRequest(request);
-	std::string		responseData = response.toString();
-	write(event.socket.getFd(), responseData.c_str(), responseData.size());
-	
-	if (request.isConnectionClose())
-	{
-		_poller.removeSocket(event.socket);
-		event.socket.close();
-	}
 }
