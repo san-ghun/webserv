@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/12 15:13:53 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/12 19:24:36 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 # include "HttpRequest.hpp"
 # include "HttpResponse.hpp"
 
+# define FOLDER_PATH	"./www/static"
 class	StaticFileHandler
 {
 	public:

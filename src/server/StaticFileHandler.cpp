@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/12 15:13:24 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/12 20:18:24 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,22 +24,14 @@ StaticFileHandler::StaticFileHandler()
 StaticFileHandler::~StaticFileHandler()
 {}
 
-// TODO check the logic, how to work with path/request
 HttpResponse StaticFileHandler::handleRequest(const HttpRequest request)
 {
-	std::string filePath = /* path + */ request.getUri();
-
-	// test
-	std::cout << "[test] file path: " << filePath << std::endl;
-
+	std::string filePath = FOLDER_PATH + request.getUri();
+	// std::cout << "filePath: " << filePath << std::endl;
+	
 	if (!fileExists(filePath))
 		return (HttpResponse::notFound_404());
-	
-	
 	std::string mimeType = getMimeType(filePath);
-	
-	// test
-	std::cout << "[test] mime type: " << mimeType << std::endl;
 
 	HttpResponse resp = HttpResponse::fromFile(filePath);
 	resp.setHeader(getMimeType(filePath), mimeType);
@@ -47,7 +39,6 @@ HttpResponse StaticFileHandler::handleRequest(const HttpRequest request)
 	return (resp);
 }
 
-// TODO test result, parse part
 std::string StaticFileHandler::getMimeType(const std::string path) const
 {
 	std::string::size_type dotPosition = path.find_last_of(".");
@@ -57,13 +48,17 @@ std::string StaticFileHandler::getMimeType(const std::string path) const
 	std::map<std::string, std::string>::const_iterator it = _mimeTypes.find(ext);
 	if (it != _mimeTypes.end())
 		return (it->second);
-	return ("text/plain");
+	return ("application/octet-stream");
 }
 
 bool StaticFileHandler::fileExists(const std::string path) const
 {
 	struct stat buffer;
-	return (stat(path.c_str(), &buffer) == 0);
+	if (stat(path.c_str(), &buffer) != 0)
+        return (false);
+	if (S_ISREG(buffer.st_mode))
+        return (true);
+	return (false);
 }
 
 /// @brief Initializes the mimeTypes map with the default mime types.

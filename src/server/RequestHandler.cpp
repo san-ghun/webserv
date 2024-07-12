@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/12 14:30:32 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/12 20:48:17 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,8 @@ RequestHandler::~RequestHandler()
 /// 		the functionality required to fulfill the request.
 HttpResponse         RequestHandler::handleRequest(const HttpRequest request)
 {
+	std::cout << "\r" << request.getMethod() << " | " << request.getUri() << " | " <<
+		request.getVersion() << std::endl;
 	if (request.getMethod() == "GET")
 		return (_staticFileHandler.handleRequest(request));
 	else if (request.getMethod() == "POST")

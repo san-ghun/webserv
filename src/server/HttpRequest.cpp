@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/12 17:57:01 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/12 19:20:58 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,7 +80,9 @@ std::string HttpRequest::_dataToBody(std::istringstream& iss)
 		return ("");
 	return (drafts);
 }
-
+/// @brief Separate the request data into request line, headers, and body.
+/// @param requestData The request data to be separated.
+/// @return A struct containing the separated request data.
 t_read_request HttpRequest::_separateRequestData(const std::string& requestData)
 {
 	t_read_request		data;
@@ -118,10 +120,8 @@ bool HttpRequest::parse(const std::string& requestData)
 		return (false);
 	if (_method == "POST" && !_parseBody(separatedData.body))
 		return (false);
-
 	return (true);
 }
-
 
 /// @brief Parses the request line and extracts the method, path, and version.
 /// @param requestLine `_method` `_uri` `_version`, example: GET /path/resource HTTP/1.1

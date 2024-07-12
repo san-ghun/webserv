@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:46 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/12 15:06:24 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/12 21:11:29 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -222,10 +222,26 @@ void	Server::_handleClientData_2(int clientSocket, size_t idx)
 	{
 		close(clientSocket);
 		_pollfds.erase(_pollfds.begin() + idx);
+		return ;
 	}
 
 	std::string	requestData(buffer, count);
-	std::string	responseData = handle_request(requestData);
+
+	HttpRequest		request;
+
+
+	if (!request.parse(requestData))
+		return ; // throw?
+	
+	HttpResponse	response = _requestHandler.handleRequest(request);
+	std::string		responseData = response.toString();
+	// std::string	responseData = handle_request(requestData);
+
+
+	std::cout << "TEST | start: handleClientData_2" << std::endl;
+	std::cout << "TEST | " << requestData << std::endl;
+	
+	// Send the response
 	write(clientSocket, responseData.c_str(), responseData.size());
 	close(clientSocket);
 	_pollfds.erase(_pollfds.begin() + idx);
