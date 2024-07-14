@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:46 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/10 21:23:36 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/12 15:16:05 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,7 @@ class	Server
 		Socket								_listenSocket;
 		Poller								_poller;
 		std::vector<pollfd>					_pollfds;
-		// RequestHandler						_requestHandler;
+		RequestHandler						_requestHandler;
 
 		void								_handleNewConnection();
 		void								_handleClientData(Poller::t_event event);
