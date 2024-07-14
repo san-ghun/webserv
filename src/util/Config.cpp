@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/08 23:45:02 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/12 16:47:45 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,9 @@ Config::~Config()
 }
 
 void	Config::load(const std::string filename)
-{}
+{
+	_parseConfigFile(filename);
+}
 
 std::string	Config::get(const std::string key)
 {}
@@ -35,5 +37,16 @@ int	Config::getInt(const std::string key)
 int	Config::getPort()
 {}
 
-void	Config::_parseConfigFile(const std::string filename)
+Location	Config::getLocation(const std::string key)
 {}
+
+std::map<std::string, std::string>	Config::getConfigMap()
+ {
+	return (_configMap);
+}
+
+void	Config::_parseConfigFile(const std::string filename)
+{
+	// TODO: Parse config file
+	
+}

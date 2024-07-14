@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/08 23:35:53 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/12 16:28:59 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include <string>
 # include <map>
+# include "Location.hpp"
 
 class	Config
 {
@@ -26,8 +27,12 @@ class	Config
 		static std::string	get(const std::string key);
 		static int			getInt(const std::string key);
 		static int			getPort();
+		static Location		getLocation(const std::string key);
+
+		static std::map<std::string, std::string>	getConfigMap();
 
 	private:
+		static std::map<std::string, Location>		_locationsMap;
 		static std::map<std::string, std::string>	_configMap;
 		
 		static void			_parseConfigFile(const std::string filename);
