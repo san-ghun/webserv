@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:46 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/12 14:47:38 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/14 21:52:18 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,7 +123,6 @@ void	Server::start()
 }
 */
 
-// Try-Catch implementation for start()
 void	Server::start()
 {
 	try {
@@ -132,7 +131,6 @@ void	Server::start()
 		_listenSocket.bind(8080);
 		_listenSocket.listen();
 		_listenSocket.set_nonblocking();
-		// _poller.addSocket(_listenSocket, POLLIN);
 		_pollfds.push_back((struct pollfd){_listenSocket.getFd(), POLLIN, 0});
 
 		_running = true;
@@ -141,20 +139,13 @@ void	Server::start()
 
 		while (_running) 
 		{
-			// std::vector<Poller::t_event> events = _poller.poll(-1);
-			// for (size_t i = 0; i < events.size(); i++ )
-			// {
-			// 	Poller::t_event event = events[i];
-			// 	if (event.events & POLLIN) {
-			// 		if (event.socket.getFd() == _listenSocket.getFd()) {
-			// 			_handleNewConnection();
-			// 		} else {
-			// 			_handleClientData(event);
-			// 		}
-			// 	}
-			// }
-
-			poll(_pollfds.data(), _pollfds.size(), -1);
+			int pollcount = poll(_pollfds.data(), _pollfds.size(), -1);
+			if (pollcount < 0) {
+				std::cerr << "Error: poll failed" << std::endl;
+				// Logger::Error("Server error: poll failed");
+				stop();
+				break;
+			}
 			for (size_t i = 0; i < _pollfds.size(); i++) {
 				if (_pollfds[i].revents & POLLIN) {
 					if (_pollfds[i].fd == _listenSocket.getFd()) {
@@ -222,10 +213,26 @@ void	Server::_handleClientData_2(int clientSocket, size_t idx)
 	{
 		close(clientSocket);
 		_pollfds.erase(_pollfds.begin() + idx);
+		return ;
 	}
 
 	std::string	requestData(buffer, count);
-	std::string	responseData = handle_request(requestData);
+
+	HttpRequest		request;
+
+
+	if (!request.parse(requestData))
+		return ; // throw?
+	
+	HttpResponse	response = _requestHandler.handleRequest(request);
+	std::string		responseData = response.toString();
+	// std::string	responseData = handle_request(requestData);
+
+
+	std::cout << "TEST | start: handleClientData_2" << std::endl;
+	std::cout << "TEST | " << requestData << std::endl;
+	
+	// Send the response
 	write(clientSocket, responseData.c_str(), responseData.size());
 	close(clientSocket);
 	_pollfds.erase(_pollfds.begin() + idx);

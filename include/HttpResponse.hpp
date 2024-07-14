@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/08 22:27:34 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/14 17:27:02 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,34 +16,23 @@
 # include <string>
 # include <map>
 
-enum e_status_code
-{
-	STATUS_SUCCESS = 200,
-	STATUS_CREATED = 201,
-	STATUS_NO_CONTENT = 204,
-	STATUS_MOVED = 301,
-	STATUS_BAD_REQUEST = 400,
-	STATUS_FORBIDDEN = 403,
-	STATUS_NOT_FOUND = 404,
-	STATUS_NOT_ALLOWED = 405,
-	STATUS_CONFLICT = 409,
-	STATUS_LENGTH_REQUIRED = 411,
-	STATUS_TOO_LARGE = 413,
-	STATUS_URI_TOO_LONG = 414,
-	STATUS_INTERNAL_ERR = 500,
-	STATUS_NOT_IMPLEMENTED = 501
-};
+std::string							getErrorPagePath(int pageCode);
 
 class	HttpResponse
 {
 	public:
 		HttpResponse();
+		HttpResponse(const std::string filePath);
+		HttpResponse(const HttpResponse& other);
+		HttpResponse& operator=(const HttpResponse& other);
 		~HttpResponse();
-
+		
+		void								setStatusCode(int code);
 		void								setStatusCode(int code, const std::string statusMessage);
 		void								setHeader(const std::string key, const std::string value);
 		void								setBody(const std::string bodyContent);
 		
+		std::string							getBody();
 		std::string							toString() const;
 
 		static HttpResponse					fromFile(const std::string filePath);
@@ -55,16 +44,21 @@ class	HttpResponse
 		static HttpResponse					requestEntityTooLarge_413();
 		static HttpResponse					imaTeapot_418();
 		static HttpResponse					internalServerError_500();
+		static HttpResponse					success_200();
+		static HttpResponse					notImplemented_501();
 
 	private:
 		int									_statusCode;
 		std::string							_statusMessage;
 		std::string							_body;
-		
 		std::map<std::string, std::string>	_headers;
 
 		std::string							_getStatusLine() const;
 		std::string							_getHeadersString() const;
+		std::string							_getResponseLine() const;
+
+		static const std::map<int, std::string>&	_getStatusMessages();
+		static HttpResponse							_errorResponse(int code);
 };
 
 #endif
