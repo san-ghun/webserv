@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   StaticFileHandler.cpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
+/*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/14 17:17:45 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/14 21:51:41 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,8 +33,7 @@ HttpResponse StaticFileHandler::handleRequest(const HttpRequest request)
 	if (!_fileExists(filePath))
 		return (_handleFileNotFound());
 	std::string mimeType = _getMimeType(filePath);
-	// HttpResponse resp(filePath);
-	HttpResponse resp = HttpResponse::fromFile(filePath);
+	HttpResponse resp(filePath);
 	resp.setHeader(_getMimeType(filePath), mimeType);
 
 	return (resp);
@@ -58,7 +57,6 @@ HttpResponse StaticFileHandler::_handleFileNotFound()
 /// @brief Returns the MIME type of a given file based on its file extension.
 /// @param path The path of the file.
 /// @return The MIME type of the file.
-
 std::string StaticFileHandler::_getMimeType(const std::string path) const
 {
 	std::string::size_type dotPosition = path.find_last_of(".");
