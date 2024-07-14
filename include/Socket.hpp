@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/03 16:23:55 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/05 20:30:35 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/12 15:57:02 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define SOCKET_HPP
 
 # include <string>
+# include <cstring>
 # include <netinet/in.h>
 
 class	Socket
