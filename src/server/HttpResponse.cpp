@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpResponse.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
+/*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/14 17:35:57 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/14 22:34:17 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,28 +91,36 @@ std::string	HttpResponse::toString() const
 /// @brief Creates an Static HttpResponse object by reading the contents of a file.
 /// @param filePath The path to the file to be read.
 /// @return HttpResponse The created HttpResponse object.
-HttpResponse	HttpResponse::fromFile(const std::string filePath)
+void	HttpResponse::fromFile(const std::string filePath)
 {
-	HttpResponse	resp;
 	std::ifstream	file(filePath.data());
 
 	if (!file.is_open())
-		return (notFound_404());
+	{
+		*this = notFound_404();
+		return;
+	}
 	file.seekg(0, std::ios::end);
 	std::streamsize fileSize = file.tellg();
 	file.seekg(0, std::ios::beg);
 	if (fileSize <= 0)
-		return internalServerError_500();
+	{
+		*this = internalServerError_500();
+		return;
+	}
 	 std::string fileContents(fileSize, '\0');
 	if (!file.read(&fileContents[0], fileSize))
-		return (file.close(), internalServerError_500());	
+	{
+		file.close();
+		*this = internalServerError_500();
+		return;
+	}
 	file.close();
 	std::stringstream ss;
 	ss << fileSize;
-	resp.setBody(fileContents);
-	resp.setHeader("Content-Length", ss.str());
-	resp.setHeader("Connection", "close");
-	return (resp);
+	this->setBody(fileContents);
+	this->setHeader("Content-Length", ss.str());
+	this->setHeader("Connection", "close");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -200,7 +208,7 @@ void HttpResponse::setStatusCode(int code)
 /// @return HttpResponse
 HttpResponse HttpResponse::_errorResponse(int code)
 {
-	HttpResponse resp(fromFile(getErrorPagePath(code)));
+	HttpResponse resp(getErrorPagePath(code));
 	resp.setStatusCode(code);	
 	return (resp);
 }

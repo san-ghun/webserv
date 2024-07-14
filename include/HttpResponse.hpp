@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpResponse.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
+/*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/14 17:27:02 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/14 22:26:03 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,8 @@ class	HttpResponse
 		std::string							getBody();
 		std::string							toString() const;
 
-		static HttpResponse					fromFile(const std::string filePath);
+		void								fromFile(const std::string filePath);
+		// static HttpResponse					fromFile(const std::string filePath);
 		static HttpResponse					badRequest_400();
 		static HttpResponse					forbidden_403();
 		static HttpResponse					notFound_404();

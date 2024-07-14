@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/14 21:51:41 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/14 22:23:57 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ HttpResponse StaticFileHandler::handleRequest(const HttpRequest request)
 		return (_handleFileNotFound());
 	std::string mimeType = _getMimeType(filePath);
 	HttpResponse resp(filePath);
+	// HttpResponse resp = HttpResponse::fromFile(filePath);
 	resp.setHeader(_getMimeType(filePath), mimeType);
 
 	return (resp);
