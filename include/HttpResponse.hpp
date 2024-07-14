@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/12 21:22:52 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/14 17:27:02 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,12 +16,18 @@
 # include <string>
 # include <map>
 
+std::string							getErrorPagePath(int pageCode);
+
 class	HttpResponse
 {
 	public:
 		HttpResponse();
+		HttpResponse(const std::string filePath);
+		HttpResponse(const HttpResponse& other);
+		HttpResponse& operator=(const HttpResponse& other);
 		~HttpResponse();
-
+		
+		void								setStatusCode(int code);
 		void								setStatusCode(int code, const std::string statusMessage);
 		void								setHeader(const std::string key, const std::string value);
 		void								setBody(const std::string bodyContent);
@@ -50,6 +56,9 @@ class	HttpResponse
 		std::string							_getStatusLine() const;
 		std::string							_getHeadersString() const;
 		std::string							_getResponseLine() const;
+
+		static const std::map<int, std::string>&	_getStatusMessages();
+		static HttpResponse							_errorResponse(int code);
 };
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/12 19:20:58 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/14 15:39:21 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,7 @@ std::string	HttpRequest::getBody() const
 	return (_body);
 }
 
+// TODO: check for necessary initialization
 bool HttpRequest::isConnectionClose() const
 {
 	std::map<std::string, std::string>::const_iterator it = _headers.find("Connection");
@@ -80,19 +81,42 @@ std::string HttpRequest::_dataToBody(std::istringstream& iss)
 		return ("");
 	return (drafts);
 }
+
+////////////////////////////////////////////////////////////////////////////////
+/// The current parse logic for my request is to first split the syntax into
+/// request, header, and body lines, and then parse the split syntax separately.
+/// I've separated the 'split' and 'parse' parts so that one function does one job. 
+
+
+/// @brief This function parses the request data and extracts
+///			the method, path, version, headers, and body.
+/// @param requestData The request data to be parsed. 
+/// @return bool
+bool HttpRequest::parse(const std::string& requestData)
+{
+	t_read_request separatedData = _splitRequestData(requestData);
+	if (!separatedData.iscomplete)
+		return (false);
+	if (!_parseRequestLine(separatedData.request))
+		return (false);
+	if (!_parseHeaders(separatedData.headers))
+		return (false);
+	if (_method == "POST" && !_parseBody(separatedData.body))
+		return (false);
+	return (true);
+}
+
+
 /// @brief Separate the request data into request line, headers, and body.
 /// @param requestData The request data to be separated.
 /// @return A struct containing the separated request data.
-t_read_request HttpRequest::_separateRequestData(const std::string& requestData)
+t_read_request HttpRequest::_splitRequestData(const std::string& requestData)
 {
 	t_read_request		data;
 	std::istringstream	iss(requestData);
 	std::string			readline;
 	std::string			drafts;
-
-	data.iscomplete = false;
-
-	if (requestData.empty())
+		if (requestData.empty())
 		return (data);
 	if (!std::getline(iss, readline))
 		return (data);
@@ -103,24 +127,6 @@ t_read_request HttpRequest::_separateRequestData(const std::string& requestData)
 	data.body = _dataToBody(iss);
 	data.iscomplete = true;
 	return (data);
-}
-
-/// @brief This function parses the request data and extracts
-///			the method, path, version, headers, and body.
-/// @param requestData The request data to be parsed. 
-/// @return bool
-bool HttpRequest::parse(const std::string& requestData)
-{
-	t_read_request separatedData = _separateRequestData(requestData);
-	if (!separatedData.iscomplete)
-		return (false);
-	if (!_parseRequestLine(separatedData.request))
-		return (false);
-	if (!_parseHeaders(separatedData.headers))
-		return (false);
-	if (_method == "POST" && !_parseBody(separatedData.body))
-		return (false);
-	return (true);
 }
 
 /// @brief Parses the request line and extracts the method, path, and version.

@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/12 19:24:36 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/14 16:44:21 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,10 @@
 # include "HttpRequest.hpp"
 # include "HttpResponse.hpp"
 
-# define FOLDER_PATH	"./www/static"
+// FIXME: Delete when correct logic is applied in the future
+# define LOCATION_FIXME	"./www/static"
+# define LOOT_DIR		"./www/static"
+
 class	StaticFileHandler
 {
 	public:
@@ -28,11 +31,14 @@ class	StaticFileHandler
 		HttpResponse	handleRequest(const HttpRequest request);
 
 	private:
-		static std::map<std::string, std::string>	_mimeTypes;
+		static std::map<std::string, std::string>	_staticMimeTypes;
 
-		std::string		getMimeType(const std::string path) const;
-		bool			fileExists(const std::string path) const;
-		static void		initializeMimeTypes();
+		std::string		_getMimeType(const std::string path) const;
+		bool			_fileExists(const std::string path) const;
+		static void		_staticInitializeMimeTypes();
+		HttpResponse	_handleRoot();
+		std::string		_getFilePath(const std::string& uri) const;
+		HttpResponse	_handleFileNotFound();
 };
 
 #endif
