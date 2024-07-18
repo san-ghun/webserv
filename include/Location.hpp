@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/02 22:02:42 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/17 15:37:51 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ class	Server;
 class	Location
 {
 	public:
+		Location();
 		Location(Server* server, std::string path);
 		~Location();
 
