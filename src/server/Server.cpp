@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:46 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/14 21:52:18 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/16 22:31:24 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,17 +77,17 @@ static std::string handle_request(const std::string& request)
 // ----------------------------------------------------
 
 // TODO: Implement Config
-// Server::Server(Config config)
-// 	: _serverPort(std::to_string(config.getPort()))
-// 	, _maxBodySize(0)
-// {}
-
-Server::Server(int port)
-	: _serverPort(std::string("8080"))
+Server::Server(Config& config)
+	: _serverPort(config.getPort())
 	, _maxBodySize(1024)
 {
-	(void)port;
+	// TODO: Apply Config
 }
+
+Server::Server(int port)
+	: _serverPort(port)
+	, _maxBodySize(1024)
+{}
 
 Server::~Server()
 {
@@ -127,8 +127,8 @@ void	Server::start()
 {
 	try {
 		// TODO: Implement and replace stoi() function
-		// _listenSocket.bind(stoi(_serverPort));
-		_listenSocket.bind(8080);
+		_listenSocket.bind(_serverPort);
+		// _listenSocket.bind(8080);
 		_listenSocket.listen();
 		_listenSocket.set_nonblocking();
 		_pollfds.push_back((struct pollfd){_listenSocket.getFd(), POLLIN, 0});
@@ -298,10 +298,10 @@ std::string	Server::getServerHost() const
 	return (_serverHost);
 }
 
-std::string	Server::getServerPort() const
-{
-	return (_serverPort);
-}
+// std::string	Server::getServerPort() const
+// {
+// 	return (std::to_string_serverPort));
+// }
 
 size_t	Server::getMaxBodySize() const
 {
@@ -357,7 +357,7 @@ void	Server::setServerHost(std::string serverHost)
 	_serverHost = serverHost;
 }
 
-void	Server::setServerPort(std::string serverPort)
+void	Server::setServerPort(int serverPort)
 {
 	_serverPort = serverPort;
 }

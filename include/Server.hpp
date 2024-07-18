@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
+/*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:46 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/12 15:16:05 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/16 22:22:08 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,13 +15,13 @@
 
 // # include "webserv.hpp"
 # include <vector>
-// # include "Config.hpp"
+# include "Config.hpp"
 # include "Location.hpp"
 # include "Socket.hpp"
 # include "Poller.hpp"
 # include "RequestHandler.hpp"
 
-// class	Config;
+class	Config;
 class	Location;
 class	Socket;
 class	Poller;
@@ -30,7 +30,7 @@ class	Poller;
 class	Server
 {
 	public:
-		// Server(Config config);
+		Server(Config& config);
 		Server(int port);
 		~Server();
 
@@ -55,7 +55,7 @@ class	Server
 		// Setters
 		void								setServerNames(std::vector<std::string> serverNames);
 		void								setServerHost(std::string serverHost);
-		void								setServerPort(std::string serverPort);
+		void								setServerPort(int serverPort);
 		void								setMaxBodySize(size_t maxBodySize);
 		// void								setMaxConnection(size_t maxConnection);
 		// void								setMaxHeader(size_t maxHeader);
@@ -83,7 +83,7 @@ class	Server
 
 		std::vector<std::string>			_serverNames;
 		std::string							_serverHost;
-		std::string							_serverPort;
+		int									_serverPort;
 		size_t								_maxBodySize;
 		// size_t								_maxConnection;
 		// size_t								_maxHeader;
