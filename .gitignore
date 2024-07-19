@@ -124,4 +124,11 @@ Temporary Items
 
 # End of https://www.toptal.com/developers/gitignore/api/linux,macos,c++,c
 
+### binary executable
 webserv
+
+### vscode extension, dev container 
+.devcontainer
+
+### github dependabot.yml
+.github/dependabot.yml

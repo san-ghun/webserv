@@ -3,15 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
+/*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/22 21:05:14 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/12 15:06:39 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/16 22:22:12 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserv.hpp"
-// #include "util/Config.hpp"
+#include "Config.hpp"
 // #include "util/Logger.hpp"
 #include "Server.hpp"
 
@@ -50,15 +50,15 @@ int main(int argc, char *argv[])
 	// Set the signal handler for SIGINT signal
 	signal(SIGINT, ft_sigint_handler);
 
-	(void)argv;
 	// try-catch block for error handling
 	// Create a Config object with the provided configuration file
-	// Config config(argv[1]);
+	Config& config = Config::getInstance();
+	config.load(argv[1]);
 	// Create a Logger object with the Config object
 	// Logger logger(config);
 	// Create a Server object with the Config object
-	// Server server(config);
-	Server server(8080);
+	Server server(config);
+	// Server server(8080);
 	// Start the server
 	server.start();
 

@@ -7,13 +7,15 @@ CFLAGS = -Wall -Wextra -Werror -std=c++98
 RM = rm -f
 
 SRC_NAME = ./src/main.cpp \
-		./src/server/Server.cpp \
 		./src/network/Poller.cpp \
 		./src/network/Socket.cpp \
+		./src/server/Server.cpp \
 		./src/server/RequestHandler.cpp \
 		./src/server/HttpRequest.cpp \
 		./src/server/HttpResponse.cpp \
-		./src/server/StaticFileHandler.cpp
+		./src/server/StaticFileHandler.cpp \
+		./src/util/Config.cpp \
+		./src/util/Location.cpp
 
 # SRC_NAME = $(shell find ./src -iname "*.cpp")
 OBJ_NAME = $(SRC_NAME:.cpp=.o)
@@ -48,7 +50,7 @@ re: fclean all
 
 dev:
 	@echo "$(YELLOW)Building $@...$(RESET)"
-	@$(CC) $(CFLAGS) -g3 -o $(NAME) $(SRC_NAME) $(HEADERS)
+	$(CC) $(CFLAGS) -g3 -o $(NAME) $(SRC_NAME) $(HEADERS)
 	@echo "$(GREEN)Done.$(RESET)"
 
 $(NAME): $(OBJ_NAME)
