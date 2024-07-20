@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/17 15:36:40 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/20 22:49:40 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ class	Config
 		std::map<std::string, std::string>	getMimeTypeMap() const;
 		std::map<int, std::string>			getErrorPageMap() const;
 		std::map<std::string, std::string>	getServerSettingMap() const;
-		std::map<std::string, Location>		getLocationMap() const;
+		std::map<std::string, Location*>	getLocationMap() const;
 		std::map<std::string, std::string>	getConfigMap() const;
 
 		void			setLocation(const std::string key);
@@ -59,7 +59,7 @@ class	Config
 		std::map<std::string, std::string>	_mimeTypeMap;
 		std::map<int, std::string>			_errorPageMap;
 		std::map<std::string, std::string>	_serverSettingMap;
-		std::map<std::string, Location>		_locationMap;
+		std::map<std::string, Location*>	_locationMap;
 		std::map<std::string, std::string>	_configMap;
 
 		int				_port;

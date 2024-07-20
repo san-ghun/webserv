@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/18 18:40:17 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/20 22:38:18 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,13 @@ Config::Config()
 Config::~Config()
 {
 	// TODO: Destruct at here if necessary
+	for (std::map<std::string, Location*>::iterator it = _locationMap.begin(); it != _locationMap.end(); it++)
+	{
+		std::cout << "Delete Location: " << it->first << std::endl;
+		delete it->second;
+		
+	}
+
 }
 
 /// Returns the single instance of the Config class.
@@ -127,8 +134,8 @@ void	Config::_parseBlock(std::istream& stream, const std::string& blockName)
 			}
 			else if (blockName.rfind("location", 0) == 0)
 			{
-				std::cout << "Encountered location block: " << line << std::endl;
-				// TODO: Parse location block
+				std::cout << "Noticing location block: " << blockName << "\n";
+				// std::cout << "\twith " << line << std::endl;
 			}
 		}
 	}
@@ -163,6 +170,61 @@ void	Config::load(const std::string& filename)
 {
 	_parseConfigFile(filename);
 	_setHostPort();
+
+	// Temporary: Set sample Location objects
+	Location* sampleLocation_1 = new Location("/");
+	sampleLocation_1->_server = NULL;
+	sampleLocation_1->_rootPath = this->get("root") + "/static";
+	sampleLocation_1->_uploadPath = this->get("upload_dir");
+	sampleLocation_1->_index = this->get("default_file");
+	sampleLocation_1->_allowedMethods = std::vector<std::string>();
+	sampleLocation_1->_allowedMethods.push_back("GET");
+	sampleLocation_1->_allowedMethods.push_back("POST");
+	sampleLocation_1->_isRedirect = false;
+	sampleLocation_1->_redirectPath = "";
+	sampleLocation_1->_redirectCode = "";
+	
+	Location* sampleLocation_2 = new Location("/fruits/");
+	sampleLocation_2->_server = NULL;
+	sampleLocation_2->_rootPath = this->get("root") + "/static";
+	sampleLocation_2->_uploadPath = this->get("upload_dir");
+	sampleLocation_2->_index = this->get("default_file");
+	sampleLocation_2->_allowedMethods = std::vector<std::string>();
+	sampleLocation_2->_allowedMethods.push_back("GET");
+	sampleLocation_2->_allowedMethods.push_back("POST");
+	sampleLocation_2->_allowedMethods.push_back("DELETE");
+	sampleLocation_2->_isRedirect = false;
+	sampleLocation_2->_redirectPath = "";
+	sampleLocation_2->_redirectCode = "";
+	
+	Location* sampleLocation_3 = new Location("/obst/");
+	sampleLocation_3->_server = NULL;
+	sampleLocation_3->_rootPath = this->get("root");
+	sampleLocation_3->_uploadPath = this->get("upload_dir");
+	sampleLocation_3->_index = this->get("default_file");
+	sampleLocation_3->_allowedMethods = std::vector<std::string>();
+	sampleLocation_3->_allowedMethods.push_back("GET");
+	sampleLocation_3->_isRedirect = true;
+	sampleLocation_3->_redirectPath = "/fruits/";
+	sampleLocation_3->_redirectCode = "307";
+
+	Location* sampleLocation_4 = new Location("/images/");
+	sampleLocation_4->_server = NULL;
+	sampleLocation_4->_rootPath = this->get("root") + "/data";
+	sampleLocation_4->_uploadPath = this->get("upload_dir");
+	sampleLocation_4->_index = this->get("default_file");
+	sampleLocation_4->_allowedMethods = std::vector<std::string>();
+	sampleLocation_4->_allowedMethods.push_back("GET");
+	sampleLocation_4->_allowedMethods.push_back("POST");
+	sampleLocation_4->_allowedMethods.push_back("DELETE");
+	sampleLocation_4->_isRedirect = false;
+	sampleLocation_4->_redirectPath = "";
+	sampleLocation_4->_redirectCode = "";
+
+	_locationMap["/"] = sampleLocation_1;
+	_locationMap["/fruits/"] = sampleLocation_2;
+	_locationMap["/obst/"] = sampleLocation_3;
+	_locationMap["/images/"] = sampleLocation_4;
 }
 
 void	Config::setLocation(const std::string key)
@@ -175,7 +237,7 @@ std::map<std::string, std::string>	Config::getConfigMap() const
 	return (_configMap);
 }
 
-std::map<std::string, Location>	Config::getLocationMap() const
+std::map<std::string, Location*>	Config::getLocationMap() const
 {
 	return (_locationMap);
 }
