@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/17 15:37:38 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/20 21:44:10 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,13 @@
 Location::Location()
 {}
 
-// Location::Location(Server* server, std::string path)
-// {}
+Location::Location(std::string path)
+	: _path(path)
+{}
+
+Location::Location(Server* server, std::string path)
+	: _server(server), _path(path)
+{}
 
 Location::~Location()
 {}
