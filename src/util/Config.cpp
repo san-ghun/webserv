@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/18 18:40:17 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/23 20:32:58 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,11 +20,20 @@
 Config::Config()
 {
 	// TODO: Set default value at here if necessary
+	_port = 80;
+	_host = "0.0.0.0";
 }
 
 Config::~Config()
 {
 	// TODO: Destruct at here if necessary
+	for (std::map<std::string, Location*>::iterator it = _locationMap.begin(); it != _locationMap.end(); it++)
+	{
+		std::cout << "Delete Location: " << it->first << std::endl;
+		delete it->second;
+		
+	}
+
 }
 
 /// Returns the single instance of the Config class.
@@ -88,12 +97,12 @@ void	Config::_parseBlock(std::istream& stream, const std::string& blockName)
 		line.erase(0, line.find_first_not_of(" \t"));
 		line.erase(line.find_last_not_of(" \t") + 1);
 
+		if (line.empty())
+			continue;
+
 		if (line[line.length() - 1] == '}')
 			return;
 
-		if (line.empty())
-			continue;
-		
 		if (line[line.length() - 1] == '{')
 		{
 			std::string nestedBlockName = line.substr(0, line.size() - 1);
@@ -127,8 +136,21 @@ void	Config::_parseBlock(std::istream& stream, const std::string& blockName)
 			}
 			else if (blockName.rfind("location", 0) == 0)
 			{
-				std::cout << "Encountered location block: " << line << std::endl;
-				// TODO: Parse location block
+				std::istringstream iss(blockName);
+				std::string block;
+				std::string path;
+				iss >> block >> path;
+
+				bool found = false;
+				Location* location = getLocation(path);
+				if (location == NULL)
+					location = new Location(path);
+				else
+					found = true;
+				setLocation(location, line);
+
+				if (found == false)
+					_locationMap[path] = location;
 			}
 		}
 	}
@@ -165,9 +187,48 @@ void	Config::load(const std::string& filename)
 	_setHostPort();
 }
 
-void	Config::setLocation(const std::string key)
+void	Config::setLocation(Location* location, std::string line)
 {
-	(void)key;
+	size_t delimPos = line.find_first_of("\t ");
+	std::string key = line.substr(0, delimPos);
+	std::string value = line.substr(delimPos + 1);
+
+	// Trim whitespace from key and value
+	key.erase(0, key.find_first_not_of(" \t"));
+	key.erase(key.find_last_not_of(" \t") + 1);
+	value.erase(0, value.find_first_not_of(" \t"));
+	value.erase(value.find_last_not_of(" \t") + 1);
+	value.erase(value.length() - 1);
+
+	if (key == "root")
+		location->setRootPath(this->get("root") + value);
+	else if (key == "lsdir")
+		location->setIsListdir(true);
+	else if (key == "upload_dir")
+		location->setUploadPath(this->get("upload_dir") + value);
+	else if (key == "default_file")
+		location->setIndex(value);
+	else if (key == "allowed_methods")
+	{
+		std::vector<std::string> methods;
+		std::string delimiter = " ";
+		size_t pos = 0;
+		std::string token;
+		while ((pos = value.find(delimiter)) != std::string::npos)
+		{
+			token = value.substr(0, pos);
+			token.erase(0, token.find_first_not_of(" \t"));
+			token.erase(token.find_last_not_of(" \t") + 1);
+			methods.push_back(token);
+			value.erase(0, pos + delimiter.length());
+		}
+		methods.push_back(value);
+		location->setAllowedMethods(methods);
+	}
+	else if (key == "redirection")
+		location->setRedirect(value);
+	else if (key == "cgi")
+		location->setCgi(value);
 }
 
 std::map<std::string, std::string>	Config::getConfigMap() const
@@ -175,7 +236,7 @@ std::map<std::string, std::string>	Config::getConfigMap() const
 	return (_configMap);
 }
 
-std::map<std::string, Location>	Config::getLocationMap() const
+std::map<std::string, Location*>	Config::getLocationMap() const
 {
 	return (_locationMap);
 }
@@ -230,4 +291,22 @@ std::string	Config::getServerHost() const
 int	Config::getPort() const
 {
 	return (_port);
+}
+
+std::string	Config::getErrorPage(const int code) const
+{
+	std::map<int, std::string>::const_iterator it;
+	it = _errorPageMap.find(code);
+	if (it == _errorPageMap.end())
+		return ("");
+	return (it->second);
+}
+
+Location*	Config::getLocation(const std::string key) const
+{
+	std::map<std::string, Location*>::const_iterator it;
+	it = _locationMap.find(key);
+	if (it == _locationMap.end())
+		return (NULL);
+	return (it->second);
 }

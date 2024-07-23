@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/22 21:05:14 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/16 22:22:12 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/22 23:45:33 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 #include "Config.hpp"
 // #include "util/Logger.hpp"
 #include "Server.hpp"
+
+volatile bool	g_sigint = false;
 
 /// @brief Handles the SIGINT signal by printing a message and exiting the program.
 /// @param sig the signal number
@@ -23,7 +25,8 @@ static void	ft_sigint_handler(int sig)
 {
 	(void)sig;
 	std::cout << "\rserver shutting down..." << std::endl;
-	exit(0);
+	g_sigint = true;
+	// exit(0);
 }
 
 /// @brief The main function of the program.

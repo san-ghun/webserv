@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/22 21:04:39 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/04 15:59:03 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/23 00:01:43 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,5 +56,7 @@
 #define PORT 8080   // TEST PURPOSE ONLY
 
 // Functions
+
+extern volatile bool g_sigint;
 
 #endif
