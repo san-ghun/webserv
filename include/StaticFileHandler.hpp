@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/23 23:17:49 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/24 00:35:43 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,8 +31,9 @@ class	StaticFileHandler
 	public:
 		StaticFileHandler();
 		~StaticFileHandler();
+		StaticFileHandler(const StaticFileHandler& other);
 		StaticFileHandler& operator=(const StaticFileHandler& other);
-
+		
 		HttpResponse	handleRequest(const HttpRequest& request, const Location& location);
 
 		std::string		getFullPath() const;
@@ -40,7 +41,7 @@ class	StaticFileHandler
 
 	private:
 		static std::map<std::string, std::string>	_staticMimeTypes;
-		std::string									_fullPath;
+		std::string									_handledPath;
 
 		static void		_staticInitMimeTypes();
 
@@ -55,10 +56,12 @@ class	StaticFileHandler
 		HttpResponse	_handleRoot(const Location& location);
 		HttpResponse	_handleNotFound();
 
-		std::string		_buildFullPath(const HttpRequest& request, const Location& location) const;
-		std::string		_buildFullPathWithRoot(const Location& location) const;
+		std::string		_buildPathWithUri(const HttpRequest& request, const Location& location) const;
+		std::string		_buildAbsolutePathWithRoot(const Location& location) const;
+		std::string		_buildAbsolutePathWithIndex(const Location& location) const;
 
-		void			_setFullPath(const std::string& fullPath);
+
+		void			_setHandledPath(const std::string& fullPath);
 };
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/24 00:10:08 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/24 01:20:36 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,16 @@ Location*	RequestHandler::_findLocation(const std::string& uri)
 	return (NULL);
 }
 
+// TODO: check logic ***
+std::string getParentPath(const std::string& path) {
+
+	ssize_t lastSlashPos = path.find_last_of('/');
+	if (lastSlashPos == 0)
+	    return "/";
+	return path.substr(0, lastSlashPos);
+}
+
+
 /// @brief Finds the longest location path that matches the request URI.
 ///
 /// This function extracts the path from the URI and searches for the most specific location
@@ -85,24 +95,41 @@ Location*	RequestHandler::_findLocation(const std::string& uri)
 std::string _getMatchedLocation(std::string path, const std::map<std::string, Location*>& locations)
 {
 	std::string	matched;
+	std::string parentPath;
+// TODO: check logic ***
 
-	while (!path.empty())
+	if (path.empty())
+		throw std::invalid_argument("Path cannot be empty");
+	if (path == "/") // if root
 	{
-		std::cout << "Checking path: " << path << std::endl;
 		std::map<std::string, Location*>::const_iterator it = locations.find(path);
 		if (it != locations.end())
-		{
-			std::cout << "Match found: " << it->first << std::endl;
-			matched = path;
-			break ;
-		}
-		 std::cout << "No match for: " << path << std::endl;
-		size_t	parentPath = path.find_last_of('/') + 1;
-		if (parentPath == std::string::npos)
-			break ;
-		path = path.substr(0, parentPath);
+        {
+            std::cout << "Match found: " << it->first << std::endl;
+            return (path);
+        }
+		throw std::invalid_argument("No match found for path: " + path);
 	}
+
+	ssize_t lastSlashPos = path.find_last_of('/');
+	path = path.substr(0, lastSlashPos + 1);
+    while (!path.empty())
+    {
+        std::cout << "Checking path: [" << path << "]" << std::endl;
+        std::map<std::string, Location*>::const_iterator it = locations.find(path);
+        if (it != locations.end())
+        {
+            std::cout << "Match found: " << it->first << std::endl;
+            matched = path;
+            break;
+        }
+        std::cout << "No match for: [" << path << "]" << std::endl;
+        path = getParentPath(path);
+        if (path == "/")
+			break;
+    }
 	return (matched);
+
 }
 
 /// @brief Extracts and normalizes the path from a given URI.

@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/24 00:09:18 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/24 01:14:50 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,14 +31,14 @@ StaticFileHandler::StaticFileHandler()
 
 StaticFileHandler::StaticFileHandler(const StaticFileHandler& other)
 {
-	_fullPath = other._fullPath;
+	_handledPath = other._handledPath;
 }
 
 StaticFileHandler& StaticFileHandler::operator=(const StaticFileHandler& other)
 {
 	if (this != &other)
 	{
-		_fullPath = other._fullPath;
+		_handledPath = other._handledPath;
 	}
 	return (*this);
 }
@@ -57,16 +57,14 @@ HttpResponse StaticFileHandler::handleRequest(const HttpRequest& request, const 
 {
 	if (request.getUri() == "/")
 		return (_handleRoot(location));
-	_setFullPath(_buildFullPath(request, location));
-	std::cout << "TEST | Full path: " << _fullPath << std::endl;
-	if (isDir(_fullPath))
+	_setHandledPath(_buildPathWithUri(request, location));
+	if (isDir(_handledPath))
 	{
 		// if (/* && location.location.isListDir() */)
 		// 	return (_handleDirListing(request, location));
 		return (_handleDirRequest(request, location));
 	}
-	// TODO: test "http://localhost:8080/fruits/index.html"
-	else if (isFile(_fullPath))
+	else if (isFile(_handledPath))
 		return (_handleFileRequest(request, location));
 	return (_handleNotFound());
 }
@@ -80,12 +78,22 @@ HttpResponse StaticFileHandler::handleRequest(const HttpRequest& request, const 
 HttpResponse StaticFileHandler::_handleDirRequest(const HttpRequest& request, const Location& location)
 {
 	HttpRequest	modifiedRequest = request;
+
+	std::string absolutePath = _buildAbsolutePathWithIndex(location);
+	_setHandledPath(absolutePath);
+
+	std::cout << "TEST |  absolute path that with index is built: " << _handledPath << std::endl;
+	
+	modifiedRequest.setUri(getFullPath());
+	return (_handleFileRequest(modifiedRequest, location));
+}
+
+std::string StaticFileHandler::_buildAbsolutePathWithIndex(const Location& location) const
+{
 	std::string index = INDEX_HTML;
 	if (!location.getIndex().empty())
 		index = location.getIndex();
-	_setFullPath(_fullPath + index);
-	modifiedRequest.setUri(getFullPath());
-	return (_handleFileRequest(modifiedRequest, location));
+	return (_handledPath + index);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -165,9 +173,8 @@ HttpResponse StaticFileHandler::_handleFileRequest(const HttpRequest& request, c
 
 HttpResponse StaticFileHandler::_createResponseForFile() const
 {
-	std::cout << "TEST | Creating response for _fullPath: " << _fullPath << std::endl;
-	HttpResponse resp(_fullPath);
-	resp.setHeader("Content-Type", resolveMimeType(_fullPath));
+	HttpResponse resp(_handledPath);
+	resp.setHeader("Content-Type", resolveMimeType(_handledPath));
 	return (resp);
 }
 
@@ -177,14 +184,14 @@ HttpResponse StaticFileHandler::_createResponseForFile() const
 /// It builds the full path of the default file and checks if the file exists.
 HttpResponse StaticFileHandler::_handleRoot(const Location& location)
 {
-	_setFullPath(_buildFullPathWithRoot(location));
-	if (!isFile(_fullPath))
+	_setHandledPath(_buildAbsolutePathWithRoot(location));
+	if (!isFile(_handledPath))
 		return (_handleNotFound());
 	return (_createResponseForFile());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-std::string StaticFileHandler::_buildFullPathWithRoot(const Location& location) const
+std::string StaticFileHandler::_buildAbsolutePathWithRoot(const Location& location) const
 {
 	std::string	root		= location.getRootPath();
 	std::string	defaultFile = location.getIndex();
@@ -195,16 +202,20 @@ std::string StaticFileHandler::_buildFullPathWithRoot(const Location& location) 
 	if (defaultFile.empty()) // if can not read from cong, give default value: hard code
 		defaultFile = INDEX_HTML;
 	fullPath = "." + root + "/" + defaultFile;
+	std::cout << "TEST | absolute path that with index is built: " << _handledPath << std::endl;
 	return (fullPath);
 }
 
-std::string StaticFileHandler::_buildFullPath(const HttpRequest& request, const Location& location) const
+std::string StaticFileHandler::_buildPathWithUri(const HttpRequest& request, const Location& location) const
 {
 	std::string	root = location.getRootPath();
 	std::string fullPath;
 	if (root.empty())
 		throw std::runtime_error("Root path is empty");
 	fullPath = "." + root + request.getUri();
+
+	std::cout << "TEST | first path that is built: " << _handledPath << std::endl;
+
 	return(fullPath);
 }
 
@@ -233,9 +244,9 @@ std::string StaticFileHandler::resolveMimeType(const std::string path) const
 ////////////////////////////////////////////////////////////////////////////////
 /// Setters
 
-void	StaticFileHandler::_setFullPath(const std::string& fullPath)
+void	StaticFileHandler::_setHandledPath(const std::string& fullPath)
 {
-	_fullPath = fullPath;
+	_handledPath = fullPath;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -243,7 +254,7 @@ void	StaticFileHandler::_setFullPath(const std::string& fullPath)
 
 std::string	StaticFileHandler::getFullPath() const
 {
-	return (_fullPath);
+	return (_handledPath);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
