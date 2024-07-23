@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/14 15:39:21 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/23 22:24:34 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,46 +21,54 @@ HttpRequest::~HttpRequest()
 {}
 
 ////////////////////////////////////////////////////////////////////////////////
+/// The current parse logic for my request is to first split the syntax into
+/// request, header, and body lines, and then parse the split syntax separately.
+/// I've separated the 'split' and 'parse' parts so that one function does one job. 
 
-std::string	HttpRequest::getMethod() const
-{
-	return (_method);
-}
 
-std::string	HttpRequest::getUri() const
+/// @brief This function parses the request data and extracts
+///			the method, path, version, headers, and body.
+/// @param requestData The request data to be parsed. 
+/// @return bool
+bool HttpRequest::parse(const std::string& requestData)
 {
-	return (_uri);
-}
-
-std::string	HttpRequest::getVersion() const
-{
-	return (_version);
-}
-
-std::map<std::string, std::string>	HttpRequest::getHeaders() const
-{
-	return (_headers);
-}
-
-std::string	HttpRequest::getBody() const
-{
-	if (_body.empty())
-		return ("");	
-	return (_body);
-}
-
-// TODO: check for necessary initialization
-bool HttpRequest::isConnectionClose() const
-{
-	std::map<std::string, std::string>::const_iterator it = _headers.find("Connection");
-	if (it != _headers.end() && it->second == "close")
-		return (true);
-	return (false);
+	t_readed_parts separatedData = _splitRequestData(requestData);
+	if (!separatedData.iscomplete)
+		return (false);
+	if (!_parseRequestLine(separatedData.request))
+		return (false);
+	if (!_parseHeaders(separatedData.headers))
+		return (false);
+	if (_method == "POST" && !_parseBody(separatedData.body))
+		return (false);
+	return (true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+/// @brief Separate the request data into request line, headers, and body.
+/// @param requestData The request data to be separated.
+/// @return A struct containing the separated request data.
+t_readed_parts HttpRequest::_splitRequestData(const std::string& requestData)
+{
+	t_readed_parts		data;
+	std::istringstream	iss(requestData);
+	std::string			readline;
+	std::string			drafts;
 
-std::vector<std	::string> HttpRequest::_dataToHeaders(std::istringstream& iss)
+		if (requestData.empty())
+		return (data);
+	if (!std::getline(iss, readline))
+		return (data);
+	data.request = readline;
+	data.headers = _convertPartToHeaders(iss);
+	if (data.headers.empty())
+		return (data);
+	data.body = _convertPartToBody(iss);
+	data.iscomplete = true;
+	return (data);
+}
+
+std::vector<std	::string> HttpRequest::_convertPartToHeaders(std::istringstream& iss)
 {
 	std::string					readline;
 	std::vector<std	::string>	res;
@@ -70,7 +78,7 @@ std::vector<std	::string> HttpRequest::_dataToHeaders(std::istringstream& iss)
 	return (res);
 }
 
-std::string HttpRequest::_dataToBody(std::istringstream& iss)
+std::string HttpRequest::_convertPartToBody(std::istringstream& iss)
 {
 	std::string			readline;
 	std::string			drafts;
@@ -83,52 +91,6 @@ std::string HttpRequest::_dataToBody(std::istringstream& iss)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// The current parse logic for my request is to first split the syntax into
-/// request, header, and body lines, and then parse the split syntax separately.
-/// I've separated the 'split' and 'parse' parts so that one function does one job. 
-
-
-/// @brief This function parses the request data and extracts
-///			the method, path, version, headers, and body.
-/// @param requestData The request data to be parsed. 
-/// @return bool
-bool HttpRequest::parse(const std::string& requestData)
-{
-	t_read_request separatedData = _splitRequestData(requestData);
-	if (!separatedData.iscomplete)
-		return (false);
-	if (!_parseRequestLine(separatedData.request))
-		return (false);
-	if (!_parseHeaders(separatedData.headers))
-		return (false);
-	if (_method == "POST" && !_parseBody(separatedData.body))
-		return (false);
-	return (true);
-}
-
-
-/// @brief Separate the request data into request line, headers, and body.
-/// @param requestData The request data to be separated.
-/// @return A struct containing the separated request data.
-t_read_request HttpRequest::_splitRequestData(const std::string& requestData)
-{
-	t_read_request		data;
-	std::istringstream	iss(requestData);
-	std::string			readline;
-	std::string			drafts;
-		if (requestData.empty())
-		return (data);
-	if (!std::getline(iss, readline))
-		return (data);
-	data.request = readline;
-	data.headers = _dataToHeaders(iss);
-	if (data.headers.empty())
-		return (data);
-	data.body = _dataToBody(iss);
-	data.iscomplete = true;
-	return (data);
-}
-
 /// @brief Parses the request line and extracts the method, path, and version.
 /// @param requestLine `_method` `_uri` `_version`, example: GET /path/resource HTTP/1.1
 /// @return bool
@@ -197,4 +159,52 @@ std::string HttpRequest::trim(const std::string& str)
 	if (last == std::string::npos)
 		return ("");
 	return (str.substr(first, last - first + 1));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+// TODO: check for necessary initialization
+bool HttpRequest::isConnectionClose() const
+{
+	std::map<std::string, std::string>::const_iterator it = _headers.find("Connection");
+	if (it != _headers.end() && it->second == "close")
+		return (true);
+	return (false);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// Getters
+
+std::string	HttpRequest::getMethod() const
+{
+	return (_method);
+}
+
+std::string	HttpRequest::getUri() const
+{
+	return (_uri);
+}
+
+std::string	HttpRequest::getVersion() const
+{
+	return (_version);
+}
+
+std::map<std::string, std::string>	HttpRequest::getHeaders() const
+{
+	return (_headers);
+}
+
+std::string	HttpRequest::getBody() const
+{
+	if (_body.empty())
+		return ("");	
+	return (_body);
+}
+////////////////////////////////////////////////////////////////////////////////
+/// Setters
+
+void	HttpRequest::setUri(std::string uri)
+{
+	_uri = uri;
 }
