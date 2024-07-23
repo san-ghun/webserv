@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/20 21:29:25 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/22 22:17:13 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ class	Location
 		Server*								getServer() const;
 		std::string							getPath() const;
 		std::string							getRootPath() const;
+		bool								isListdir() const;
 		std::string							getUploadPath() const;
 		std::string							getIndex() const;
 		std::vector<std::string>			getAllowedMethods() const;
@@ -38,8 +39,10 @@ class	Location
 		std::string							getRedirectCode() const;
 		std::map<std::string, std::string>	getCgi() const;
 		// Setters
+		void								setServer(Server* server);
 		void								setPath(std::string path);
 		void								setRootPath(std::string rootPath);
+		void								setIsListdir(bool isListdir);
 		void								setUploadPath(std::string uploadPath);
 		void								setIndex(std::string index);
 		void								setAllowedMethods(std::vector<std::string> allowedMethods);
@@ -49,6 +52,7 @@ class	Location
 		Server*								_server;
 		std::string							_path;
 		std::string							_rootPath;
+		bool								_isListdir;
 		std::string							_uploadPath;
 		std::string							_index;
 		std::vector<std::string>			_allowedMethods;
