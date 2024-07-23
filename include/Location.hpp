@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/22 22:17:13 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/23 20:40:03 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,7 @@ class	Location
 		void								setRedirect(std::string redirectPath);
 		void								setCgi(std::string cgi);
 
+	private:
 		Server*								_server;
 		std::string							_path;
 		std::string							_rootPath;
@@ -59,7 +60,6 @@ class	Location
 		std::string							_redirectPath;
 		bool								_isRedirect;
 		std::string							_redirectCode;
-	private:
 		std::map<std::string, std::string>	_cgi;
 };
 
