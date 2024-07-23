@@ -6,7 +6,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/webserv_test",
-            "args": ["abc"],
+            "args": ["webserv.conf"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

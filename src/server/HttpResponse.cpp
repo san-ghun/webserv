@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/23 22:24:38 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/24 00:08:51 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -234,15 +234,26 @@ t_page_detail	fetchPageData(int code)
 	std::map<int, t_page_detail>::iterator it = pageMap.find(code);
 	if (it == pageMap.end())
 	{
-		Config& config = Config::getInstance();
-		std::string	fullPath = getFullErrorPath(config.findErrorPagePath(code)); // FIXME: indErrorPagePath
-		pageMap[code] = {fullPath, isFile(fullPath)};
+		Config&		config = Config::getInstance();
+		std::string	fullPath = getFullErrorPath(config.getErrorPage(code));
+		pageMap[code] = buildOnePage(fullPath);
 	}
 	return (pageMap[code]);
 }
 
-std::string	getFullErrorPath(std::string path)
+t_page_detail	buildOnePage(const std::string& path)
 {
+	t_page_detail	page;
+	page.path = path;
+	page.isValid = isFile(path);
+	return (page);
+}
+
+
+std::string	getFullErrorPath(const std::string& path)
+{
+	if (path.empty())
+		return ("");
 	return (LOCATION_ROOT_PATH + path);
 }
 

@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/23 22:24:43 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/24 00:10:08 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ Location*	RequestHandler::_findLocation(const std::string& uri)
 	Config&								config = Config::getInstance();
 	std::map<std::string, Location*>	locations = config.getLocationMap();
 
-	std::string	matchedLocation = _getMatchedLocation(_extractPathFromUri(uri), locations);
+	std::string	matchedLocation = _getMatchedLocation(uri, locations);
 	if (!matchedLocation.empty())
 		return (locations.at(matchedLocation));
 	return (NULL);
@@ -88,13 +88,16 @@ std::string _getMatchedLocation(std::string path, const std::map<std::string, Lo
 
 	while (!path.empty())
 	{
+		std::cout << "Checking path: " << path << std::endl;
 		std::map<std::string, Location*>::const_iterator it = locations.find(path);
 		if (it != locations.end())
 		{
+			std::cout << "Match found: " << it->first << std::endl;
 			matched = path;
 			break ;
 		}
-		size_t	parentPath = path.find_last_of('/');
+		 std::cout << "No match for: " << path << std::endl;
+		size_t	parentPath = path.find_last_of('/') + 1;
 		if (parentPath == std::string::npos)
 			break ;
 		path = path.substr(0, parentPath);
@@ -111,7 +114,12 @@ std::string _getMatchedLocation(std::string path, const std::map<std::string, Lo
 std::string _extractPathFromUri(const std::string& uri)
 {
 	std::string path = uri;
-	if (!path.empty() && path[path.size() - 1] == '/')
+
+	if (path.empty())
+		throw std::invalid_argument("URI cannot be empty");
+	if (path == "/")
+		return (path);
+	if (path.size() > 1 && path[path.size() - 1] == '/')
 		path.erase(path.size() - 1);
 	return (path);
 }

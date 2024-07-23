@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/23 22:24:07 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/23 22:43:17 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,15 +23,16 @@
 class HttpRequest;
 class Config;
 
-std::string	getFullErrorPath(int pageCode);
-bool		isFile(const std::string path);
-bool		isDir(const std::string path);
-
 struct t_page_detail
 {
 	std::string		path;
 	bool 			isValid;
 };
+
+std::string		getFullErrorPath(const std::string& path);
+bool			isFile(const std::string path);
+bool			isDir(const std::string path);
+t_page_detail	buildOnePage(const std::string& path);
 
 
 class	HttpResponse

@@ -21,6 +21,8 @@
                 "${workspaceFolder}/src/server/HttpResponse.cpp",
                 "${workspaceFolder}/src/server/RequestHandler.cpp",
                 "${workspaceFolder}/src/server/StaticFileHandler.cpp",
+                "${workspaceFolder}/src/util/Location.cpp",
+                "${workspaceFolder}/src/util/Config.cpp",
                 "-o",
                 "${workspaceFolder}/webserv_test"
             ],
