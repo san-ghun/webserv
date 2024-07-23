@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/20 22:38:18 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/23 20:32:58 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,8 @@
 Config::Config()
 {
 	// TODO: Set default value at here if necessary
+	_port = 80;
+	_host = "0.0.0.0";
 }
 
 Config::~Config()
@@ -95,12 +97,12 @@ void	Config::_parseBlock(std::istream& stream, const std::string& blockName)
 		line.erase(0, line.find_first_not_of(" \t"));
 		line.erase(line.find_last_not_of(" \t") + 1);
 
+		if (line.empty())
+			continue;
+
 		if (line[line.length() - 1] == '}')
 			return;
 
-		if (line.empty())
-			continue;
-		
 		if (line[line.length() - 1] == '{')
 		{
 			std::string nestedBlockName = line.substr(0, line.size() - 1);
@@ -134,8 +136,21 @@ void	Config::_parseBlock(std::istream& stream, const std::string& blockName)
 			}
 			else if (blockName.rfind("location", 0) == 0)
 			{
-				std::cout << "Noticing location block: " << blockName << "\n";
-				// std::cout << "\twith " << line << std::endl;
+				std::istringstream iss(blockName);
+				std::string block;
+				std::string path;
+				iss >> block >> path;
+
+				bool found = false;
+				Location* location = getLocation(path);
+				if (location == NULL)
+					location = new Location(path);
+				else
+					found = true;
+				setLocation(location, line);
+
+				if (found == false)
+					_locationMap[path] = location;
 			}
 		}
 	}
@@ -170,66 +185,50 @@ void	Config::load(const std::string& filename)
 {
 	_parseConfigFile(filename);
 	_setHostPort();
-
-	// Temporary: Set sample Location objects
-	Location* sampleLocation_1 = new Location("/");
-	sampleLocation_1->_server = NULL;
-	sampleLocation_1->_rootPath = this->get("root") + "/static";
-	sampleLocation_1->_uploadPath = this->get("upload_dir");
-	sampleLocation_1->_index = this->get("default_file");
-	sampleLocation_1->_allowedMethods = std::vector<std::string>();
-	sampleLocation_1->_allowedMethods.push_back("GET");
-	sampleLocation_1->_allowedMethods.push_back("POST");
-	sampleLocation_1->_isRedirect = false;
-	sampleLocation_1->_redirectPath = "";
-	sampleLocation_1->_redirectCode = "";
-	
-	Location* sampleLocation_2 = new Location("/fruits/");
-	sampleLocation_2->_server = NULL;
-	sampleLocation_2->_rootPath = this->get("root") + "/static";
-	sampleLocation_2->_uploadPath = this->get("upload_dir");
-	sampleLocation_2->_index = this->get("default_file");
-	sampleLocation_2->_allowedMethods = std::vector<std::string>();
-	sampleLocation_2->_allowedMethods.push_back("GET");
-	sampleLocation_2->_allowedMethods.push_back("POST");
-	sampleLocation_2->_allowedMethods.push_back("DELETE");
-	sampleLocation_2->_isRedirect = false;
-	sampleLocation_2->_redirectPath = "";
-	sampleLocation_2->_redirectCode = "";
-	
-	Location* sampleLocation_3 = new Location("/obst/");
-	sampleLocation_3->_server = NULL;
-	sampleLocation_3->_rootPath = this->get("root");
-	sampleLocation_3->_uploadPath = this->get("upload_dir");
-	sampleLocation_3->_index = this->get("default_file");
-	sampleLocation_3->_allowedMethods = std::vector<std::string>();
-	sampleLocation_3->_allowedMethods.push_back("GET");
-	sampleLocation_3->_isRedirect = true;
-	sampleLocation_3->_redirectPath = "/fruits/";
-	sampleLocation_3->_redirectCode = "307";
-
-	Location* sampleLocation_4 = new Location("/images/");
-	sampleLocation_4->_server = NULL;
-	sampleLocation_4->_rootPath = this->get("root") + "/data";
-	sampleLocation_4->_uploadPath = this->get("upload_dir");
-	sampleLocation_4->_index = this->get("default_file");
-	sampleLocation_4->_allowedMethods = std::vector<std::string>();
-	sampleLocation_4->_allowedMethods.push_back("GET");
-	sampleLocation_4->_allowedMethods.push_back("POST");
-	sampleLocation_4->_allowedMethods.push_back("DELETE");
-	sampleLocation_4->_isRedirect = false;
-	sampleLocation_4->_redirectPath = "";
-	sampleLocation_4->_redirectCode = "";
-
-	_locationMap["/"] = sampleLocation_1;
-	_locationMap["/fruits/"] = sampleLocation_2;
-	_locationMap["/obst/"] = sampleLocation_3;
-	_locationMap["/images/"] = sampleLocation_4;
 }
 
-void	Config::setLocation(const std::string key)
+void	Config::setLocation(Location* location, std::string line)
 {
-	(void)key;
+	size_t delimPos = line.find_first_of("\t ");
+	std::string key = line.substr(0, delimPos);
+	std::string value = line.substr(delimPos + 1);
+
+	// Trim whitespace from key and value
+	key.erase(0, key.find_first_not_of(" \t"));
+	key.erase(key.find_last_not_of(" \t") + 1);
+	value.erase(0, value.find_first_not_of(" \t"));
+	value.erase(value.find_last_not_of(" \t") + 1);
+	value.erase(value.length() - 1);
+
+	if (key == "root")
+		location->setRootPath(this->get("root") + value);
+	else if (key == "lsdir")
+		location->setIsListdir(true);
+	else if (key == "upload_dir")
+		location->setUploadPath(this->get("upload_dir") + value);
+	else if (key == "default_file")
+		location->setIndex(value);
+	else if (key == "allowed_methods")
+	{
+		std::vector<std::string> methods;
+		std::string delimiter = " ";
+		size_t pos = 0;
+		std::string token;
+		while ((pos = value.find(delimiter)) != std::string::npos)
+		{
+			token = value.substr(0, pos);
+			token.erase(0, token.find_first_not_of(" \t"));
+			token.erase(token.find_last_not_of(" \t") + 1);
+			methods.push_back(token);
+			value.erase(0, pos + delimiter.length());
+		}
+		methods.push_back(value);
+		location->setAllowedMethods(methods);
+	}
+	else if (key == "redirection")
+		location->setRedirect(value);
+	else if (key == "cgi")
+		location->setCgi(value);
 }
 
 std::map<std::string, std::string>	Config::getConfigMap() const
@@ -292,4 +291,22 @@ std::string	Config::getServerHost() const
 int	Config::getPort() const
 {
 	return (_port);
+}
+
+std::string	Config::getErrorPage(const int code) const
+{
+	std::map<int, std::string>::const_iterator it;
+	it = _errorPageMap.find(code);
+	if (it == _errorPageMap.end())
+		return ("");
+	return (it->second);
+}
+
+Location*	Config::getLocation(const std::string key) const
+{
+	std::map<std::string, Location*>::const_iterator it;
+	it = _locationMap.find(key);
+	if (it == _locationMap.end())
+		return (NULL);
+	return (it->second);
 }
