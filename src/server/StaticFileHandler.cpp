@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/24 01:14:50 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/25 12:19:31 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,9 +62,9 @@ HttpResponse StaticFileHandler::handleRequest(const HttpRequest& request, const 
 	{
 		// if (/* && location.location.isListDir() */)
 		// 	return (_handleDirListing(request, location));
-		return (_handleDirRequest(request, location));
+	                                                                                                                                                                                                                                                                                      	return (_handleDirRequest(request, location));
 	}
-	else if (isFile(_handledPath))
+	if (isFile(_handledPath))
 		return (_handleFileRequest(request, location));
 	return (_handleNotFound());
 }
@@ -83,7 +83,8 @@ HttpResponse StaticFileHandler::_handleDirRequest(const HttpRequest& request, co
 	_setHandledPath(absolutePath);
 
 	std::cout << "TEST |  absolute path that with index is built: " << _handledPath << std::endl;
-	
+	if (isFile(_handledPath))
+		return (_handleNotFound());
 	modifiedRequest.setUri(getFullPath());
 	return (_handleFileRequest(modifiedRequest, location));
 }

@@ -6,12 +6,19 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/24 00:08:51 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/25 15:40:55 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserv.hpp"
 #include "HttpResponse.hpp"
+
+////////////////////////////////////////////////////////////////////////////////
+/// Your HTTP response status codes must be accurate.
+/// You server must have default error pages if none are provided.
+/// Limit client body size.
+////////////////////////////////////////////////////////////////////////////////
+
 
 /// @brief Default constructor for the HttpResponse class.
 /// Initializes the status code to 200 and the status message to "OK".
