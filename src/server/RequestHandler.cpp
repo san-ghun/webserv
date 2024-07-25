@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/24 01:20:36 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/25 16:52:51 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,9 @@ RequestHandler::~RequestHandler()
 {}
 
 ////////////////////////////////////////////////////////////////////////////////
+/// Public Methods
+////////////////////////////////////////////////////////////////////////////////
+
 /// @brief Processes the incoming HTTP request and returns an appropriate response.
 ///
 /// This function handles an incoming HTTP request by first logging the request details. It then
@@ -53,6 +56,9 @@ HttpResponse	RequestHandler::handleRequest(const HttpRequest& request)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+/// Private Methods
+////////////////////////////////////////////////////////////////////////////////
+
 /// @brief Finds the `Location` object that matches the request URI.
 ///
 /// This function extracts the path from the given URI and searches for the most specific
@@ -96,7 +102,7 @@ std::string _getMatchedLocation(std::string path, const std::map<std::string, Lo
 {
 	std::string	matched;
 	std::string parentPath;
-// TODO: check logic ***
+// TODO: 1. check logic *** 2. clean up 3. modularize
 
 	if (path.empty())
 		throw std::invalid_argument("Path cannot be empty");

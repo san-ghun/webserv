@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/25 15:40:55 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/25 16:50:17 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,7 @@ HttpResponse::~HttpResponse()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
 std::string	HttpResponse::toString() const
 {
 	return (getResponseLine() + _getHeadersString() + "\r\n\r\n" + _body);
@@ -90,12 +91,11 @@ void	HttpResponse::setDefaultHeaders()
 /// @brief Basic implementation of setting the default headers for an HttpResponse object.
 void	HttpResponse::_setDefaultHeadersImpl()
 {
-	std::string	bodyLength = getcontentLength(this->getBody());
-	if (bodyLength.empty())
+	if (_bodyLength <= 0)
 		*this = HttpResponse::internalServerError_500();
-	this->setHeader("Content-Length", bodyLength);
-	this->setHeader("Content-Type", "text/html");
-	this->setHeader("Connection", "close");
+	setHeader("Content-Length", toString(_bodyLength));
+	setHeader("Content-Type", "text/html");
+	setHeader("Connection", "close");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -105,44 +105,50 @@ void	HttpResponse::_setDefaultHeadersImpl()
 /// @warning If the file cannot be opened, the response point a 404 error().
 void	HttpResponse::initializefromFile(const std::string& filePath)
 {
-	std::string body = _fileToString(filePath);
-	std::string bodyLength = getcontentLength(body);
-
-	if (body.empty() || bodyLength.empty())
+	_fileToBody(filePath);
+	if (_body.empty() || _bodyLength <= 0)
 		return ;
-	setBody(body);
-	setDefaultHeaders();
+	if (_statusCode == 200)
+		setDefaultHeaders();
 }
-
+	
 /// @brief Reads the contents of a file into a string.
 /// If the file cannot be opened, the response point a 404 error().
 /// If the file is empty, the response point a 500 error().
 /// @param filePath The path to the file to be read.
 /// @return Return the file content as a string.
 /// If there is any error, return an empty string.
-std::string HttpResponse::_fileToString(const std::string& filePath)
+void	HttpResponse::_fileToBody(const std::string& filePath)
 {
+	Config&	config = Config::getInstance();
 	std::ifstream	file(filePath.c_str(), std::ios::binary | std::ios::ate);
 	std::string		body;
+	std::streamsize fileLength;
+
 	if (!file.is_open())
 	{
 		*this = notFound_404();
-		return ("");
+		return ;
 	}
-	std::streamsize fileLength = file.tellg();
+	fileLength = file.tellg();
 	if (fileLength <= 0)
 	{
 		*this = internalServerError_500();
-		return ("");
+		return ;
 	}
 	file.seekg(0, std::ios::beg);
+	if (fileLength > config.getInt("max_body_size"))
+	{
+		*this = requestEntityTooLarge_413();
+		return ;
+	}
 	body.resize(fileLength);
 	if (!file.read(&body[0], fileLength))
 	{
 		*this = internalServerError_500();
-		return ("");
+		return ;
 	}
-	return (body);
+	setBody(body);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -217,7 +223,7 @@ void	HttpResponse::setStatusCode(int code)
 	if (it != statusMap.end())
 		_statusMessage = it->second;
 	else
-		throw std::runtime_error("Unknown status code");
+		throw std::runtime_error("Unknown status code :" + toString(getStatusCode()));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -243,12 +249,12 @@ t_page_detail	fetchPageData(int code)
 	{
 		Config&		config = Config::getInstance();
 		std::string	fullPath = getFullErrorPath(config.getErrorPage(code));
-		pageMap[code] = buildOnePage(fullPath);
+		pageMap[code] = constructPageDetail(fullPath);
 	}
 	return (pageMap[code]);
 }
 
-t_page_detail	buildOnePage(const std::string& path)
+t_page_detail	constructPageDetail(const std::string& path)
 {
 	t_page_detail	page;
 	page.path = path;
@@ -266,6 +272,7 @@ std::string	getFullErrorPath(const std::string& path)
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Static functions: Helper functions to create common HTTP responses.
+////////////////////////////////////////////////////////////////////////////////
 
 /// @brief Creates an HTTP response object for a specified error code.
 ///
@@ -307,12 +314,12 @@ HttpResponse	HttpResponse::_createSimpleHttpResponse(int code)
 /// @return Return the generated HTML body as a string.
 std::string	HttpResponse::_generateHtmlBody()
 {
-	if (getStatusCode().empty() || getStatusMessage().empty())
+	if (toString(getStatusCode()).empty() || getStatusMessage().empty())
 		return ("");
 	std::string body = 
 		"<html>"
 		"<body>"
-		"<h1>" + getStatusCode() + " " + getStatusMessage() + "</h1>"
+		"<h1>" + toString(getStatusCode()) + " " + getStatusMessage() + "</h1>"
 		"</body>"
 		"</html>";
 	return (body);
@@ -320,6 +327,8 @@ std::string	HttpResponse::_generateHtmlBody()
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Static functions: Common HTTP responses.
+////////////////////////////////////////////////////////////////////////////////
+
 HttpResponse	HttpResponse::badRequest_400()
 {
 	return (_createErrorResponse(400));
@@ -379,6 +388,7 @@ HttpResponse	HttpResponse::success_200()
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Setters
+////////////////////////////////////////////////////////////////////////////////
 
 void	HttpResponse::setStatusCode(int code, const std::string statusMessage)
 {
@@ -394,14 +404,31 @@ void	HttpResponse::setHeader(const std::string key, const std::string value)
 void	HttpResponse::setBody(const std::string bodyContent)
 {
 	_body = bodyContent;
+	_bodyLength = static_cast<size_t>(_body.size());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Getters
+////////////////////////////////////////////////////////////////////////////////
 
 std::string	HttpResponse::getBody()
 {
 	return (_body);
+}
+
+size_t	HttpResponse::getBodyLength()
+{
+	return (_bodyLength);
+}
+
+int HttpResponse::getStatusCode() const
+{
+	return (_statusCode);
+}
+
+std::string HttpResponse::getStatusMessage() const
+{
+	return (_statusMessage);
 }
 
 std::string HttpResponse::getResponseLine() const
@@ -411,20 +438,23 @@ std::string HttpResponse::getResponseLine() const
 	return (oss.str());
 }
 
-std::string HttpResponse::getStatusCode() const
+std::string HttpResponse::toString(int value) const
 {
 	std::ostringstream oss;
-	oss << _statusCode;
+	oss << value;
 	return (oss.str());
 }
 
-std::string HttpResponse::getStatusMessage() const
+std::string HttpResponse::toString(size_t value) const
 {
-	return (_statusMessage);
+	std::ostringstream oss;
+	oss << value;
+	return (oss.str());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Utility functions
+////////////////////////////////////////////////////////////////////////////////
 
 /// @brief Checks if a file exists.
 /// @param path The path of the file.
@@ -448,16 +478,4 @@ bool	isDir(const std::string path)
 	if (S_ISDIR(buffer.st_mode))
 		return (true);
 	return (false);
-}
-
-/// @brief Get the body length of a string.
-/// @param body 
-/// @return `std::string`
-std::string	getcontentLength(const std::string& body)
-{
-	if (body.empty())
-		return ("");
-	std::ostringstream	oss;
-	oss << body.size();
-	return (oss.str());
 }

@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/23 22:43:17 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/25 16:46:01 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ struct t_page_detail
 std::string		getFullErrorPath(const std::string& path);
 bool			isFile(const std::string path);
 bool			isDir(const std::string path);
-t_page_detail	buildOnePage(const std::string& path);
+t_page_detail	constructPageDetail(const std::string& path);
 
 
 class	HttpResponse
@@ -52,10 +52,13 @@ class	HttpResponse
 		static void				setDefaultHeaders(HttpResponse& resp);
 
 		std::string				getBody();
+		size_t					getBodyLength();
 		std::string				getResponseLine() const;
-		std::string				getStatusCode() const;
-		std::string				getStatusMessage() const;
 		std::string				toString() const;
+		int						getStatusCode() const;
+		std::string				getStatusMessage() const;
+		std::string				toString(int value) const;
+		std::string				toString(size_t value) const;
 		void					initializefromFile(const std::string& filePath);
 
 		static HttpResponse		badRequest_400();
@@ -74,10 +77,11 @@ class	HttpResponse
 		std::string							_statusMessage;
 		std::string							_body;
 		std::map<std::string, std::string>	_headers;
+		size_t								_bodyLength;
 
 		std::string							_getStatusLine() const;
 		std::string							_getHeadersString() const;
-		std::string							_fileToString(const std::string& filePath);
+		void								_fileToBody(const std::string& filePath);
 
 		static HttpResponse					_createErrorResponse(int code);
 		static HttpResponse					_createSimpleHttpResponse(int code);
@@ -87,8 +91,5 @@ class	HttpResponse
 
 		static const std::map<int, std::string>&	_StaticInitStatusMap();
 };
-
-/// Utility functions
-std::string							getcontentLength(const std::string& body);
 
 #endif

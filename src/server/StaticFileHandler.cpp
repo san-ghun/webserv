@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/25 12:19:31 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/25 16:55:51 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,6 @@
 /// Calls the `_staticInitMimeTypes` method to initialize the map
 /// before the first object of this class is created.
 std::map<std::string, std::string> StaticFileHandler::_staticMimeTypes;
-
 ////////////////////////////////////////////////////////////////////////////////
 
 StaticFileHandler::StaticFileHandler()
@@ -47,6 +46,9 @@ StaticFileHandler::~StaticFileHandler()
 {}
 
 ////////////////////////////////////////////////////////////////////////////////
+/// Public methods: handleRequest
+////////////////////////////////////////////////////////////////////////////////
+
 /// @brief handleRequest, public method to handle the request
 /// This method is called by the RequestHandler to handle the request.
 /// It checks if the requested URI is a directory or a file and calls the
@@ -70,6 +72,9 @@ HttpResponse StaticFileHandler::handleRequest(const HttpRequest& request, const 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+/// Private methods
+////////////////////////////////////////////////////////////////////////////////
+
 /// @brief _handleDirRequest, private method to handle the directory request
 /// This method is called when the directory listing is not `true`,
 /// but the `uri` in the request is a directory.
@@ -114,13 +119,11 @@ HttpResponse StaticFileHandler::_handleDirListing(const HttpRequest& request, co
 /// @return `HttpResponse`
 HttpResponse StaticFileHandler::_createDirListingResponse() const
 {
-	std::string			body = genDirListingHtml(getFullPath());
-	std::string			bodyLength = getcontentLength(body);
 	HttpResponse		resp;
+	resp.setBody(genDirListingHtml(getFullPath()));
 
-	if (body.empty() || bodyLength.empty())
+	if (resp.getBody().empty() || resp.getBodyLength() <= 0)
 		return (HttpResponse::internalServerError_500());
-	resp.setBody(body);
 	resp.setDefaultHeaders();
 	return (resp);
 }
@@ -225,25 +228,10 @@ HttpResponse StaticFileHandler::_handleNotFound()
 	return (HttpResponse::notFound_404());
 }
 
-////////////////////////////////////////////////////////////////////////////////
-/// @brief Returns the MIME type of a given file based on its file extension.
-/// @example resolveMimeType("index.html") ext = "html", and returns "text/html"
-/// @param path The path of the file.
-/// @return The MIME type of the file.
-std::string StaticFileHandler::resolveMimeType(const std::string path) const
-{
-	std::string::size_type dotPos = path.find_last_of(".");
-	if (dotPos == std::string::npos)
-		return ("text/plain");
-	std::string ext = path.substr(dotPos + 1);
-	std::map<std::string, std::string>::const_iterator it = _staticMimeTypes.find(ext);
-	if (it != _staticMimeTypes.end())
-		return (it->second);
-	return ("application/octet-stream");
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Setters
+////////////////////////////////////////////////////////////////////////////////
 
 void	StaticFileHandler::_setHandledPath(const std::string& fullPath)
 {
@@ -252,6 +240,7 @@ void	StaticFileHandler::_setHandledPath(const std::string& fullPath)
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Getters
+////////////////////////////////////////////////////////////////////////////////
 
 std::string	StaticFileHandler::getFullPath() const
 {
@@ -259,6 +248,9 @@ std::string	StaticFileHandler::getFullPath() const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+/// Mime types
+////////////////////////////////////////////////////////////////////////////////
+
 /// @brief Initializes the MIME types map from the configuration.
 /// If the configuration does not provide MIME types, default values are used.
 void	StaticFileHandler::_staticInitMimeTypes()
@@ -278,3 +270,20 @@ void	StaticFileHandler::_staticInitMimeTypes()
 		_staticMimeTypes.insert(std::make_pair("txt", "text/plain"));
 	}
 } 
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief Returns the MIME type of a given file based on its file extension.
+/// @example resolveMimeType("index.html") ext = "html", and returns "text/html"
+/// @param path The path of the file.
+/// @return The MIME type of the file.
+std::string StaticFileHandler::resolveMimeType(const std::string path) const
+{
+	std::string::size_type dotPos = path.find_last_of(".");
+	if (dotPos == std::string::npos)
+		return ("text/plain");
+	std::string ext = path.substr(dotPos + 1);
+	std::map<std::string, std::string>::const_iterator it = _staticMimeTypes.find(ext);
+	if (it != _staticMimeTypes.end())
+		return (it->second);
+	return ("application/octet-stream");
+}

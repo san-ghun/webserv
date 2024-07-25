@@ -6,14 +6,14 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/23 22:24:34 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/25 16:51:55 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserv.hpp"
 #include "HttpRequest.hpp"
 
-/// TODO check for necessary initialization
+
 HttpRequest::HttpRequest()
 {}
 
@@ -24,7 +24,7 @@ HttpRequest::~HttpRequest()
 /// The current parse logic for my request is to first split the syntax into
 /// request, header, and body lines, and then parse the split syntax separately.
 /// I've separated the 'split' and 'parse' parts so that one function does one job. 
-
+////////////////////////////////////////////////////////////////////////////////
 
 /// @brief This function parses the request data and extracts
 ///			the method, path, version, headers, and body.
@@ -174,6 +174,7 @@ bool HttpRequest::isConnectionClose() const
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Getters
+////////////////////////////////////////////////////////////////////////////////
 
 std::string	HttpRequest::getMethod() const
 {
@@ -203,6 +204,7 @@ std::string	HttpRequest::getBody() const
 }
 ////////////////////////////////////////////////////////////////////////////////
 /// Setters
+////////////////////////////////////////////////////////////////////////////////
 
 void	HttpRequest::setUri(std::string uri)
 {
