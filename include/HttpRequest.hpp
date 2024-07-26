@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/23 22:24:01 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/26 12:30:28 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,12 +27,6 @@ struct t_readed_parts {
     std::string					body;
 	bool						iscomplete;
 	t_readed_parts() : iscomplete(false) {}
-};
-
-enum e_uri_type {
-	DEFAULT = 0,
-	PATH,
-	DIRECTORT
 };
 
 class	HttpRequest
