@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:46 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/16 22:31:24 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/23 00:18:15 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,22 @@ Server::Server(Config& config)
 	: _serverPort(config.getPort())
 	, _maxBodySize(1024)
 {
-	// TODO: Apply Config
+	_running = false;
+	_serverNames = std::vector<std::string>();
+	_serverNames.push_back(config.get("server_name"));
+	_serverHost = config.getServerHost();
+	_maxBodySize = config.getInt("max_body_size");
+	_serverRoot = config.get("root");
+	_serverIndex = config.get("default_file");
+	_locations = std::vector<Location*>();
+
+	std::map<std::string, Location*> locMap = config.getLocationMap();
+	for (std::map<std::string, Location*>::iterator it = locMap.begin(); it != locMap.end(); it++)
+		_locations.push_back(it->second);
+
+	// _serverErrorPages = config.getErrorPageMap();
+	_serverUploadPath = config.get("upload_dir");
+	_serverCgiPath = config.get("cgi_dir");
 }
 
 Server::Server(int port)
@@ -92,7 +107,6 @@ Server::Server(int port)
 Server::~Server()
 {
 	stop();
-	
 	// TODO: Delete all locations
 }
 
@@ -139,11 +153,12 @@ void	Server::start()
 
 		while (_running) 
 		{
+			if (g_sigint == true)
+				break;
 			int pollcount = poll(_pollfds.data(), _pollfds.size(), -1);
 			if (pollcount < 0) {
-				std::cerr << "Error: poll failed" << std::endl;
+				// std::cerr << "Error: poll failed" << std::endl;
 				// Logger::Error("Server error: poll failed");
-				stop();
 				break;
 			}
 			for (size_t i = 0; i < _pollfds.size(); i++) {
@@ -156,6 +171,7 @@ void	Server::start()
 				}
 			}
 		}
+		stop();
 	} 
 	catch (const std::exception& e)
 	{
@@ -173,6 +189,9 @@ void	Server::stop()
 		_running = false;
 		_listenSocket.close();
 		_poller.removeAllSockets();
+		_serverNames.clear();
+		_locations.clear();
+		_pollfds.clear();
 		// Logger::info("Server stopped");
 		std::cout << "\rServer stopped" << std::endl;
 	}
