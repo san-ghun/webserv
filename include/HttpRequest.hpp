@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/14 14:49:37 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/26 12:30:28 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,16 +15,18 @@
 
 # include <string>
 # include <map>
+# include <vector>
+
+class HttpResponse;
 
 # define WHITESPACE	" \t\r\n"
 
-
-struct t_read_request {
+struct t_readed_parts {
     std::string					request;
     std::vector<std	::string>	headers;
-    std::string	body;
+    std::string					body;
 	bool						iscomplete;
-	t_read_request() : iscomplete(false) {}
+	t_readed_parts() : iscomplete(false) {}
 };
 
 class	HttpRequest
@@ -42,6 +44,8 @@ class	HttpRequest
 		std::map<std::string, std::string>	getHeaders() const;
 		std::string							getBody() const;
 
+		void								setUri(std::string uri);
+
 		bool								isConnectionClose() const;
 		static std::string					trim(const std::string& str);
 	private:
@@ -51,12 +55,12 @@ class	HttpRequest
 		std::map<std::string, std::string>	_headers;
 		std::string							_body;
 
-		t_read_request						_splitRequestData(const std::string& requestData);
+		t_readed_parts						_splitRequestData(const std::string& requestData);
 		bool								_parseRequestLine(const std::string requestLine);
 		bool								_parseHeaders(const std::vector<std	::string> headerLines);
 		bool								_parseBody(const std::string bodylines);
-		std::vector<std	::string>			_dataToHeaders(std::istringstream& iss);
-		std::string 						_dataToBody(std::istringstream& iss);
+		std::vector<std	::string>			_convertPartToHeaders(std::istringstream& iss);
+		std::string 						_convertPartToBody(std::istringstream& iss);
 
 };
 
