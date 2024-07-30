@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:46 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/16 22:22:08 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/29 15:39:17 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,74 +27,42 @@ class	Socket;
 class	Poller;
 // class	RequestHandler;
 
+struct	ServerConfig;
+
+struct ListenInfo
+{
+	std::string	host;
+	int			port;
+	int			fd;
+};
+
 class	Server
 {
 	public:
 		Server(Config& config);
-		Server(int port);
 		~Server();
 
-		void								start();
-		void								stop();
+		void						start();
+		void						stop();
 
-		// Getters
-		std::vector<std::string>			getServerNames() const;
-		std::string							getServerHost() const;
-		std::string							getServerPort() const;
-		size_t								getMaxBodySize() const;
-		// size_t								getMaxConnection() const;
-		// size_t								getMaxHeader() const;
-		std::string							getServerRoot() const;
-		std::string							getServerIndex() const;
-		std::vector<Location*>				getLocations() const;
-		std::map<int, const std::string>	getServerErrorPages() const;
-		std::string							getServerUploadPath() const;
-		// std::string							getServerAccessLogPath() const;
-		// std::string							getServerErrorLogPath() const;
-		std::string							getServerCgiPath() const;
-		// Setters
-		void								setServerNames(std::vector<std::string> serverNames);
-		void								setServerHost(std::string serverHost);
-		void								setServerPort(int serverPort);
-		void								setMaxBodySize(size_t maxBodySize);
-		// void								setMaxConnection(size_t maxConnection);
-		// void								setMaxHeader(size_t maxHeader);
-		void								setServerRoot(std::string serverRoot);
-		void								setServerIndex(std::string serverIndex);
-		void								addLocation(Location* location);
-		void								setServerErrorPages(std::map<int, const std::string> serverErrorPage);
-		void								setServerUploadPath(std::string serverUploadPath);
-		// void								setServerAccessLogPath(std::string serverAccessLogPath);
-		// void								setServerErrorLogPath(std::string serverErrorLogPath);
-		void								setServerCgiPath(std::string serverCgiPath);
+		bool						isRunning() const;
 
 	private:
-		bool								_running;
-		Socket								_listenSocket;
-		Poller								_poller;
-		std::vector<pollfd>					_pollfds;
-		RequestHandler						_requestHandler;
+		bool						_running;
+		Socket						_listenSocket;
+		std::vector<ListenInfo>		_listenInfos;
+		std::map<int, ListenInfo> 	_clients;
+		Poller						_poller;
+		std::vector<pollfd>			_pollfds;
+		RequestHandler				_requestHandler;
 
-		void								_handleNewConnection();
-		void								_handleClientData(Poller::t_event event);
+		int							_setupListeningSocket(const std::string host, int port);
 
-		void								_acceptNewConnection();
-		void								_handleClientData_2(int clientSocket, size_t idx);
+		void						_acceptNewConnection();
+		void						_handleClientData(int clientSocket, size_t idx);
 
-		std::vector<std::string>			_serverNames;
-		std::string							_serverHost;
-		int									_serverPort;
-		size_t								_maxBodySize;
-		// size_t								_maxConnection;
-		// size_t								_maxHeader;
-		std::string							_serverRoot;
-		std::string							_serverIndex;
-		std::vector<Location*>				_locations;
-		std::map<int, const std::string>	_serverErrorPages;
-		std::string							_serverUploadPath;
-		// std::string							_serverAccessLogPath;
-		// std::string							_serverErrorLogPath;
-		std::string							_serverCgiPath;
+		Config&						_config;
+		std::vector<ServerConfig*>	_serverConfigs;
 };
 
 #endif
