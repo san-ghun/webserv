@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:46 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/29 15:39:17 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/30 18:09:43 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,11 @@
 # include <vector>
 # include "Config.hpp"
 # include "Location.hpp"
+# include "RequestHandler.hpp"
+# include "HttpRequest.hpp"
+# include "HttpResponse.hpp"
 # include "Socket.hpp"
 # include "Poller.hpp"
-# include "RequestHandler.hpp"
 
 class	Config;
 class	Location;

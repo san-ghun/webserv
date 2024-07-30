@@ -6,14 +6,12 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:46 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/30 18:08:14 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/30 18:08:43 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserv.hpp"
 #include "Server.hpp"
-#include "HttpRequest.hpp"
-#include "HttpResponse.hpp"
 
 static unsigned int	ft_inet_addr(const std::string& ipAddr)
 {
