@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/25 16:55:51 by minakim          ###   ########.fr       */
+/*   Updated: 2024/07/30 14:09:23 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ HttpResponse StaticFileHandler::handleRequest(const HttpRequest& request, const 
 	{
 		// if (/* && location.location.isListDir() */)
 		// 	return (_handleDirListing(request, location));
-	                                                                                                                                                                                                                                                                                      	return (_handleDirRequest(request, location));
+		return (_handleDirRequest(request, location));
 	}
 	if (isFile(_handledPath))
 		return (_handleFileRequest(request, location));
@@ -88,7 +88,8 @@ HttpResponse StaticFileHandler::_handleDirRequest(const HttpRequest& request, co
 	_setHandledPath(absolutePath);
 
 	std::cout << "TEST |  absolute path that with index is built: " << _handledPath << std::endl;
-	if (isFile(_handledPath))
+	
+	if (!isFile(_handledPath))
 		return (_handleNotFound());
 	modifiedRequest.setUri(getFullPath());
 	return (_handleFileRequest(modifiedRequest, location));
@@ -128,26 +129,6 @@ HttpResponse StaticFileHandler::_createDirListingResponse() const
 	return (resp);
 }
 
-/*
-	if (!file.is_open())
-	{
-		*this = notFound_404();
-		return ("");
-	}
-	std::streamsize fileLength = file.tellg();
-	if (fileLength <= 0)
-	{
-		*this = internalServerError_500();
-		return ("");
-	}
-	file.seekg(0, std::ios::beg);
-	body.resize(fileLength);
-	if (!file.read(&body[0], fileLength))
-	{
-		*this = internalServerError_500();
-		return ("");
-	}
- */
 /// @brief Generates an HTML page with a directory listing.
 /// @param path 
 /// @return Create a list of directories and files in HTML and export it to std::stringstream.
