@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/27 23:16:19 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/08/02 21:59:24 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -387,6 +387,16 @@ std::map<std::string, std::string>	Config::getMimeTypeMap() const
 std::vector<ServerConfig*>	Config::getServers() const
 {
 	return (_servers);
+}
+
+ServerConfig*	Config::getServerByListen(const std::string serverListen) const
+{
+	for (std::vector<ServerConfig*>::const_iterator it = _servers.begin(); it != _servers.end(); it++)
+	{
+		if ((*it)->listen == serverListen)
+			return (*it);
+	}
+	return (NULL);
 }
 
 std::string	Config::get(const std::string key) const

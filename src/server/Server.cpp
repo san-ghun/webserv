@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:46 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/30 18:08:43 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/08/02 21:57:31 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,7 @@ void	Server::start()
 		for (size_t i = 0; i < _serverConfigs.size(); i++)
 		{
 			ListenInfo info = {
+				_serverConfigs[i]->listen,
 				_serverConfigs[i]->host,
 				_serverConfigs[i]->port,
 				-1
@@ -63,7 +64,7 @@ void	Server::start()
 		}
 
 		// Map to track clients
-		std::map<int, ListenInfo> clients;
+		// std::map<int, ListenInfo> clients;
 
 		// Setup listen sockets
 		for (size_t i = 0; i < _listenInfos.size(); i++)

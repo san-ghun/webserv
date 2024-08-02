@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:46 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/30 18:09:43 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/08/02 21:56:21 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ struct	ServerConfig;
 
 struct ListenInfo
 {
+	std::string listen;
 	std::string	host;
 	int			port;
 	int			fd;
