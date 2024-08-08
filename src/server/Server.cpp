@@ -3,20 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:46 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/08/02 21:57:31 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/08/08 21:35:43 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserv.hpp"
 #include "Server.hpp"
+#include "Context.hpp"
 
 static unsigned int	ft_inet_addr(const std::string& ipAddr)
 {
-    std::string					octet;
-    int							octets[4];
+	std::string					octet;
+	int							octets[4];
 	std::string::size_type		pos[2] = {0};// index 0 for begining, 1 for end
 	unsigned int				result = 0;
 
@@ -28,9 +29,9 @@ static unsigned int	ft_inet_addr(const std::string& ipAddr)
 		octets[i] = atoi(ipAddr.substr(pos[0], pos[1]).c_str());
 		pos[0] += pos[1] + 1;
 	}
-    for (size_t i = 0; i < 4; ++i)
-        result |= (static_cast<unsigned int>(octets[i]) << ((3 - i) * 8));
-    return (htonl(result));
+	for (size_t i = 0; i < 4; ++i)
+		result |= (static_cast<unsigned int>(octets[i]) << ((3 - i) * 8));
+	return (htonl(result));
 }
 
 Server::Server(Config& config)
@@ -153,11 +154,12 @@ void	Server::start()
 
 						HttpRequest		request;
 
-
 						if (!request.parse(requestData))
 							return ; // throw?
-						
-						HttpResponse	response = _requestHandler.handleRequest(request);
+
+						ServerConfig&	serverConfig = _fetchConfig(target);
+						Context			contextFromTarget(serverConfig, request);
+						HttpResponse	response = _requestHandler.handleRequest(contextFromTarget);
 						std::string		responseData = response.toString();
 						// std::string	responseData = handle_request(requestData);
 
@@ -186,6 +188,13 @@ void	Server::start()
 		stop();
 	}
 }
+
+ServerConfig& Server::_fetchConfig(int target)
+{
+	ServerConfig& serverConfig = *_config.getServerByListen(_clients[target].listen);	
+	return (serverConfig);
+}
+
 
 void	Server::stop()
 {
@@ -305,11 +314,12 @@ void	Server::_handleClientData(int clientSocket, size_t idx)
 	if (!request.parse(requestData))
 		return ; // throw?
 	
-	HttpResponse	response = _requestHandler.handleRequest(request);
+	// HttpResponse	response = _requestHandler.handleRequest(request, _fetchConfig(clientSocket));
+	// std::string		responseData = response.toString();
+	ServerConfig&	serverConfig = _fetchConfig(clientSocket);
+	Context			contextFromTarget(serverConfig, request);
+	HttpResponse	response = _requestHandler.handleRequest(contextFromTarget);
 	std::string		responseData = response.toString();
-	// std::string	responseData = handle_request(requestData);
-
-
 	std::cout << "TEST | start: handleClientData_2" << std::endl;
 	std::cout << "TEST | " << requestData << std::endl;
 	

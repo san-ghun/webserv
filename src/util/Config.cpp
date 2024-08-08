@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/08/02 21:59:24 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/08/07 17:26:43 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -390,6 +390,7 @@ std::vector<ServerConfig*>	Config::getServers() const
 }
 
 ServerConfig*	Config::getServerByListen(const std::string serverListen) const
+
 {
 	for (std::vector<ServerConfig*>::const_iterator it = _servers.begin(); it != _servers.end(); it++)
 	{

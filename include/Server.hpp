@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:46 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/08/02 21:56:21 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/08/07 17:31:17 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,8 @@ class	Server
 
 		void						_acceptNewConnection();
 		void						_handleClientData(int clientSocket, size_t idx);
+		ServerConfig&				_fetchConfig(int target);
+
 
 		Config&						_config;
 		std::vector<ServerConfig*>	_serverConfigs;
