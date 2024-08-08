@@ -13,6 +13,8 @@ SRC_NAME = ./src/main.cpp \
 		./src/server/RequestHandler.cpp \
 		./src/server/HttpRequest.cpp \
 		./src/server/HttpResponse.cpp \
+		./src/server/ErrorResponse.cpp \
+		./src/server/Context.cpp \
 		./src/server/StaticFileHandler.cpp \
 		./src/util/Config.cpp \
 		./src/util/Location.cpp

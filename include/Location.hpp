@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/23 20:40:03 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/27 19:43:44 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,16 +18,20 @@
 
 class	Server;
 
+struct	ServerConfig;
+struct	LocationConfig;
+
 class	Location
 {
 	public:
 		Location();
+		Location(LocationConfig* location);
 		Location(std::string path);
-		Location(Server* server, std::string path);
+		Location(ServerConfig* server, std::string path);
 		~Location();
 
 		// Getters
-		Server*								getServer() const;
+		ServerConfig*						getServer() const;
 		std::string							getPath() const;
 		std::string							getRootPath() const;
 		bool								isListdir() const;
@@ -39,7 +43,7 @@ class	Location
 		std::string							getRedirectCode() const;
 		std::map<std::string, std::string>	getCgi() const;
 		// Setters
-		void								setServer(Server* server);
+		void								setServer(ServerConfig* server);
 		void								setPath(std::string path);
 		void								setRootPath(std::string rootPath);
 		void								setIsListdir(bool isListdir);
@@ -50,7 +54,7 @@ class	Location
 		void								setCgi(std::string cgi);
 
 	private:
-		Server*								_server;
+		ServerConfig*						_server;
 		std::string							_path;
 		std::string							_rootPath;
 		bool								_isListdir;
