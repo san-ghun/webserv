@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/08/08 21:47:33 by minakim          ###   ########.fr       */
+/*   Updated: 2024/08/21 08:27:04 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 # include <map>
 
 # include "Config.hpp"
+# include "Util.hpp"
 
 class HttpRequest;
 class Config;
@@ -30,6 +31,14 @@ struct t_page_detail
 	bool 			isValid;
 };
 
+enum e_status {
+	STATUS_INVALID = -1,
+	STATUS_INFORMATIONAL,
+	STATUS_SUCCESS,
+	STATUS_REDIRECTION,
+	STATUS_ERROR
+};
+
 bool	isFile(const std::string path);
 bool	isDir(const std::string path);
 // std::string		generateHtmlBody(int code, const std::string& message);
@@ -37,18 +46,11 @@ bool	isDir(const std::string path);
 class	HttpResponse
 {
 	public:
-		// HttpResponse();
-		// HttpResponse(const std::string& filePath);
-		// HttpResponse(const ServerConfig& config);
-		// HttpResponse(const ServerConfig& config, const Location& location);
 		HttpResponse(const Context& context);
 		HttpResponse(const Context& context, const std::string& filePath);
 		HttpResponse(const HttpResponse& other);
 		HttpResponse& operator=(const HttpResponse& other);
 		~HttpResponse();
-		
-
-
 
 		void					setStatusCode(int code);
 		void					setStatusCode(int code, const std::string statusMessage);
@@ -60,25 +62,12 @@ class	HttpResponse
 		std::string				getBody();
 		size_t					getBodyLength();
 		std::string				getResponseLine() const;
-		std::string				toString() const;
+		std::string				generateResponseToString() const;
 		int						getStatusCode() const;
 		std::string				getStatusMessage() const;
-		std::string				toString(int value) const;
-		std::string				toString(size_t value) const;
-		void					initializefromFile(const std::string& filePath);
+		void					initializefromFile(const Context& context, const std::string& filePath);
 
-		// static HttpResponse		badRequest_400();;
-		// static HttpResponse		forbidden_403();
-		// static HttpResponse		notFound_404();
-		// static HttpResponse		methodNotAllowed_405();
-		// static HttpResponse		requestTimeout_408();
-		// static HttpResponse		requestEntityTooLarge_413();
-		// static HttpResponse		imaTeapot_418();
-		// static HttpResponse		internalServerError_500();
-		// static HttpResponse		success_200();
-		// static HttpResponse		notImplemented_501();
-
-		static HttpResponse		_createErrorResponse(int code, const Context& context);
+		static HttpResponse		createErrorResponse(int code, const Context& context);
 		static HttpResponse		badRequest_400(const Context& context);
 		static HttpResponse		forbidden_403(const Context& context);
 		static HttpResponse		notFound_404(const Context& context);
@@ -91,6 +80,8 @@ class	HttpResponse
 		static HttpResponse		success_200(const Context& context);
 
 
+		static e_status			checkStatusRange(int code);
+
 	private:
 		int									_statusCode;
 		std::string							_statusMessage;
@@ -100,17 +91,17 @@ class	HttpResponse
 
 		std::string							_getStatusLine() const;
 		std::string							_getHeadersString() const;
-		void								_fileToBody(const std::string& filePath);
+		void								_fileToBody( const Context& context, const std::string& filePath);
 		std::string							_generateHtmlBody();
 		void								_setDefaultHeadersImpl();
 
-		static const std::map<int, std::string>&	_StaticInitStatusMap();
+		static const std::map<int, std::string>&	_staticInitStatusMap();
 
 	protected:
 		Context&							_context;
 
+		HttpResponse		createErrorResponse(int code);
 		HttpResponse		_createSimpleHttpResponse(int code);
-		HttpResponse		_createErrorResponse(int code);
 		t_page_detail		_constructPageDetail(const std::string& path);
 };
 

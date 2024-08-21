@@ -17,14 +17,13 @@ ErrorResponse::~ErrorResponse()
 ////////////////////////////////////////////////////////////////////////////////
 HttpResponse ErrorResponse::generateErrorResponse(int code)
 {
-	if (code < 400 || code > 599)
-		throw std::runtime_error("Invalid error code");
+	if (checkStatusRange(code) != STATUS_ERROR)
+		throw std::runtime_error("Invalid error code: " + code);
 
 	t_page_detail pageData = _fetchPageData(code);
 
 	if (pageData.path.empty() || !pageData.isValid)
 		return (_createSimpleHttpResponse(code));
-
 	HttpResponse resp(_context, pageData.path);
 	resp.setStatusCode(code);
 	return (resp);

@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/08/08 21:54:57 by minakim          ###   ########.fr       */
+/*   Updated: 2024/08/21 18:54:40 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,8 @@
 
 # include <string>
 # include <sys/stat.h>
+# include <dirent.h>
 # include <map>
-
 class HttpResponse;
 class HttpRequest;
 class Location;
@@ -25,7 +25,6 @@ class Context;
 # define LOCATION_PATH	"./www/static"
 # define INDEX_HTML		"index.html"
 
-std::string	genDirListingHtml(const std::string& path);
 
 class	StaticFileHandler
 {
@@ -35,7 +34,9 @@ class	StaticFileHandler
 		StaticFileHandler(const StaticFileHandler& other);
 		StaticFileHandler& operator=(const StaticFileHandler& other);
 
-		HttpResponse	handleRequest(const Context& context);
+		HttpResponse	handleget(const Context& context);
+		HttpResponse	handlepost(const Context& context);
+
 
 		std::string		getFullPath() const;
 		std::string		resolveMimeType(const std::string path) const;
@@ -45,7 +46,14 @@ class	StaticFileHandler
 		std::map<std::string, std::string>	_mimeTypes;
 
 
-		void			_initMimeTypes(const Context& context);
+		void			_initMimeTypes();
+
+		int				_verifyHeaders(const Context& context) const;
+		int				_validateGetHeaders(const std::map<std::string, std::string>& headers) const;
+		int				_validatePostHeaders(const Context& context, const std::map<std::string, std::string>& headers) const;
+		int				_validateDeleteHeaders(const std::map<std::string, std::string>& headers) const;
+		bool			_hasTargetHeader(const std::string& target, const std::map<std::string, std::string>& headers) const;
+
 
 		HttpResponse	_handleDirListing(const Context& context);
 		HttpResponse	_handleDirRequest(const Context& context);
@@ -53,8 +61,10 @@ class	StaticFileHandler
 
 
 		HttpResponse	_createResponseForFile(const Context& context) const;
+
 		HttpResponse	_createDirListingResponse(const Context& context) const;
-	
+		std::string		_genDirListingHtml(const std::string& path) const;
+		std::string		_genListing(const std::string& path) const;
 		HttpResponse	_handleRoot(const Context& context);
 		HttpResponse	_handleNotFound(const Context& context);
 
@@ -62,6 +72,7 @@ class	StaticFileHandler
 		std::string		_buildAbsolutePathWithRoot(const Context& context) const;
 		std::string		_buildAbsolutePathWithIndex(const Context& context) const;
 
+		std::string		requestToString(const Context& context) const;
 
 		void			_setHandledPath(const std::string& fullPath);
 };

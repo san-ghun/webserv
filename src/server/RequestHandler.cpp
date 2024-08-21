@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/08/08 20:51:35 by minakim          ###   ########.fr       */
+/*   Updated: 2024/08/20 21:14:16 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,10 +42,12 @@ RequestHandler::~RequestHandler()
 ///			3. or the result of `_processRequest` if the method is valid and the location is found.
 HttpResponse	RequestHandler::handleRequest(const Context& context)
 {
-	// // FIXME: change to Logger
+
 	// std::cout << "\r" << request.getMethod() << " | " << request.getUri() << " | " <<
 	// 	request.getVersion() << std::endl;
 
+	if (!context.getRequest().getIsParsed())
+		return (HttpResponse::badRequest_400(context));
 	HttpResponse	reps(context);
 	if (!_isAllowedMethod(context))
 		return (reps.methodNotAllowed_405(context));
@@ -96,12 +98,12 @@ HttpResponse	RequestHandler::_processRequest(const Context& context)
 
 HttpResponse RequestHandler::_handleGet(const Context& context)
 {
-	return (_staticFileHandler.handleRequest(context));
+	return (_staticFileHandler.handleget(context));
 }
 
 HttpResponse RequestHandler::_handlePost(const Context& context)
 {
-	return (HttpResponse::notImplemented_501(context));
+	return (_staticFileHandler.handlepost(context));
 }
 
 HttpResponse RequestHandler::_handleDelete(const Context& context)
