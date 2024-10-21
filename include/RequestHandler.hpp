@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/08/08 20:47:32 by minakim          ###   ########.fr       */
+/*   Updated: 2024/10/21 18:08:29 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 
 class HttpResponse;
 class HttpRequest;
-class ServerConfig;
 class Location;
 class Context;
 

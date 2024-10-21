@@ -24,6 +24,9 @@ public:
 	virtual ~Body() {}
 	virtual std::string toString() const = 0;
 	virtual Type getType() const = 0;
+
+	// @brief Initialize the body container with the appropriate body type
+	virtual void initialize(BodyContainer& container) const = 0;
 };
 
 
@@ -51,7 +54,8 @@ public:
 /// Chunked (Derived Class)
 ////////////////////////////////////////////////////////////////////////////////
 
-class ChunkSegment {
+class ChunkSegment 
+{
 private:
 	std::string	_data;
 	size_t		_size;
@@ -73,7 +77,8 @@ public:
 	std::string parseData(const std::string& line);
 };
 
-class Chunked : public Body {
+class Chunked : public Body
+{
 private:
 	std::vector<ChunkSegment>	_datas;
 	bool						_isComplete;
@@ -88,6 +93,7 @@ public:
 
 	std::string toString() const;	// override
 	Type getType() const;			// override
+	Chunked getChunked() const;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -146,21 +152,26 @@ public:
 /// Body Container (Formerly Union in Body Struct)
 ////////////////////////////////////////////////////////////////////////////////
 
+/// FIXME: delete :)... Body container is not necessary, only Body class is needed
 class BodyContainer {
 public:
 	BodyContainer();
 	~BodyContainer();
 
+	/// FIXME: initialize(); cast to appropriate body type
 	void		initRaw();
-	void		initRaw(const std::string& rawData);
 	void		initChunked();
 	void		initFormData();
+
+	void		initRaw(const std::string& rawData);
 	void		initFormData(const std::string& boundary);
 
 	void		clear();
 	bool		empty() const;
 
 	Body::Type	getType() const;
+
+	/// FIXME: getBody(); cast to appropriate body type
 	Raw*		getRaw() const;
 	Chunked*	getChunked() const;
 	FormData*	getFormData() const;

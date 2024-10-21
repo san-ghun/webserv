@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/08/21 19:40:33 by minakim          ###   ########.fr       */
+/*   Updated: 2024/10/21 19:20:15 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ class	HttpRequest
 		void								setMethod(const std::string& method);
 		void								setVersion(const std::string& version);
 		void								setHeaders(const std::map<std::string, std::string>& headers);
-		void								setBody(const struct Body& body);
+		void								setBody(const Body& body);
 		void								setContentLength(const ssize_t& contentLength);
 
 		bool								isConnectionClose() const;

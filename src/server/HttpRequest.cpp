@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/08/21 19:52:30 by minakim          ###   ########.fr       */
+/*   Updated: 2024/10/21 19:37:02 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -470,9 +470,9 @@ void	HttpRequest::setHeaders(const std::map<std::string, std::string>& headers)
 	_headers = headers;
 }
 
-void	HttpRequest::setBody(const struct Body& body)
+void	HttpRequest::setBody(const Body& body)
 {
-	_body = body;
+
 }
 
 void	HttpRequest::setContentLength(const ssize_t& contentLength)

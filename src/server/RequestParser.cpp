@@ -192,6 +192,7 @@ Chunked::Chunked(const ChunkSegment& chunk)
 	addChunkSegment(chunk);
 }
 
+
 void	Chunked::addChunkSegment(const ChunkSegment& chunk)
 {
 	_datas.push_back(chunk);
