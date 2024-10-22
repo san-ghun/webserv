@@ -6,22 +6,23 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/10/21 19:37:02 by minakim          ###   ########.fr       */
+/*   Updated: 2024/10/22 13:13:35 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserv.hpp"
 #include "HttpRequest.hpp"
-#include "RequestParser.hpp"
 
 HttpRequest::HttpRequest()
-	: _contentLength(NOT_SET),  _isParsed(false)
-{}
+	: _body(""), _type(NONE), _content(false, NOT_SET)
+{
+}
 
 HttpRequest::HttpRequest(std::string& data)
-	: _contentLength(NOT_SET)
+	: _body(""), _type(NONE), _content(false, NOT_SET)
 {
-	_isParsed = parse(data);
+	// FIXME: unused parameter. why?
+	(void)data;
 }
 
 HttpRequest::~HttpRequest()
@@ -39,70 +40,35 @@ HttpRequest::~HttpRequest()
 /// @return bool
 bool HttpRequest::parse(const std::string& requestData)
 {
-	ReadedLines separatedData = _splitRequestData(requestData);
-	if (!_parseRequestLine(separatedData.request))
+	ReadedLines splitedRequestData = _splitRequestData(requestData);
+	if (!_parseRequestLine(splitedRequestData.request))
 		return (false);
-	if (!_parseHeaders(separatedData.headers))
+	if (!_parseHeaders(splitedRequestData.headers))
 		return (false);
-	if (!_parseBodySpecificMethod(separatedData.bodyLines))
+	if (!_processRequestBody(splitedRequestData.bodyLines))
 		return (false);
 	return (true);
 }
 
-bool	HttpRequest::_parseBodySpecificMethod(const std::vector<std::string>& bodyLines)
+bool	HttpRequest::_processRequestBody(const std::vector<std::string>& bodyLines)
 {
-	if (_method == "GET")
-		return (_parseGET());
-	else if (_method == "POST")
-		return (_parsePOST(bodyLines));
-	else if (_method == "DELETE")
-		return (_parseDELETE(bodyLines));
-	return (true);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// Parsing functions: GET
-////////////////////////////////////////////////////////////////////////////////
-
-bool	HttpRequest::_parseGET()
-{
-	_body.clear();
-	return (true);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// Parsing functions: POST
-////////////////////////////////////////////////////////////////////////////////
-
-bool	HttpRequest::_parsePOST(const std::vector<std::string>& bodyLines)
-{
-	if (_contentLength <= 0)
+	if (!hasBody())
+		return (true);
+	if (getContentLength() <= 0)
 		return (false);
-	if (_headers["Content-Type"] == "application/json" || _headers["Content-Type"] == "text/plain") {
-		_body.initRaw();
-		_body.getRaw()->setData(toString(bodyLines).substr(0, _contentLength));
-	}
+	if (_headers["Content-Type"] == "application/json" || _headers["Content-Type"] == "text/plain")
+		setBody(bodyLines, RAW);
 	else if (_headers["Transfer-Encoding"] == "chunked")
-	{
-		_body.initChunked();
-		if (!_parseChunkedBody(bodyLines))
-			return (false);
-	}
+		setBody(bodyLines, CHUNKED);
 	else if (_headers["Content-Type"].find("multipart/form-data") != std::string::npos)
-	{
-		std::string	boundary = _extractBoundary(_headers["Content-Type"]);
-		if (boundary.empty())
-			return (false);
-		_body.initFormData(boundary);
-		if (!_parseFormDataBody(bodyLines))
-			return (false);
-	}
+		setBody(bodyLines, FORM_DATA);
 	return (true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/* /// @example POST request with chunked body
+/*
+/// @example POST request with chunked body
 POST /upload HTTP/1.1
 Host: example.com
 Transfer-Encoding: chunked
@@ -118,70 +84,10 @@ Network\r\n
 \r\n
 */
 
-bool HttpRequest::_parseChunkedBody(const std::vector<std::string>& bodyLines)
-{
-	std::istringstream stream(bodyLines[0]);
-	std::string line;
-
-	while (std::getline(stream, line))
-	{
-		if (line.empty())
-			continue;
-		size_t	chunkSize = _extractChunkSize(line);
-		if (chunkSize == 0)
-		{
-			_addEndOfChunks();
-			break;
-		}
-		std::string chunkData = _readChunkData(&stream, chunkSize);
-		_addChunkSegment(chunkData, chunkSize);
-	}
-	return (true);
-}
-
-size_t	HttpRequest::_extractChunkSize(const std::string& line)
-{
-	try
-	{
-		return std::strtol(removeCRLF(line).c_str(), 0, 16);
-	}
-	catch (const std::exception& e)
-	{
-		throw std::runtime_error("Invalid chunk size format");
-	}
-}
-
-std::string HttpRequest::_readChunkData(std::istringstream* stream, size_t chunkSize)
-{
-	std::string chunkData(chunkSize, '\0');
-	stream->read(&chunkData[0], chunkSize);
-	_consumeCRLF(stream);
-	return (chunkData);
-}
-
-void	HttpRequest::_consumeCRLF(std::istringstream* stream)
-{
-	std::string	crlf;
-	std::getline(*stream, crlf);
-}
-
-void	HttpRequest::_addEndOfChunks()
-{
-	ChunkSegment	segment("", 0);
-	segment.setEOF();
-	_body.getChunked()->addChunkSegment(segment);
-}
-
-void	HttpRequest::_addChunkSegment(const std::string& data, size_t size)
-{
-	ChunkSegment	segment(data, size);
-	_body.getChunked()->addChunkSegment(segment);
-}
-
-
 ////////////////////////////////////////////////////////////////////////////////
 
-/* @example POST request with multipart/form-data
+/*
+/// @example POST request with multipart/form-data
 POST /upload HTTP/1.1
 Host: example.com
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
@@ -198,91 +104,6 @@ Content-Type: text/plain
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
 */
 
-
-bool	HttpRequest::_parseFormDataBody(const std::vector<std::string>& bodyLines)
-{
-	_body.getFormData()->setBoundary(_extractBoundary(_headers["Content-Type"]));
-	if (_body.getFormData()->getBoundary().empty())
-		return (false);
-	return (_processFormData(bodyLines));
-}
-
-std::string	HttpRequest::_extractBoundary(const std::string& contentType) const
-{
-	size_t	pos = contentType.find("boundary=");
-	if (pos == std::string::npos)
-		return ("");
-	return (contentType.substr(pos + 9));
-}
-
-bool	HttpRequest::_processFormData(const std::vector<std::string>& bodyLines)
-{
-	std::istringstream	stream(bodyLines[0]);
-	std::string			line;
-
-	while (std::getline(stream, line))
-	{
-		if (line.empty())
-			continue;
-		if (line == "--" + _body.getFormData()->getBoundary())
-		{
-			if (!_addFormDataEntry(&stream))
-				return (false);
-		}
-		else if (line == "--" + _body.getFormData()->getBoundary() + "--")
-			return (true);
-	}
-	return (false);
-}
-
-bool	HttpRequest::_addFormDataEntry(std::istringstream* stream)
-{
-	FormDataEntry				entry(_entryWithHeaders(stream));
-	std::string					line;
-	std::stringstream			content;
-
-	while (std::getline(*stream, line))
-	{
-		if (line != "--" + _body.getFormData()->getBoundary() && line != "--" + _body.getFormData()->getBoundary() + "--")
-			content << line << "\n";
-		stream->seekg(-static_cast<int>(line.length() + 1), std::ios_base::cur);
-		entry.setData(content.str());
-		entry.setProcessed();
-		_body.getFormData()->addFormDataEntry(entry);
-		return (true);
-	}
-	return (false);
-}
-
-FormDataEntry	HttpRequest::_entryWithHeaders(std::istringstream* stream)
-{
-	FormDataEntry	entry;
-	std::string		line;
-
-	while (std::getline(*stream, line))
-	{
-		if (line.empty())
-			break;
-		if (line.find("Content-Disposition:") == 0)
-			entry.handleContentDisposition(line);
-		else if (line.find("Content-Type:") == 0)
-			entry.handleContentType(line);
-		// else if (line.find("Content-Transfer-Encoding:") == 0)
-		// 	entry.handleContentTransferEncoding(line);
-	}
-	return (entry);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// Parsing functions: DELETE
-////////////////////////////////////////////////////////////////////////////////
-
-bool	HttpRequest::_parseDELETE(const std::vector<std::string>& bodyLines)
-{
-	// TODO: implement DELETE parsing logic
-	(void)bodyLines;
-	return (true);
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// @brief Separate the request data into request line, headers, and body.
@@ -304,7 +125,7 @@ ReadedLines HttpRequest::_splitRequestData(const std::string& requestData)
 	data.headers = _convertPartToHeaders(iss);
 	if (data.headers.empty())
 		return (data);
-	data.bodyLines = _convertPartToBody(iss);
+	data.bodyLines = _convertPartToBodyLines(iss);
 	return (data);
 }
 
@@ -318,17 +139,13 @@ std::vector<std	::string> HttpRequest::_convertPartToHeaders(std::istringstream&
 	return (res);
 }
 
-std::vector<std::string> HttpRequest::_convertPartToBody(std::istringstream& iss)
+std::vector<std::string> HttpRequest::_convertPartToBodyLines(std::istringstream& iss)
 {
 	std::string					readline;
 	std::vector<std::string>	drafts;
 
 	while (std::getline(iss, readline))
 		drafts.push_back(readline);
-	// if (_contentLength > 0 && drafts.size() > _contentLength)
-	// 	drafts = drafts.substr(0, _contentLength);
-		// TODO: implement body.length() != _contecntLength occurence Reqeust-Error
-		// ** BUT not here
 	return (drafts);
 }
 
@@ -355,7 +172,7 @@ bool HttpRequest::_parseRequestLine(const std::string& requestLine)
 bool HttpRequest::_parseHeaders(const std::vector<std::string> &headerLines)
 {
 	if (headerLines.empty())
-		return false;
+		return (false);
 	for (std::vector<std::string>::const_iterator	it = headerLines.begin();
 													it != headerLines.end();
 													++it)
@@ -375,7 +192,7 @@ bool HttpRequest::_parseHeaders(const std::vector<std::string> &headerLines)
 		_headers.insert(std::make_pair(key, value));
 	}
 	if (_headers.find("Content-Length") != _headers.end())
-		_contentLength = toSizeT(_headers["Content-Length"]);
+		_content = std::make_pair(true, toSizeT(_headers["Content-Length"]));
 	return (true);
 }
 
@@ -431,20 +248,16 @@ std::map<std::string, std::string>	HttpRequest::getHeaders() const
 	return (_headers);
 }
 
-BodyContainer	HttpRequest::getBody() const
+std::string	HttpRequest::getBody() const
 {
 	return (_body);
 }
 
-ssize_t	HttpRequest::getContentLength() const
+size_t	HttpRequest::getContentLength() const
 {
-	return (_contentLength);
+	return (_content.second);
 }
 
-bool	HttpRequest::getIsParsed() const
-{
-	return (_isParsed);
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Setters
@@ -470,12 +283,26 @@ void	HttpRequest::setHeaders(const std::map<std::string, std::string>& headers)
 	_headers = headers;
 }
 
-void	HttpRequest::setBody(const Body& body)
+bool	HttpRequest::hasBody() const
 {
-
+        return (_content.first);
+}
+void	HttpRequest::setBody(const std::vector<std::string>& bodyLines, e_body_type type)
+{
+	if (!hasBody() || getContentLength() == 0)
+		return;
+	std::string bodyLinesToString = toString(bodyLines);
+	if (bodyLinesToString.length() != getContentLength())
+		throw std::runtime_error(
+		"HTTP method [" + getMethod() + "] at URI [" + getUri() + "] encountered a body length mismatch: "
+		"Expected Content-Length = " + std::to_string(getContentLength()) + 
+		", but received body length = " + std::to_string(bodyLinesToString.length()) + ".");
+	_body = bodyLinesToString;
+	_type = type;
 }
 
 void	HttpRequest::setContentLength(const ssize_t& contentLength)
 {
-	_contentLength = contentLength;
+	if (hasBody())
+		_content.second = contentLength;
 }

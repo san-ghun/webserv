@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:46 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/08/20 21:09:47 by minakim          ###   ########.fr       */
+/*   Updated: 2024/10/22 15:06:08 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,23 +150,28 @@ void	Server::start()
 						}
 						// buffer[count] = '\0';
 
+						std::cout << "TEST | start: handleClientData_2" << std::endl;
+
 						std::string	requestData(buffer, count);
 
 						////////////////////////////////////////////////////////////////////////////////////////
 						ServerConfig&	serverConfig = _fetchConfig(target);
 						HttpRequest		request(requestData);
 
+						std::cout << "TEST | make request" << std::endl;
+
 						// test line: POST, bad request
 						// request.setMethod("POST");
 						// request.setContentLength(10);
 						
+						
 						Context			contextFromTarget(serverConfig, request);
+						std::cout << "TEST | get context" << std::endl;
 						HttpResponse	response = _requestHandler.handleRequest(contextFromTarget);
 						std::string		responseData = response.generateResponseToString();
 						// std::string	responseData = handle_request(requestData);
 
 
-						std::cout << "TEST | start: handleClientData_2" << std::endl;
 						std::cout << "TEST | " << requestData << std::endl;
 						////////////////////////////////////////////////////////////////////////////////////////
 						
@@ -193,7 +198,7 @@ void	Server::start()
 }
 
 /// @author minakim
-/// FIXME:  @sanghupa can change or delete this method
+/// FIXME:  @sanghupa please change or delete this method
 ServerConfig& Server::_fetchConfig(int target)
 {
 	ServerConfig& serverConfig = *_config.getServerByListen(_clients[target].listen);	

@@ -18,7 +18,7 @@ ErrorResponse::~ErrorResponse()
 HttpResponse ErrorResponse::generateErrorResponse(int code)
 {
 	if (checkStatusRange(code) != STATUS_ERROR)
-		throw std::runtime_error("Invalid error code: " + code);
+		throw std::runtime_error("Invalid error code: " + toString(code));
 
 	t_page_detail pageData = _fetchPageData(code);
 

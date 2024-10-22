@@ -20,11 +20,10 @@ public:
 	const Location&		getLocation() const;
 	const HttpRequest&	getRequest() const;
 
-	void setRequest(HttpRequest& request);
-	void setServer(ServerConfig& config);
-	void setLocation(Location& location);
+	void				setRequest(HttpRequest& request);
+	void				setServer(ServerConfig& config);
+	void				setLocation(Location& location);
 
-	bool isInitialized() const;
 private:
 	ServerConfig&	_serverConfig;
 	HttpRequest&	_request;

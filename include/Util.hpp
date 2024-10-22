@@ -8,13 +8,11 @@
 
 std::string		toString(const int value);
 std::string		toString(const size_t value);
+
+// FIXME: delete this function
 std::string		toString(const ssize_t value);
 std::string		toString(const std::vector<std::string>& values);
 
 size_t			toSizeT(const std::string& value);
-
-
-void			removeCRLF(std::string* line);
-std::string		removeCRLF(const std::string& line);
 
 #endif

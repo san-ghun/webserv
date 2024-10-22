@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/08/21 19:50:50 by minakim          ###   ########.fr       */
+/*   Updated: 2024/10/22 14:12:58 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,21 +139,14 @@ void	HttpResponse::_fileToBody(const Context& context, const std::string& filePa
 	std::string		body = "";
 	std::streamsize fileLength;
 	
+	// FIXME: unused parameter. why?
+	(void)context;
 	if (!file.is_open())
 	{
 		*this = notFound_404(_context);
 		return ;
 	}
 	fileLength = file.tellg();
-
-	// FIXME: if the request method is not GET, the content length must be equal to the file length.
-	// 			- is it necessary to check the content length?
-	// if (context.getRequest().getMethod() != "GET") // how to check body length? formdata, something something...
-	// {
-		// *this = badRequest_400(_context);
-		// return ;
-	// }
-
 	if (fileLength < 0)
 	{
 		*this = internalServerError_500(_context);
@@ -299,9 +292,7 @@ t_page_detail	HttpResponse::_constructPageDetail(const std::string& path)
 HttpResponse HttpResponse::createErrorResponse(int code)
 {
 	if (checkStatusRange(code) != STATUS_ERROR)
-		throw std::runtime_error("Invalid error code: " + code);
-	if (&_context == NULL)
-		throw std::runtime_error("Location is not set");
+		throw std::runtime_error("Invalid error code: " + toString(code));
 
 	ErrorResponse	errorResp(_context);
 	return (errorResp.generateErrorResponse(code));
@@ -318,7 +309,7 @@ HttpResponse HttpResponse::createErrorResponse(int code)
 HttpResponse HttpResponse::createErrorResponse(int code, const Context& context)
 {
 	if (checkStatusRange(code) != STATUS_ERROR)
-		throw std::runtime_error("Invalid error code: " + code);
+		throw std::runtime_error("Invalid error code: " + toString(code));
 
 	ErrorResponse errorResp(context);
 	return (errorResp.generateErrorResponse(code));

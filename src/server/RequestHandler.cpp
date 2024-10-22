@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/08/20 21:14:16 by minakim          ###   ########.fr       */
+/*   Updated: 2024/10/22 13:10:44 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,8 +46,8 @@ HttpResponse	RequestHandler::handleRequest(const Context& context)
 	// std::cout << "\r" << request.getMethod() << " | " << request.getUri() << " | " <<
 	// 	request.getVersion() << std::endl;
 
-	if (!context.getRequest().getIsParsed())
-		return (HttpResponse::badRequest_400(context));
+	// if (!context.getRequest())
+	// 	return (HttpResponse::badRequest_400(context));
 	HttpResponse	reps(context);
 	if (!_isAllowedMethod(context))
 		return (reps.methodNotAllowed_405(context));

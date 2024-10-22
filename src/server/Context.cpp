@@ -12,9 +12,6 @@ Context::Context(ServerConfig& config, HttpRequest& request)
 Context::Context(const Context& other)
 	: _serverConfig(other._serverConfig), _request(other._request), _location(other._location)
 {
-	// TODO: Check if the context is initialized needed? or address to badrequest_400?
-	// if (!this->isInitialized())
-	// 	throw std::invalid_argument("Context not initialized");
 }
 
 Context& Context::operator=(const Context& other)
@@ -30,20 +27,6 @@ Context& Context::operator=(const Context& other)
 
 Context::~Context()
 {
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-/// Public Methods
-////////////////////////////////////////////////////////////////////////////////
-
-/// @brief Checks if the context is initialized.
-/// @return bool `true` if the context is initialized, `false` otherwise.
-bool	Context::isInitialized() const
-{
-	if (&_serverConfig != NULL && &_location != NULL && &_request != NULL)
-		return (true);
-	return (false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

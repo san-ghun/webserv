@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/08/21 19:36:13 by minakim          ###   ########.fr       */
+/*   Updated: 2024/10/22 13:09:22 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,10 +82,6 @@ HttpResponse StaticFileHandler::handlepost(const Context& context)
 	if (HttpResponse::checkStatusRange(status) != STATUS_SUCCESS)
 		return (HttpResponse::createErrorResponse(status, context));
 	HttpResponse resp(context);
-
-	
-	std::cout << "TEST | here is POST" << std::endl;
-	
 	return (resp);
 }
 
