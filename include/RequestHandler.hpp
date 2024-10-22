@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/10/21 18:08:29 by minakim          ###   ########.fr       */
+/*   Updated: 2024/10/22 19:51:30 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,11 +34,14 @@ class	RequestHandler
 	private:
 		StaticFileHandler	_staticFileHandler;
 
-		HttpResponse		_processRequest(const Context& context);
+		HttpResponse		_processStandardMethods(const Context& context);
 	
 		bool				_isAllowedMethod(const Context& context) const;
 		HttpResponse		_handleGet(const Context& context);
     	HttpResponse		_handlePost(const Context& context);
     	HttpResponse		_handleDelete(const Context& context);
+
+		bool				_isCGIReqeust(const Context& context) const;
+		HttpResponse		_handleCGIRequest(const Context& context);
 };
 #endif

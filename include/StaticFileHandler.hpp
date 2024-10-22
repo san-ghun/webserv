@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/08/21 18:54:40 by minakim          ###   ########.fr       */
+/*   Updated: 2024/10/22 19:59:31 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,8 +71,6 @@ class	StaticFileHandler
 		std::string		_buildPathWithUri(const Context& context) const;
 		std::string		_buildAbsolutePathWithRoot(const Context& context) const;
 		std::string		_buildAbsolutePathWithIndex(const Context& context) const;
-
-		std::string		requestToString(const Context& context) const;
 
 		void			_setHandledPath(const std::string& fullPath);
 };

@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/10/22 15:37:15 by minakim          ###   ########.fr       */
+/*   Updated: 2024/10/22 19:06:31 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ HttpRequest::HttpRequest()
 HttpRequest::HttpRequest(std::string& data)
 	: _body(""), _type(NONE), _content(false, NOT_SET)
 {
+	/// FIXME: check logic
 	parse(data);
 }
 

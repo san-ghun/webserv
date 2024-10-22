@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/10/22 13:10:44 by minakim          ###   ########.fr       */
+/*   Updated: 2024/10/22 19:57:51 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,18 +46,37 @@ HttpResponse	RequestHandler::handleRequest(const Context& context)
 	// std::cout << "\r" << request.getMethod() << " | " << request.getUri() << " | " <<
 	// 	request.getVersion() << std::endl;
 
-	// if (!context.getRequest())
-	// 	return (HttpResponse::badRequest_400(context));
-	HttpResponse	reps(context);
-	if (!_isAllowedMethod(context))
-		return (reps.methodNotAllowed_405(context));
-	return (_processRequest(context));
+	if (_isCGIReqeust(context))
+		return (_handleCGIRequest(context));
+	else if (_isAllowedMethod(context))
+		return (_processStandardMethods(context));
+	return (HttpResponse::methodNotAllowed_405(context));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Private Methods
 ////////////////////////////////////////////////////////////////////////////////
 
+/// @brief Checks if the request is a CGI request at the current location.
+/// @param context 
+/// @return bool
+bool	RequestHandler::_isCGIReqeust(const Context& context) const
+{
+	if (context.getLocation().getCgi().empty())
+		return (false);
+	return (false);
+}
+
+/// @brief Not implemented.
+/// @param context 
+/// @return 
+HttpResponse	RequestHandler::_handleCGIRequest(const Context& context)
+{
+	// env, fork...
+	return (HttpResponse::notImplemented_501(context));
+}
+
+////////////////////////////////////////////////////////////////////////////////
 /// @brief This function checks if the request method is in the list of allowed methods.
 /// When the Location object is created, it is initialized with a list of allowed methods.
 /// if user did not specify the allowed methods at `.conf file`, it is initialized with {"GET", "POST", "DELETE"}.
@@ -83,9 +102,10 @@ bool	RequestHandler::_isAllowedMethod(const Context& context) const
 /// @param location The `Location` object associated with the request's URI.
 /// @return An `HttpResponse` object containing the result of processing the request based on the method.
 ///         If the method is not supported, returns a `501 Not Implemented` response.
-HttpResponse	RequestHandler::_processRequest(const Context& context)
+HttpResponse	RequestHandler::_processStandardMethods(const Context& context)
 {
 	const HttpRequest& request = context.getRequest();
+
 	if (request.getMethod() == "GET")
 		return (_handleGet(context));
 	else if (request.getMethod() == "POST")
@@ -110,6 +130,7 @@ HttpResponse RequestHandler::_handleDelete(const Context& context)
 {
 	return (HttpResponse::notImplemented_501(context));
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

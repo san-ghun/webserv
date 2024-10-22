@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:46 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/10/22 15:38:58 by minakim          ###   ########.fr       */
+/*   Updated: 2024/10/22 22:54:10 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,6 +137,7 @@ void	Server::start()
 					else
 					{
 						// Data received on an existing client connection
+						std::string requestData;
 						char buffer[1024];
 						ssize_t	count = read(target, buffer, sizeof(buffer));
 						if (count <= 0)
@@ -148,13 +149,17 @@ void	Server::start()
 							// --i;
 							continue ;
 						}
+
 						// buffer[count] = '\0';
 
+						////////////////////////////////////////////////////////////////////////////////////////
 						std::cout << "TEST | start: handleClientData_2" << std::endl;
-
+						// FIXME: need to handle bigger size of data, not only 1024
 						std::string	requestData(buffer, count);
 
-						////////////////////////////////////////////////////////////////////////////////////////
+						// @author minakim
+						// FIXME: @sanghupa please update this part
+
 						ServerConfig&	serverConfig = _fetchConfig(target);
 						HttpRequest		request(requestData);
 
@@ -162,12 +167,10 @@ void	Server::start()
 						// request.setMethod("POST");
 						// request.setContentLength(10);
 						
-						
 						Context			contextFromTarget(serverConfig, request);
 						HttpResponse	response = _requestHandler.handleRequest(contextFromTarget);
 						std::string		responseData = response.generateResponseToString();
 						// std::string	responseData = handle_request(requestData);
-
 
 						std::cout << "TEST | " << requestData << std::endl;
 						////////////////////////////////////////////////////////////////////////////////////////
