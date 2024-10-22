@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:46 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/10/22 15:06:08 by minakim          ###   ########.fr       */
+/*   Updated: 2024/10/22 15:38:58 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,15 +158,12 @@ void	Server::start()
 						ServerConfig&	serverConfig = _fetchConfig(target);
 						HttpRequest		request(requestData);
 
-						std::cout << "TEST | make request" << std::endl;
-
 						// test line: POST, bad request
 						// request.setMethod("POST");
 						// request.setContentLength(10);
 						
 						
 						Context			contextFromTarget(serverConfig, request);
-						std::cout << "TEST | get context" << std::endl;
 						HttpResponse	response = _requestHandler.handleRequest(contextFromTarget);
 						std::string		responseData = response.generateResponseToString();
 						// std::string	responseData = handle_request(requestData);

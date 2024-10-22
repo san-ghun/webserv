@@ -97,6 +97,7 @@ Location&	Context::_findLocation(Context& context) const
 	std::map<std::string, Location*>	locations = _serverConfig.map_locationObjs;
 
 
+	//// Test function
 	// test_different_path(locations);
 
 	std::string	matchedLocation = getMatchedLocation(uri, locations);
@@ -129,7 +130,6 @@ std::string getMatchedLocation(const std::string& path, const std::map<std::stri
 	if (lastSlashPos == std::string::npos)
 		return ("");
 	std::string normalisedPath = normalisePath(path);
-	std::cout << "normalisedPath: " << normalisedPath << std::endl;
 	lastSlashPos = normalisedPath.find_last_of('/');
 	if (lastSlashPos == 0)
 		return ("/");

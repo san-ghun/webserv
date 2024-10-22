@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/10/22 13:09:22 by minakim          ###   ########.fr       */
+/*   Updated: 2024/10/22 15:40:18 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -274,7 +274,6 @@ std::string StaticFileHandler::_buildAbsolutePathWithRoot(const Context& context
 	if (defaultFile.empty())
 		defaultFile = INDEX_HTML;
 	std::string fullPath = "." + serverRoot + locationRoot + "/" + defaultFile;
-	std::cout << "TEST | absolute path (with root) that is built: " << _handledPath << std::endl;
 	return (fullPath);
 }
 
