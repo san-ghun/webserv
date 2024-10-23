@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:46 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/10/22 22:54:10 by minakim          ###   ########.fr       */
+/*   Updated: 2024/10/22 23:02:54 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,9 +136,10 @@ void	Server::start()
 					}
 					else
 					{
-						// Data received on an existing client connection
-						std::string requestData;
-						char buffer[1024];
+						ServerConfig&    serverConfig = _fetchConfig(target);  // 여기로 
+
+    					// Data received on an existing client connection
+    					char buffer[serverConfig.max_body_size + 1];    
 						ssize_t	count = read(target, buffer, sizeof(buffer));
 						if (count <= 0)
 						{
@@ -149,18 +150,19 @@ void	Server::start()
 							// --i;
 							continue ;
 						}
-
+						std::cout << "TEST | count: " << count << "\n" << std::endl;
+						std::cout << "TEST | buffer: " << buffer << "\n" << std::endl;
 						// buffer[count] = '\0';
 
 						////////////////////////////////////////////////////////////////////////////////////////
 						std::cout << "TEST | start: handleClientData_2" << std::endl;
 						// FIXME: need to handle bigger size of data, not only 1024
+						
 						std::string	requestData(buffer, count);
-
 						// @author minakim
 						// FIXME: @sanghupa please update this part
 
-						ServerConfig&	serverConfig = _fetchConfig(target);
+						// ServerConfig&	serverConfig = _fetchConfig(target);
 						HttpRequest		request(requestData);
 
 						// test line: POST, bad request

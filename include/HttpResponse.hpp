@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/10/22 14:11:03 by minakim          ###   ########.fr       */
+/*   Updated: 2024/10/22 23:10:03 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,4 +105,7 @@ class	HttpResponse
 		t_page_detail		_constructPageDetail(const std::string& path);
 };
 
+
+// TODO: implement "<< operator" for HttpResponse
+// std::ostream& operator<<(std::ostream& os, const HttpResponse& response);
 #endif

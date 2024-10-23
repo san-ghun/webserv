@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/10/22 19:06:31 by minakim          ###   ########.fr       */
+/*   Updated: 2024/10/22 23:07:40 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,10 @@ HttpRequest::HttpRequest(std::string& data)
 	: _body(""), _type(NONE), _content(false, NOT_SET)
 {
 	/// FIXME: check logic
-	parse(data);
+	if (parse(data))
+		std::cout << "TEST | HttpRequest | parse success" << std::endl;
+	else
+		std::cout << "TEST | HttpRequest | parse failed" << std::endl;
 }
 
 HttpRequest::~HttpRequest()

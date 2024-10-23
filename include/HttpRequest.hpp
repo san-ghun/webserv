@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/10/22 13:13:40 by minakim          ###   ########.fr       */
+/*   Updated: 2024/10/22 23:10:40 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,4 +92,6 @@ private:
 
 };
 
+// TODO: implement "<< operator" for HttpRequest
+// std::ostream& operator<<(std::ostream& os, const HttpRequest& request);
 #endif

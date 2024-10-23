@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/10/22 15:40:18 by minakim          ###   ########.fr       */
+/*   Updated: 2024/10/22 23:08:32 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,7 +151,7 @@ HttpResponse StaticFileHandler::_handleDirRequest(const Context& context)
 	Context&	moditiedContext = const_cast<Context&>(context);
 	
 	_setHandledPath(_buildAbsolutePathWithIndex(context));
-	std::cout << "TEST |  absolute path that with index is built: " << _handledPath << std::endl;
+	std::cout << " absolute path that with index is built: " << _handledPath << std::endl;
 	if (!isFile(_handledPath))
 		return (_handleNotFound(context));
 	modifiedRequest.setUri(getFullPath());
