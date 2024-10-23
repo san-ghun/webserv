@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/10/22 23:10:40 by minakim          ###   ########.fr       */
+/*   Updated: 2024/10/23 11:19:30 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ struct ReadedLines
 {
     std::string					request;
     std::vector<std::string>	headers;
-    std::vector<std::string>	bodyLines;
+    std::string	bodyLines;
 };
 
 
@@ -64,6 +64,7 @@ public:
 	void								setVersion(const std::string& version);
 	void								setHeaders(const std::map<std::string, std::string>& headers);
 	void								setBody(const std::vector<std::string>& bodyLines, e_body_type type);
+	void								setBody(const std::string& bodyLines, e_body_type type);
 	void								setContentLength(const ssize_t& contentLength);
 	
 	bool								hasBody() const;
@@ -83,12 +84,12 @@ private:
 	
 	ReadedLines							_splitRequestData(const std::string& requestData);
 	
-	bool								_processRequestBody(const std::vector<std::string>& bodyLines);
+	bool								_processRequestBody(const std::string& bodyLines);
 	bool								_parseRequestLine(const std::string& requestLine);
 	bool								_parseHeaders(const std::vector<std	::string>& headerLines);
 	
 	std::vector<std	::string>			_convertPartToHeaders(std::istringstream& iss);
-	std::vector<std	::string>			_convertPartToBodyLines(std::istringstream& iss);
+	std	::string						_convertPartToBodyLines(std::istringstream& iss);
 
 };
 

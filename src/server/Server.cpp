@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:46 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/10/22 23:02:54 by minakim          ###   ########.fr       */
+/*   Updated: 2024/10/23 11:36:18 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,15 +150,18 @@ void	Server::start()
 							// --i;
 							continue ;
 						}
-						std::cout << "TEST | count: " << count << "\n" << std::endl;
-						std::cout << "TEST | buffer: " << buffer << "\n" << std::endl;
 						// buffer[count] = '\0';
 
 						////////////////////////////////////////////////////////////////////////////////////////
-						std::cout << "TEST | start: handleClientData_2" << std::endl;
 						// FIXME: need to handle bigger size of data, not only 1024
 						
 						std::string	requestData(buffer, count);
+
+						std::cout << YELLOW << "TEST | requestData (server.cpp, buffer to std::string)" << std::endl;
+						std::cout << "buffer: " << count << ", string size: "<< requestData.size() << std::endl;
+						std::cout << RESET << "\nrequestData\n\n" << YELLOW << requestData << "\n\n" << RESET << std::endl;
+
+
 						// @author minakim
 						// FIXME: @sanghupa please update this part
 
@@ -173,8 +176,6 @@ void	Server::start()
 						HttpResponse	response = _requestHandler.handleRequest(contextFromTarget);
 						std::string		responseData = response.generateResponseToString();
 						// std::string	responseData = handle_request(requestData);
-
-						std::cout << "TEST | " << requestData << std::endl;
 						////////////////////////////////////////////////////////////////////////////////////////
 						
 						// Send the response

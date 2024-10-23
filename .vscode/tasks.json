@@ -21,7 +21,6 @@
                 "${workspaceFolder}/src/server/HttpResponse.cpp",
                 "${workspaceFolder}/src/server/ErrorResponse.cpp",
                 "${workspaceFolder}/src/server/Context.cpp",
-                "${workspaceFolder}/src/server/RequestParser.cpp",
                 "${workspaceFolder}/src/server/RequestHandler.cpp",
                 "${workspaceFolder}/src/server/StaticFileHandler.cpp",
                 "${workspaceFolder}/src/util/Location.cpp",

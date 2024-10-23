@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/10/22 23:08:32 by minakim          ###   ########.fr       */
+/*   Updated: 2024/10/23 10:29:02 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ HttpResponse StaticFileHandler::handleget(const Context& context)
 			return (_handleDirListing(context));
 		return (_handleDirRequest(context));
 	}
-	if (isFile(_handledPath))
+	else if (isFile(_handledPath))
 		return (_handleFileRequest(context));
 	return (_handleNotFound(context));
 }

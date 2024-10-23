@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/10/22 23:07:40 by minakim          ###   ########.fr       */
+/*   Updated: 2024/10/23 11:29:10 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ bool HttpRequest::parse(const std::string& requestData)
 	return (true);
 }
 
-bool	HttpRequest::_processRequestBody(const std::vector<std::string>& bodyLines)
+bool	HttpRequest::_processRequestBody(const std::string& bodyLines)
 {
 	if (!hasBody())
 		return (true);
@@ -142,13 +142,14 @@ std::vector<std	::string> HttpRequest::_convertPartToHeaders(std::istringstream&
 	return (res);
 }
 
-std::vector<std::string> HttpRequest::_convertPartToBodyLines(std::istringstream& iss)
+std::string HttpRequest::_convertPartToBodyLines(std::istringstream& iss)
 {
 	std::string					readline;
-	std::vector<std::string>	drafts;
+	// std::vector<std::string>	drafts;
+	std::string					drafts;
 
 	while (std::getline(iss, readline))
-		drafts.push_back(readline);
+		drafts += readline + "\n";
 	return (drafts);
 }
 
@@ -290,6 +291,7 @@ bool	HttpRequest::hasBody() const
 {
         return (_content.first);
 }
+
 void	HttpRequest::setBody(const std::vector<std::string>& bodyLines, e_body_type type)
 {
 	if (!hasBody() || getContentLength() == 0)
@@ -298,9 +300,22 @@ void	HttpRequest::setBody(const std::vector<std::string>& bodyLines, e_body_type
 	if (bodyLinesToString.length() != getContentLength())
 		throw std::runtime_error(
 		"HTTP method [" + getMethod() + "] at URI [" + getUri() + "] encountered a body length mismatch: "
-		"Expected Content-Length = " + std::to_string(getContentLength()) + 
-		", but received body length = " + std::to_string(bodyLinesToString.length()) + ".");
+		"Expected Content-Length = " + toString(getContentLength()) + 
+		", but received body length = " + toString(bodyLinesToString.length()) + ".");
 	_body = bodyLinesToString;
+	_type = type;
+}
+
+void	HttpRequest::setBody(const std::string& bodyLines, e_body_type type)
+{
+	if (!hasBody() || getContentLength() == 0)
+		return;
+	if (bodyLines.length() != getContentLength())
+		throw std::runtime_error(
+		"HTTP method [" + getMethod() + "] at URI [" + getUri() + "] encountered a body length mismatch: "
+		"Expected Content-Length = " + toString(getContentLength()) + 
+		", but received body length = " + toString(bodyLines.length()) + ".");
+	_body = bodyLines;
 	_type = type;
 }
 
