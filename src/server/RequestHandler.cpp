@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/25 16:52:51 by minakim          ###   ########.fr       */
+/*   Updated: 2024/10/23 11:32:44 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,10 @@
 #include "HttpResponse.hpp"
 #include "HttpRequest.hpp"
 #include "Location.hpp"
+#include "Config.hpp"
+#include "Context.hpp"
 
-RequestHandler::RequestHandler()
+RequestHandler:: RequestHandler()
 {}
 
 RequestHandler::~RequestHandler()
@@ -38,132 +40,64 @@ RequestHandler::~RequestHandler()
 /// 		1. Returns `404 Not Found` if no location is found.
 ///			2. `405 Method Not Allowed` if the method is not allowed.
 ///			3. or the result of `_processRequest` if the method is valid and the location is found.
-HttpResponse	RequestHandler::handleRequest(const HttpRequest& request)
+HttpResponse	RequestHandler::handleRequest(const Context& context)
 {
-	// FIXME: change to Logger
-	std::cout << "\r" << request.getMethod() << " | " << request.getUri() << " | " <<
-		request.getVersion() << std::endl;
 
-	HttpResponse	reps;
-	Location*		location = _findLocation(request.getUri());
+	// std::cout << "\r" << request.getMethod() << " | " << request.getUri() << " | " <<
+	// 	request.getVersion() << std::endl;
 
-	if (location == NULL)
-		return (HttpResponse::notFound_404());
-	if (!_isAllowedMethod(request.getMethod(), (*location).getAllowedMethods()))
-		return (HttpResponse::methodNotAllowed_405());
-	reps = _processRequest(request, (*location));
-	return (reps);
+	if (_isCGIReqeust(context))
+		return (_handleCGIRequest(context));
+	else if (_isAllowedMethod(context))
+		return (_processStandardMethods(context));
+	return (HttpResponse::methodNotAllowed_405(context));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Private Methods
 ////////////////////////////////////////////////////////////////////////////////
 
-/// @brief Finds the `Location` object that matches the request URI.
-///
-/// This function extracts the path from the given URI and searches for the most specific
-/// location in the `Config` instance that matches the extracted path. It uses the location map
-/// from the `Config` to find the best matching `Location`. If a match is found, the corresponding
-/// `Location` object is returned. If no match is found, `NULL` is returned.
-///
-/// @param uri The request URI to extract the path from and match against the location map.
-/// @return A pointer to the matching `Location` object if a match is found; otherwise, `NULL`.
-Location*	RequestHandler::_findLocation(const std::string& uri)
+/// @brief Checks if the request is a CGI request at the current location.
+/// @param context 
+/// @return bool
+bool	RequestHandler::_isCGIReqeust(const Context& context) const
 {
-	Config&								config = Config::getInstance();
-	std::map<std::string, Location*>	locations = config.getLocationMap();
-
-	std::string	matchedLocation = _getMatchedLocation(uri, locations);
-	if (!matchedLocation.empty())
-		return (locations.at(matchedLocation));
-	return (NULL);
-}
-
-// TODO: check logic ***
-std::string getParentPath(const std::string& path) {
-
-	ssize_t lastSlashPos = path.find_last_of('/');
-	if (lastSlashPos == 0)
-	    return "/";
-	return path.substr(0, lastSlashPos);
-}
 
 
-/// @brief Finds the longest location path that matches the request URI.
-///
-/// This function extracts the path from the URI and searches for the most specific location
-/// that matches this path. It starts with the full path and progressively checks shorter
-/// paths up to the root, using the provided locations map from the `Config` instance.
-///
-/// @param path The path extracted from the URI to match against the locations.
-/// @param locations A map of location paths to `Location` objects from the `Config` instance.
-/// @return The longest matching `location path`. If no match is found, returns an `empty string`.
-std::string _getMatchedLocation(std::string path, const std::map<std::string, Location*>& locations)
-{
-	std::string	matched;
-	std::string parentPath;
-// TODO: 1. check logic *** 2. clean up 3. modularize
-
-	if (path.empty())
-		throw std::invalid_argument("Path cannot be empty");
-	if (path == "/") // if root
+	std::map<std::string, std::string> cgiMap = context.getLocation().getCgi();
+	std::cout << YELLOW << "TEST | location.getCgi()\n" << RESET << std::endl;
+	for (std::map<std::string, std::string>::const_iterator it = cgiMap.begin(); it != cgiMap.end(); ++it)
 	{
-		std::map<std::string, Location*>::const_iterator it = locations.find(path);
-		if (it != locations.end())
-        {
-            std::cout << "Match found: " << it->first << std::endl;
-            return (path);
-        }
-		throw std::invalid_argument("No match found for path: " + path);
+    	std::cout << YELLOW << "       key: " << it->first << " -> value: " << it->second << RESET << std::endl;
 	}
+	std::cout << YELLOW << "     --- cgi map end" << RESET << std::endl;
+	
 
-	ssize_t lastSlashPos = path.find_last_of('/');
-	path = path.substr(0, lastSlashPos + 1);
-    while (!path.empty())
-    {
-        std::cout << "Checking path: [" << path << "]" << std::endl;
-        std::map<std::string, Location*>::const_iterator it = locations.find(path);
-        if (it != locations.end())
-        {
-            std::cout << "Match found: " << it->first << std::endl;
-            matched = path;
-            break;
-        }
-        std::cout << "No match for: [" << path << "]" << std::endl;
-        path = getParentPath(path);
-        if (path == "/")
-			break;
-    }
-	return (matched);
-
+	if (context.getLocation().getCgi().empty())
+		return (false);
+	return (true);
 }
 
-/// @brief Extracts and normalizes the path from a given URI.
-///
-/// This function removes the trailing slash from the URI path if it exists. 
-/// The URI is processed to return the normalized path, which does not end with a slash.
-/// @param uri 
-/// @return extracted path
-std::string _extractPathFromUri(const std::string& uri)
+/// @brief Not implemented.
+/// @param context 
+/// @return 
+HttpResponse	RequestHandler::_handleCGIRequest(const Context& context)
 {
-	std::string path = uri;
-
-	if (path.empty())
-		throw std::invalid_argument("URI cannot be empty");
-	if (path == "/")
-		return (path);
-	if (path.size() > 1 && path[path.size() - 1] == '/')
-		path.erase(path.size() - 1);
-	return (path);
+	// env, fork...
+	return (HttpResponse::notImplemented_501(context));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// @brief This function checks if the request method is in the list of allowed methods.
 /// When the Location object is created, it is initialized with a list of allowed methods.
 /// if user did not specify the allowed methods at `.conf file`, it is initialized with {"GET", "POST", "DELETE"}.
-bool	RequestHandler::_isAllowedMethod(const std::string &target, std::vector<std::string> list) const
+bool	RequestHandler::_isAllowedMethod(const Context& context) const
 {
-	if (!list.empty() && std::find(list.begin(), list.end(), target) != list.end())
+	const std::string &requestMethod = context.getRequest().getMethod();
+	const std::vector<std::string> &allowedMethods =  context.getLocation().getAllowedMethods();
+	
+	if (!allowedMethods.empty() 
+		&& std::find(allowedMethods.begin(), allowedMethods.end(), requestMethod) != allowedMethods.end())
 			return (true);
 	return (false);
 }
@@ -179,41 +113,35 @@ bool	RequestHandler::_isAllowedMethod(const std::string &target, std::vector<std
 /// @param location The `Location` object associated with the request's URI.
 /// @return An `HttpResponse` object containing the result of processing the request based on the method.
 ///         If the method is not supported, returns a `501 Not Implemented` response.
-HttpResponse	RequestHandler::_processRequest(const HttpRequest& request,
-												const Location& location)
+HttpResponse	RequestHandler::_processStandardMethods(const Context& context)
 {
+	const HttpRequest& request = context.getRequest();
+
 	if (request.getMethod() == "GET")
-		return (_handleGet(request, location));
+		return (_handleGet(context));
 	else if (request.getMethod() == "POST")
-		return (_handlePost(request, location));
+		return (_handlePost(context));
 	else if (request.getMethod() == "DELETE")
-		return (_handleDelete(request, location));
+		return (_handleDelete(context));
 	else
-		return (HttpResponse::notImplemented_501());
+		return (HttpResponse::notImplemented_501(context));
 }
 
-HttpResponse RequestHandler::_handleGet(const HttpRequest& request,
-										const Location& location)
+HttpResponse RequestHandler::_handleGet(const Context& context)
 {
-
-	return (_staticFileHandler.handleRequest(request, location));
+	return (_staticFileHandler.handleget(context));
 }
 
-HttpResponse RequestHandler::_handlePost(const HttpRequest& request,
-										const Location& location)
+HttpResponse RequestHandler::_handlePost(const Context& context)
 {
-	(void) request;
-	(void) location;
-	return (HttpResponse::notImplemented_501());
+	return (_staticFileHandler.handlepost(context));
 }
 
-HttpResponse RequestHandler::_handleDelete(const HttpRequest& request,
-											const Location& location)
+HttpResponse RequestHandler::_handleDelete(const Context& context)
 {
-	(void) request;
-	(void) location;
-	return (HttpResponse::notImplemented_501());
+	return (HttpResponse::notImplemented_501(context));
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

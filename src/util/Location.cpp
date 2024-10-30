@@ -6,7 +6,7 @@
 /*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/07/22 23:01:58 by sanghupa         ###   ########.fr       */
+/*   Updated: 2024/07/27 14:23:57 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,35 @@ Location::Location()
 	_cgi = std::map<std::string, std::string>();
 }
 
+Location::Location(LocationConfig* location)
+{
+	_server = NULL;
+	_path = location->path;
+	_rootPath = location->root;
+	_isListdir = location->lsdir;
+	_uploadPath = location->upload_dir;
+	_index = location->default_file;
+	_allowedMethods = location->allowed_methods;
+	if (location->allowed_methods.empty())
+	{
+		_allowedMethods.push_back("GET");
+		_allowedMethods.push_back("POST");
+		_allowedMethods.push_back("DELETE");
+	}
+	if (location->redirection.empty() == false)
+	{
+		_isRedirect = true;
+		_redirectPath = location->redirection;
+		_redirectCode = "307";
+	}
+	else {
+		_isRedirect = false;
+		_redirectPath = "";
+		_redirectCode = "";
+	}
+	_cgi = std::map<std::string, std::string>();
+}
+
 Location::Location(std::string path)
 	: _path(path)
 {
@@ -48,7 +77,7 @@ Location::Location(std::string path)
 	_cgi = std::map<std::string, std::string>();
 }
 
-Location::Location(Server* server, std::string path)
+Location::Location(ServerConfig* server, std::string path)
 	: _server(server), _path(path)
 {
 	_rootPath = "/www/static";
@@ -68,7 +97,7 @@ Location::Location(Server* server, std::string path)
 Location::~Location()
 {}
 
-Server*	Location::getServer() const
+ServerConfig*	Location::getServer() const
 {
 	return (_server);
 }
@@ -123,7 +152,7 @@ std::map<std::string, std::string>	Location::getCgi() const
 	return (_cgi);
 }
 
-void	Location::setServer(Server* server)
+void	Location::setServer(ServerConfig* server)
 {
 	_server = server;
 }

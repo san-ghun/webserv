@@ -13,9 +13,12 @@ SRC_NAME = ./src/main.cpp \
 		./src/server/RequestHandler.cpp \
 		./src/server/HttpRequest.cpp \
 		./src/server/HttpResponse.cpp \
+		./src/server/ErrorResponse.cpp \
+		./src/server/Context.cpp \
 		./src/server/StaticFileHandler.cpp \
 		./src/util/Config.cpp \
-		./src/util/Location.cpp
+		./src/util/Location.cpp \
+		./src/util/Util.cpp
 
 # SRC_NAME = $(shell find ./src -iname "*.cpp")
 OBJ_NAME = $(SRC_NAME:.cpp=.o)
