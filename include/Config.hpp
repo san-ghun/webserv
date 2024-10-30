@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
+/*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/08/07 17:26:39 by minakim          ###   ########.fr       */
+/*   Updated: 2024/10/30 23:03:49 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,10 +57,6 @@ class	Config
 		// Singleton: Static method to get the single instance of the class
 		static Config&	getInstance();
 
-		// Deleted copy constructor and copy assignment operator to prevent copying
-		// Config(const Config&) = delete;
-		// void operator=(const Config&) = delete;
-
 		void			load(const std::string& filename);
 		
 		std::string		get(const std::string key) const;
@@ -73,20 +69,9 @@ class	Config
 		ServerConfig*	getServerByHost(const std::string serverHost) const;
 		ServerConfig*	getServerByPort(const int serverPort) const;
 
-		// to server class ...?
-		// std::string		getServerHost() const;
-		// int				getPort() const;
-		// std::string		getErrorPage(const int code) const;
-		// Location*		getLocation(const std::string key) const;
-
 		std::vector<ServerConfig*>			getServers() const;
 		std::map<std::string, std::string>	getMimeTypeMap() const;
 		std::map<std::string, std::string>	getConfigMap() const;
-
-		// to server class ...?
-		// std::map<int, std::string>			getErrorPageMap() const;
-		// std::map<std::string, std::string>	getServerSettingMap() const;
-		// std::map<std::string, Location*>	getLocationMap() const;
 
 		// TODO: Implement
 		void			setServer(ServerConfig* server, std::string line);
@@ -98,19 +83,10 @@ class	Config
 		~Config();
 
 		void			_parseConfigFile(const std::string& filename);
-		// void			_setHostPort();
 
 		std::vector<ServerConfig*>			_servers;
 		std::map<std::string, std::string>	_mimeTypeMap;
 		std::map<std::string, std::string>	_configMap;
-
-		// to server class ...?
-		// std::map<int, std::string>			_errorPageMap;
-		// std::map<std::string, std::string>	_serverSettingMap;
-		// std::map<std::string, Location*>	_locationMap;
-
-		// int				_port;
-		// std::string		_host;
 };
 
 #endif

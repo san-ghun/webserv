@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
+/*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:46 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/08/07 17:31:17 by minakim          ###   ########.fr       */
+/*   Updated: 2024/10/30 23:05:09 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,13 +20,9 @@
 # include "RequestHandler.hpp"
 # include "HttpRequest.hpp"
 # include "HttpResponse.hpp"
-# include "Socket.hpp"
-# include "Poller.hpp"
 
 class	Config;
 class	Location;
-class	Socket;
-class	Poller;
 // class	RequestHandler;
 
 struct	ServerConfig;
@@ -52,19 +48,18 @@ class	Server
 
 	private:
 		bool						_running;
-		Socket						_listenSocket;
 		std::vector<ListenInfo>		_listenInfos;
 		std::map<int, ListenInfo> 	_clients;
-		Poller						_poller;
 		std::vector<pollfd>			_pollfds;
 		RequestHandler				_requestHandler;
 
 		int							_setupListeningSocket(const std::string host, int port);
 
-		void						_acceptNewConnection();
-		void						_handleClientData(int clientSocket, size_t idx);
 		ServerConfig&				_fetchConfig(int target);
-
+		int							_setupListenInfos();
+		int							_setupListenSockets();
+		int							_acceptNewConnection(int target);
+		int							_handleClientData(int target, size_t i);
 
 		Config&						_config;
 		std::vector<ServerConfig*>	_serverConfigs;
