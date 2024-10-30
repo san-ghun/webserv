@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:46 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/08/08 21:35:43 by minakim          ###   ########.fr       */
+/*   Updated: 2024/10/23 11:36:18 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,8 +136,10 @@ void	Server::start()
 					}
 					else
 					{
-						// Data received on an existing client connection
-						char buffer[1024];
+						ServerConfig&    serverConfig = _fetchConfig(target);  // 여기로 
+
+    					// Data received on an existing client connection
+    					char buffer[serverConfig.max_body_size + 1];    
 						ssize_t	count = read(target, buffer, sizeof(buffer));
 						if (count <= 0)
 						{
@@ -150,22 +152,31 @@ void	Server::start()
 						}
 						// buffer[count] = '\0';
 
+						////////////////////////////////////////////////////////////////////////////////////////
+						// FIXME: need to handle bigger size of data, not only 1024
+						
 						std::string	requestData(buffer, count);
 
-						HttpRequest		request;
+						std::cout << YELLOW << "TEST | requestData (server.cpp, buffer to std::string)" << std::endl;
+						std::cout << "buffer: " << count << ", string size: "<< requestData.size() << std::endl;
+						std::cout << RESET << "\nrequestData\n\n" << YELLOW << requestData << "\n\n" << RESET << std::endl;
 
-						if (!request.parse(requestData))
-							return ; // throw?
 
-						ServerConfig&	serverConfig = _fetchConfig(target);
+						// @author minakim
+						// FIXME: @sanghupa please update this part
+
+						// ServerConfig&	serverConfig = _fetchConfig(target);
+						HttpRequest		request(requestData);
+
+						// test line: POST, bad request
+						// request.setMethod("POST");
+						// request.setContentLength(10);
+						
 						Context			contextFromTarget(serverConfig, request);
 						HttpResponse	response = _requestHandler.handleRequest(contextFromTarget);
-						std::string		responseData = response.toString();
+						std::string		responseData = response.generateResponseToString();
 						// std::string	responseData = handle_request(requestData);
-
-
-						std::cout << "TEST | start: handleClientData_2" << std::endl;
-						std::cout << "TEST | " << requestData << std::endl;
+						////////////////////////////////////////////////////////////////////////////////////////
 						
 						// Send the response
 						write(target, responseData.c_str(), responseData.size());
@@ -189,6 +200,8 @@ void	Server::start()
 	}
 }
 
+/// @author minakim
+/// FIXME:  @sanghupa please change or delete this method
 ServerConfig& Server::_fetchConfig(int target)
 {
 	ServerConfig& serverConfig = *_config.getServerByListen(_clients[target].listen);	
@@ -307,19 +320,18 @@ void	Server::_handleClientData(int clientSocket, size_t idx)
 	}
 
 	std::string	requestData(buffer, count);
+	HttpRequest		request(requestData);
 
-	HttpRequest		request;
 
-
-	if (!request.parse(requestData))
-		return ; // throw?
+	// if (!request.parse(requestData))
+	// 	return ; // throw?
 	
 	// HttpResponse	response = _requestHandler.handleRequest(request, _fetchConfig(clientSocket));
 	// std::string		responseData = response.toString();
 	ServerConfig&	serverConfig = _fetchConfig(clientSocket);
 	Context			contextFromTarget(serverConfig, request);
 	HttpResponse	response = _requestHandler.handleRequest(contextFromTarget);
-	std::string		responseData = response.toString();
+	std::string		responseData = response.generateResponseToString();
 	std::cout << "TEST | start: handleClientData_2" << std::endl;
 	std::cout << "TEST | " << requestData << std::endl;
 	

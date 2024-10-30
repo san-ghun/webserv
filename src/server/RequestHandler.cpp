@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/08/08 20:51:35 by minakim          ###   ########.fr       */
+/*   Updated: 2024/10/23 11:32:44 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,20 +42,52 @@ RequestHandler::~RequestHandler()
 ///			3. or the result of `_processRequest` if the method is valid and the location is found.
 HttpResponse	RequestHandler::handleRequest(const Context& context)
 {
-	// // FIXME: change to Logger
+
 	// std::cout << "\r" << request.getMethod() << " | " << request.getUri() << " | " <<
 	// 	request.getVersion() << std::endl;
 
-	HttpResponse	reps(context);
-	if (!_isAllowedMethod(context))
-		return (reps.methodNotAllowed_405(context));
-	return (_processRequest(context));
+	if (_isCGIReqeust(context))
+		return (_handleCGIRequest(context));
+	else if (_isAllowedMethod(context))
+		return (_processStandardMethods(context));
+	return (HttpResponse::methodNotAllowed_405(context));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Private Methods
 ////////////////////////////////////////////////////////////////////////////////
 
+/// @brief Checks if the request is a CGI request at the current location.
+/// @param context 
+/// @return bool
+bool	RequestHandler::_isCGIReqeust(const Context& context) const
+{
+
+
+	std::map<std::string, std::string> cgiMap = context.getLocation().getCgi();
+	std::cout << YELLOW << "TEST | location.getCgi()\n" << RESET << std::endl;
+	for (std::map<std::string, std::string>::const_iterator it = cgiMap.begin(); it != cgiMap.end(); ++it)
+	{
+    	std::cout << YELLOW << "       key: " << it->first << " -> value: " << it->second << RESET << std::endl;
+	}
+	std::cout << YELLOW << "     --- cgi map end" << RESET << std::endl;
+	
+
+	if (context.getLocation().getCgi().empty())
+		return (false);
+	return (true);
+}
+
+/// @brief Not implemented.
+/// @param context 
+/// @return 
+HttpResponse	RequestHandler::_handleCGIRequest(const Context& context)
+{
+	// env, fork...
+	return (HttpResponse::notImplemented_501(context));
+}
+
+////////////////////////////////////////////////////////////////////////////////
 /// @brief This function checks if the request method is in the list of allowed methods.
 /// When the Location object is created, it is initialized with a list of allowed methods.
 /// if user did not specify the allowed methods at `.conf file`, it is initialized with {"GET", "POST", "DELETE"}.
@@ -81,9 +113,10 @@ bool	RequestHandler::_isAllowedMethod(const Context& context) const
 /// @param location The `Location` object associated with the request's URI.
 /// @return An `HttpResponse` object containing the result of processing the request based on the method.
 ///         If the method is not supported, returns a `501 Not Implemented` response.
-HttpResponse	RequestHandler::_processRequest(const Context& context)
+HttpResponse	RequestHandler::_processStandardMethods(const Context& context)
 {
 	const HttpRequest& request = context.getRequest();
+
 	if (request.getMethod() == "GET")
 		return (_handleGet(context));
 	else if (request.getMethod() == "POST")
@@ -96,18 +129,19 @@ HttpResponse	RequestHandler::_processRequest(const Context& context)
 
 HttpResponse RequestHandler::_handleGet(const Context& context)
 {
-	return (_staticFileHandler.handleRequest(context));
+	return (_staticFileHandler.handleget(context));
 }
 
 HttpResponse RequestHandler::_handlePost(const Context& context)
 {
-	return (HttpResponse::notImplemented_501(context));
+	return (_staticFileHandler.handlepost(context));
 }
 
 HttpResponse RequestHandler::_handleDelete(const Context& context)
 {
 	return (HttpResponse::notImplemented_501(context));
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
