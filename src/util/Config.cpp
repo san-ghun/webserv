@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
+/*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/08/07 17:26:43 by minakim          ###   ########.fr       */
+/*   Updated: 2024/10/30 21:50:13 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -364,21 +364,6 @@ std::map<std::string, std::string>	Config::getConfigMap() const
 	return (_configMap);
 }
 
-// std::map<std::string, Location*>	Config::getLocationMap() const
-// {
-// 	return (_locationMap);
-// }
-
-// std::map<std::string, std::string>	Config::getServerSettingMap() const
-// {
-// 	return (_serverSettingMap);
-// }
-
-// std::map<int, std::string>	Config::getErrorPageMap() const
-// {
-// 	return (_errorPageMap);
-// }
-
 std::map<std::string, std::string>	Config::getMimeTypeMap() const
 {
 	return (_mimeTypeMap);
@@ -426,31 +411,3 @@ int	Config::getInt(const std::string key) const
 		return (0);
 	return (atoi(value.c_str()));
 }
-
-// std::string	Config::getServerHost() const
-// {
-// 	return (_host);
-// }
-
-// int	Config::getPort() const
-// {
-// 	return (_port);
-// }
-
-// std::string	Config::getErrorPage(const int code) const
-// {
-// 	std::map<int, std::string>::const_iterator it;
-// 	it = _errorPageMap.find(code);
-// 	if (it == _errorPageMap.end())
-// 		return ("");
-// 	return (it->second);
-// }
-
-// Location*	Config::getLocation(const std::string key) const
-// {
-// 	std::map<std::string, Location*>::const_iterator it;
-// 	it = _locationMap.find(key);
-// 	if (it == _locationMap.end())
-// 		return (NULL);
-// 	return (it->second);
-// }

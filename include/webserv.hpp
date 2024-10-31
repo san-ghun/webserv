@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserv.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
+/*   By: sanghupa <sanghupa@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/22 21:04:39 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/10/23 10:15:54 by minakim          ###   ########.fr       */
+/*   Updated: 2024/10/30 23:05:48 by sanghupa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,8 +47,6 @@
 // # include "StaticFileHandler.hpp"
 // # include "HttpRequest.hpp"
 // # include "HttpResponse.hpp"
-// # include "Socket.hpp"
-// # include "Poller.hpp"
 
 // Macros
 #define MAX_EVENTS 100   // TEST PURPOSE ONLY

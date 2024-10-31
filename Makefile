@@ -7,8 +7,7 @@ CFLAGS = -Wall -Wextra -Werror -std=c++98
 RM = rm -f
 
 SRC_NAME = ./src/main.cpp \
-		./src/network/Poller.cpp \
-		./src/network/Socket.cpp \
+		./src/network/Server-network.cpp \
 		./src/server/Server.cpp \
 		./src/server/RequestHandler.cpp \
 		./src/server/HttpRequest.cpp \
