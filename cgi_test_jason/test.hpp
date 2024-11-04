@@ -35,6 +35,8 @@ class AMessage
 		const std::string &getBody() const;
 		const std::string &getVersion() const;
 		const std::string &getHeaderOrDefault(const std::string &key, const std::string &default_value);
+	
+		void setBody(const std::string &body);
 };
 
 class Request : public AMessage
@@ -52,12 +54,19 @@ class Request : public AMessage
 		const std::string buildQueryString() const;
 };
 
+class Response : public AMessage
+{
+	public:
+		Response();
+		~Response();
+};
+
 class CGIExecutor {
 public:
     CGIExecutor();
     ~CGIExecutor();
 
-    bool executeCGI(Request & request);
+    bool executeCGI(Request & request, Response & response);
 	bool isCGI(const std::string &path);
 
 private:
