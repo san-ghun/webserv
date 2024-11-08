@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/10/22 14:12:58 by minakim          ###   ########.fr       */
+/*   Updated: 2024/11/08 12:44:41 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -246,7 +246,7 @@ void	HttpResponse::setStatusCode(int code)
 /// @brief Generates a simple HTML response for a given HTTP status code.
 /// @param code The HTTP status code for which to generate the response. 
 /// @return Return the generated HTML response.
-HttpResponse	HttpResponse::_createSimpleHttpResponse(int code)
+HttpResponse	HttpResponse::createSimpleHttpResponse(int code)
 {
 	HttpResponse resp(_context);
 	resp.setStatusCode(code);
@@ -274,7 +274,7 @@ std::string	HttpResponse::_generateHtmlBody()
 /// `t_page_detail` is a struct that contains the path of the file and a boolean flag indicating if the file is valid.
 /// @param path 
 /// @return `t_page_detail`
-t_page_detail	HttpResponse::_constructPageDetail(const std::string& path)
+t_page_detail	HttpResponse::constructPageDetail(const std::string& path)
 {
 	t_page_detail	page;
 	page.path = path;

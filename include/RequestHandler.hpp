@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/10/22 19:51:30 by minakim          ###   ########.fr       */
+/*   Updated: 2024/11/08 12:39:07 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,12 +36,21 @@ class	RequestHandler
 
 		HttpResponse		_processStandardMethods(const Context& context);
 	
+		bool				_isImplementMethods(const Context& context) const;
+		bool				_isRedirectionNeeded(const Context& context) const;
 		bool				_isAllowedMethod(const Context& context) const;
+
+		std::string			_getRedirecUrl(const Context& context);
+
 		HttpResponse		_handleGet(const Context& context);
     	HttpResponse		_handlePost(const Context& context);
     	HttpResponse		_handleDelete(const Context& context);
+		
+		HttpResponse		_handleCgiGet(const Context& context);
+    	HttpResponse		_handleCgiPost(const Context& context);
 
 		bool				_isCGIReqeust(const Context& context) const;
 		HttpResponse		_handleCGIRequest(const Context& context);
+		bool				_isCgiCompatibleMethod(const Context& context);
 };
 #endif

@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/10/22 23:10:03 by minakim          ###   ########.fr       */
+/*   Updated: 2024/11/08 12:44:44 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,8 +101,8 @@ class	HttpResponse
 		Context&							_context;
 
 		HttpResponse		createErrorResponse(int code);
-		HttpResponse		_createSimpleHttpResponse(int code);
-		t_page_detail		_constructPageDetail(const std::string& path);
+		HttpResponse		createSimpleHttpResponse(int code);
+		t_page_detail		constructPageDetail(const std::string& path);
 };
 
 

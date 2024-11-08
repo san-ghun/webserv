@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/11/07 14:38:34 by minakim          ###   ########.fr       */
+/*   Updated: 2024/11/08 12:41:51 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,10 +42,10 @@ RequestHandler::~RequestHandler()
 ///			3. or the result of `_processRequest` if the method is valid and the location is found.
 HttpResponse	RequestHandler::handleRequest(const Context& context)
 {
-
-	// std::cout << "\r" << request.getMethod() << " | " << request.getUri() << " | " <<
-	// 	request.getVersion() << std::endl;
-
+	if (!_isImplementMethods(context))
+		return (HttpResponse::notImplemented_501(context));
+	if (_isRedirectionNeeded(context))
+		return (HttpResponse::redirect_301(context, _getRedirectUrl(context)));
 	if (_isCGIReqeust(context))
 		return (_handleCGIRequest(context));
 	else if (_isAllowedMethod(context))
@@ -55,6 +55,30 @@ HttpResponse	RequestHandler::handleRequest(const Context& context)
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Private Methods
+////////////////////////////////////////////////////////////////////////////////
+
+/// @brief Check if the request is implemented in the server.
+///	Currently, the server only supports `GET`, `POST`, and `DELETE` methods.
+/// @param context 
+/// @return bool
+bool	RequestHandler::_isImplementMethods(const Context& context) const
+{
+	const std::string &requestMethod = context.getRequest().getMethod();
+
+	if (requestMethod == "GET" || requestMethod == "POST" || requestMethod == "DELETE")
+		return (true);
+	return (true);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+/// Private Methods: redirection
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+/// Private Methods CGI: Get / POST
 ////////////////////////////////////////////////////////////////////////////////
 
 /// @brief Checks if the request is a CGI request at the current location.
@@ -78,16 +102,47 @@ bool	RequestHandler::_isCGIReqeust(const Context& context) const
 	return (true);
 }
 
-/// @brief Not implemented.
+/// @brief Handles the CGI request based on the request method.
+/// Currently, the server only supports `GET` and `POST` methods for CGI requests.
 /// @param context 
 /// @return 
 HttpResponse	RequestHandler::_handleCGIRequest(const Context& context)
 {
-	// env, fork...
+	// TODO: implement CGI request handling
+
+	if (!_isCgiCompatibleMethod(context))
+		return (HttpResponse::methodNotAllowed_405(context));
+	if (context.getRequest().getMethod() == "GET")
+		return (_handleCgiGet(context));
+	else if (context.getRequest().getMethod() == "POST")
+		return (_handleCgiPost(context));
 	return (HttpResponse::notImplemented_501(context));
 }
 
+/// @brief Checks if the request method is compatible with CGI.
+bool	RequestHandler::_isCgiCompatibleMethod(const Context& context)
+{
+	const std::string &requestMethod = context.getRequest().getMethod();
+
+	if (requestMethod == "GET" || requestMethod == "POST")
+		return (true);
+	return (false);
+}
+
+HttpResponse	RequestHandler::_handleCgiGet(const Context& context)
+{
+	return (_staticFileHandler.handleCgiGet(context));
+}
+
+HttpResponse	RequestHandler::_handleCgiPost(const Context& context)
+{
+	return (_staticFileHandler.handleCgiPost(context));
+}
+
 ////////////////////////////////////////////////////////////////////////////////
+/// Private Methods: HTTP request based on its method
+////////////////////////////////////////////////////////////////////////////////
+
 /// @brief This function checks if the request method is in the list of allowed methods.
 /// When the Location object is created, it is initialized with a list of allowed methods.
 /// if user did not specify the allowed methods at `.conf file`, it is initialized with {"GET", "POST", "DELETE"}.
@@ -102,7 +157,6 @@ bool	RequestHandler::_isAllowedMethod(const Context& context) const
 	return (false);
 }
 
-////////////////////////////////////////////////////////////////////////////////
 /// @brief Processes the HTTP request based on its method.
 ///
 /// This function handles an HTTP request by dispatching it to the appropriate method handler
@@ -115,13 +169,13 @@ bool	RequestHandler::_isAllowedMethod(const Context& context) const
 ///         If the method is not supported, returns a `501 Not Implemented` response.
 HttpResponse	RequestHandler::_processStandardMethods(const Context& context)
 {
-	const HttpRequest& request = context.getRequest();
+	const std::string &requestMethod = context.getRequest().getMethod();
 
-	if (request.getMethod() == "GET")
+	if (requestMethod == "GET")
 		return (_handleGet(context));
-	else if (request.getMethod() == "POST")
+	else if (requestMethod == "POST")
 		return (_handlePost(context));
-	else if (request.getMethod() == "DELETE")
+	else if (requestMethod == "DELETE")
 		return (_handleDelete(context));
 	else
 		return (HttpResponse::notImplemented_501(context));
@@ -143,15 +197,3 @@ HttpResponse RequestHandler::_handleDelete(const Context& context)
 	// non CGI DELETE request - need implementation
 	return (_staticFileHandler.handleDelete(context));
 }
-
-
-////////////////////////////////////////////////////////////////////////////////
-
-// TODO: Redirections
-// Redirections	https://developer.mozilla.org/en-US/docs/Web/HTTP/Redirections
-// request | get -> response -> 301 -> request | get -> response 
-/*
-<head>
-  <meta http-equiv="Refresh" content="0; URL=https://example.com/" />
-</head>
-*/
