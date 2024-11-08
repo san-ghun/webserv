@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/11/08 12:44:44 by minakim          ###   ########.fr       */
+/*   Updated: 2024/11/08 18:24:36 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include <string>
 # include <map>
+# include <vector>
 
 # include "Config.hpp"
 # include "Util.hpp"
@@ -31,7 +32,8 @@ struct t_page_detail
 	bool 			isValid;
 };
 
-enum e_status {
+enum e_status
+{
 	STATUS_INVALID = -1,
 	STATUS_INFORMATIONAL,
 	STATUS_SUCCESS,
@@ -41,7 +43,6 @@ enum e_status {
 
 bool	isFile(const std::string path);
 bool	isDir(const std::string path);
-// std::string		generateHtmlBody(int code, const std::string& message);
 
 class	HttpResponse
 {
@@ -77,6 +78,10 @@ class	HttpResponse
 		static HttpResponse		imaTeapot_418(const Context& context);
 		static HttpResponse		internalServerError_500(const Context& context);
 		static HttpResponse		notImplemented_501(const Context& context);
+
+		static HttpResponse		noContent_204(const Context& context);
+		static HttpResponse		redirect_301(const Context& context, const std::string& location);
+
 		static HttpResponse		success_200(const Context& context);
 
 
@@ -105,6 +110,11 @@ class	HttpResponse
 		t_page_detail		constructPageDetail(const std::string& path);
 };
 
+class Body
+{
+public:
+	Body()
+}
 
 // TODO: implement "<< operator" for HttpResponse
 // std::ostream& operator<<(std::ostream& os, const HttpResponse& response);

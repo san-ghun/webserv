@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/11/07 14:36:43 by minakim          ###   ########.fr       */
+/*   Updated: 2024/11/08 17:59:44 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 /// @brief Default constructor, Not used as public constructor.
 HttpRequest::HttpRequest()
-	: _body(""), _type(NONE), _content(false, NOT_SET)
+	: _body(""), _type(NONE), _contentLenght(false, NOT_SET)
 {
 }
 
@@ -31,7 +31,7 @@ HttpRequest::HttpRequest()
 ///		- if the data is bigger than max-header-size, return an error
 ///     - after parsing the header, read the body (as much max-body-size) and then parse it (public method)
 HttpRequest::HttpRequest(std::string& data)
-	: _body(""), _type(NONE), _content(false, NOT_SET), _queryStrings(false, std::map<std::string, std::string>())
+	: _body(""), _type(NONE), _contentLenght(false, NOT_SET), _queryStrings(false, std::map<std::string, std::string>())
 {
 	if (parse(data))
 		std::cout << "TEST | HttpRequest | parse success" << std::endl;
@@ -185,7 +185,6 @@ bool	HttpRequest::_processQueryStrings(size_t pos)
 	return (true);
 }
 
-
 /// @brief Removes the query string from the URI.
 /// @param pos The position of the query string in the URI.
 bool	HttpRequest::_setUriWithoutQuery(size_t pos)
@@ -274,7 +273,7 @@ bool HttpRequest::_parseHeaders(const std::vector<std::string> &headerLines)
 		_headers.insert(std::make_pair(key, value));
 	}
 	if (_headers.find("Content-Length") != _headers.end())
-		_content = std::make_pair(true, toSizeT(_headers["Content-Length"]));
+		_contentLenght = std::make_pair(true, toSizeT(_headers["Content-Length"]));
 	return (true);
 }
 
@@ -337,7 +336,7 @@ std::string	HttpRequest::getBody() const
 
 size_t	HttpRequest::getContentLength() const
 {
-	return (_content.second);
+	return (_contentLenght.second);
 }
 
 
@@ -367,7 +366,7 @@ void	HttpRequest::setHeaders(const std::map<std::string, std::string>& headers)
 
 bool	HttpRequest::hasBody() const
 {
-        return (_content.first);
+        return (_contentLenght.first);
 }
 
 // TODO: if this fucntion is not used, remove it
@@ -381,11 +380,11 @@ void	HttpRequest::setBody(const std::vector<std::string>& bodyLines, e_body_type
 
 	std::string bodyLinesToString = toString(bodyLines);
 	// TODO: if contect-length is bigger than max-body-size, need to handle it
-	if (bodyLinesToString.length() != getContentLength())
-		throw std::runtime_error(
-		"HTTP method [" + getMethod() + "] at URI [" + getUri() + "] encountered a body length mismatch: "
-		"Expected Content-Length = " + toString(getContentLength()) + 
-		", but received body length = " + toString(bodyLinesToString.length()) + ".");
+	// if (bodyLinesToString.length() != getContentLength())
+	// 	throw std::runtime_error(
+	// 	"HTTP method [" + getMethod() + "] at URI [" + getUri() + "] encountered a body length mismatch: "
+	// 	"Expected Content-Length = " + toString(getContentLength()) + 
+	// 	", but received body length = " + toString(bodyLinesToString.length()) + ".");
 	_body = bodyLinesToString;
 	_type = type;
 }
@@ -398,13 +397,14 @@ void	HttpRequest::setBody(const std::string& bodyLines, e_body_type type)
 	if (!hasBody() || getContentLength() == 0)
 		return;
 	// TODO: if contect-length is bigger than max-body-size, need to handle it
-	if (bodyLines.length() != getContentLength())
-		throw std::runtime_error(
-		"HTTP method [" + getMethod() + "] at URI [" + getUri() + "] encountered a body length mismatch: "
-		"Expected Content-Length = " + toString(getContentLength()) + 
-		", but received body length = " + toString(bodyLines.length()) + ".");
-	_body = bodyLines;
+	// if (bodyLines.length() != getContentLength())
+	// 	throw std::runtime_error(
+	// 	"HTTP method [" + getMethod() + "] at URI [" + getUri() + "] encountered a body length mismatch: "
+	// 	"Expected Content-Length = " + toString(getContentLength()) + 
+	// 	", but received body length = " + toString(bodyLines.length()) + ".");
+
 	_type = type;
+	_body = bodyLines;
 }
 
 /// @brief if the request has a body, set the content length.
@@ -412,5 +412,5 @@ void	HttpRequest::setBody(const std::string& bodyLines, e_body_type type)
 void	HttpRequest::setContentLength(const ssize_t& contentLength)
 {
 	if (hasBody())
-		_content.second = contentLength;
+		_contentLenght.second = contentLength;
 }

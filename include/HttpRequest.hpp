@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/11/07 14:34:54 by minakim          ###   ########.fr       */
+/*   Updated: 2024/11/08 18:36:38 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,7 @@ public:
 	std::string							getVersion() const;
 	std::map<std::string, std::string>	getHeaders() const;
 	std::string							getBody() const;
+	e_body_type							getBodyType() const;
 	std::map<std::string, std::string>	getQueryStringsMap() const;
 	std::vector<std::string>			getQueryStrings() const;
 	size_t								getContentLength() const;
@@ -81,7 +82,7 @@ private:
 	std::map<std::string, std::string>						_headers;		// key: value
 	std::string												_body;			// raw, chunked, formdata
 	e_body_type												_type;			// type of body @see e_body_type
-	std::pair<bool, size_t>									_content;		// from Headers["Content-Length"], if not found NOT_SET -1
+	std::pair<bool, size_t>									_contentLenght;	// from Headers["Content-Length"], if not found NOT_SET -1
 	std::pair<bool, std::map<std::string, std::string> >	_queryStrings;	// bool: is there query string, map: key: value, std::string(s)
 	
 	ReadedLines							_splitRequestData(const std::string& requestData);

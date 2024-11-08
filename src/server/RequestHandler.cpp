@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/11/08 12:41:51 by minakim          ###   ########.fr       */
+/*   Updated: 2024/11/08 18:05:55 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,11 @@ HttpResponse	RequestHandler::handleRequest(const Context& context)
 	return (HttpResponse::methodNotAllowed_405(context));
 }
 
+std::string RequestHandler::_getRedirectUrl(const Context& context)
+{
+	return ("test\n");
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 /// Private Methods
 ////////////////////////////////////////////////////////////////////////////////
@@ -86,8 +91,6 @@ bool	RequestHandler::_isImplementMethods(const Context& context) const
 /// @return bool
 bool	RequestHandler::_isCGIReqeust(const Context& context) const
 {
-
-
 	std::map<std::string, std::string> cgiMap = context.getLocation().getCgi();
 	std::cout << YELLOW << "TEST | location.getCgi()\n" << RESET << std::endl;
 	for (std::map<std::string, std::string>::const_iterator it = cgiMap.begin(); it != cgiMap.end(); ++it)
@@ -116,6 +119,7 @@ HttpResponse	RequestHandler::_handleCGIRequest(const Context& context)
 		return (_handleCgiGet(context));
 	else if (context.getRequest().getMethod() == "POST")
 		return (_handleCgiPost(context));
+	std::cout << "LOG | RequestHandler | _handleCGIRequest | DELETE method not supported, 501 Not Implemented" << std::endl;
 	return (HttpResponse::notImplemented_501(context));
 }
 

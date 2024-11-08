@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/11/08 12:04:47 by minakim          ###   ########.fr       */
+/*   Updated: 2024/11/08 18:43:22 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,6 @@ HttpResponse StaticFileHandler::handleGet(const Context& context)
 	int status = _verifyHeaders(context);
 	if (HttpResponse::checkStatusRange(status) != STATUS_SUCCESS)
 		return (HttpResponse::createErrorResponse(status, context));
-
 	if (context.getRequest().getUri() == "/")
 		return (_handleRoot(context));
 	_setRelativePath(_buildRelativePathWithUri(context));
@@ -86,11 +85,43 @@ HttpResponse StaticFileHandler::handlePost(const Context& context)
 	int status = _verifyHeaders(context);
 	if (HttpResponse::checkStatusRange(status) != STATUS_SUCCESS)
 		return (HttpResponse::createErrorResponse(status, context));
+	// TODO: implement, _buildRelativePathWithUriToUpload
 	_setRelativePath(_buildRelativePathWithUri(context));
-	
+
 	// TODO: implement, make new logic
 	HttpResponse resp(context);
 	return (resp);
+}
+
+// TODO: implement, handlePost
+HttpResponse	StaticFileHandler::_processBodyBasedOnType(const Context& context)
+{
+	HttpRequest::e_body_type bodyType = context.getRequest().getBodyType();
+	if (bodyType == HttpRequest::RAW)
+		return (_handleRawBody(context));
+	else if (bodyType == HttpRequest::CHUNKED)
+		return (_handleChunkedBody(context));
+	else if (bodyType == HttpRequest::FORM_DATA)
+		return (_handleFormDataBody(context));
+	return (HttpResponse::internalServerError_500(context));
+}
+
+HttpResponse StaticFileHandler::_handleRawBody(const Context& context)
+{
+	(void)context;
+	return (false);
+}
+
+HttpResponse StaticFileHandler::_handleChunkedBody(const Context& context)
+{
+	(void)context;
+	return (false);
+}
+
+HttpResponse StaticFileHandler::_handleFormDataBody(const Context& context)
+{
+	(void)context;
+	return (false);
 }
 
 
@@ -109,12 +140,41 @@ HttpResponse StaticFileHandler::handleDelete(const Context& context)
 		// TODO: implement: check if the file is deletable
 		if (!_hasWritePermission())
 			return (HttpResponse::forbidden_403(context));
-		if (_deleteFileOrDirectory())
+		if (_hasReadPermission() || _deleteFileOrDir())
 			return (HttpResponse::noContent_204(context));
 		return (HttpResponse::internalServerError_500(context));
 	}
 	return (_handleNotFound(context));
 }
+
+bool	StaticFileHandler::_hasWritePermission()
+{
+	if (access(_relativePath.c_str(), W_OK) == 0)
+		return (true);
+	return (false);
+}
+
+bool	StaticFileHandler::_hasReadPermission()
+{
+	if (access(_relativePath.c_str(), R_OK) == 0)
+		return (true);
+	return (false);
+}
+
+bool	StaticFileHandler::_hasExecutePermission()
+{
+	if (access(_relativePath.c_str(), X_OK) == 0)
+		return (true);
+	return (false);
+}
+
+bool	StaticFileHandler::_deleteFileOrDir()
+{
+	if (remove(_relativePath.c_str()) == 0)
+		return (true);
+	return (false);
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Private methods

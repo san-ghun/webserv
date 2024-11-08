@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/11/08 12:44:41 by minakim          ###   ########.fr       */
+/*   Updated: 2024/11/08 17:48:10 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -364,6 +364,11 @@ HttpResponse	HttpResponse::notImplemented_501(const Context& context)
 	return (createErrorResponse(501, context));
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+/// Public member functions: static success responses.
+////////////////////////////////////////////////////////////////////////////////
+
 /// @brief Creates a successful HTTP response with status code 200.
 /// @details All `Response` object constructors initialize the status code to 200 and the status message to "OK".
 /// @return Return the generated HTML response.
@@ -371,6 +376,23 @@ HttpResponse	HttpResponse::success_200(const Context& context)
 {
 	HttpResponse resp(context);
 	resp.setBody(resp._generateHtmlBody());
+	setDefaultHeaders(resp);
+	return (resp);
+}
+
+HttpResponse	HttpResponse::redirect_301(const Context& context, const std::string& location)
+{
+	// TODO: implement
+	HttpResponse resp(context);
+	resp.setBody(resp._generateHtmlBody());
+	setDefaultHeaders(resp);
+	return (resp);
+}
+
+HttpResponse	HttpResponse::noContent_204(const Context& context)
+{
+	HttpResponse resp(context);
+	resp.setStatusCode(204);
 	setDefaultHeaders(resp);
 	return (resp);
 }

@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/11/08 12:39:07 by minakim          ###   ########.fr       */
+/*   Updated: 2024/11/08 17:55:43 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ class	RequestHandler
 		bool				_isRedirectionNeeded(const Context& context) const;
 		bool				_isAllowedMethod(const Context& context) const;
 
-		std::string			_getRedirecUrl(const Context& context);
+		std::string			_getRedirectUrl(const Context& context);
 
 		HttpResponse		_handleGet(const Context& context);
     	HttpResponse		_handlePost(const Context& context);

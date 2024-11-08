@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/11/07 15:16:30 by minakim          ###   ########.fr       */
+/*   Updated: 2024/11/08 18:43:18 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,17 @@ class	StaticFileHandler
 		int				_validatePostHeaders(const Context& context, const std::map<std::string, std::string>& headers) const;
 		int				_validateDeleteHeaders(const std::map<std::string, std::string>& headers) const;
 		bool			_hasTargetHeader(const std::string& target, const std::map<std::string, std::string>& headers) const;
+
+
+		HttpResponse 	_processBodyBasedOnType(const Context& context);
+		HttpResponse 	_handleRawBody(const Context& context);
+		HttpResponse 	_handleChunkedBody(const Context& context);
+		HttpResponse 	_handleFormDataBody(const Context& context);
+
+		bool			_hasWritePermission();
+		bool			_hasReadPermission();
+		bool			_hasExecutePermission();
+		bool			_deleteFileOrDir();
 
 
 		HttpResponse	_handleDirListing(const Context& context);
