@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/10/23 11:32:44 by minakim          ###   ########.fr       */
+/*   Updated: 2024/11/07 14:38:34 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,17 +129,19 @@ HttpResponse	RequestHandler::_processStandardMethods(const Context& context)
 
 HttpResponse RequestHandler::_handleGet(const Context& context)
 {
-	return (_staticFileHandler.handleget(context));
+	return (_staticFileHandler.handleGet(context));
 }
 
 HttpResponse RequestHandler::_handlePost(const Context& context)
 {
-	return (_staticFileHandler.handlepost(context));
+	// non CGI POST request - still not sure which type of thing I support
+	return (_staticFileHandler.handlePost(context));
 }
 
 HttpResponse RequestHandler::_handleDelete(const Context& context)
 {
-	return (HttpResponse::notImplemented_501(context));
+	// non CGI DELETE request - need implementation
+	return (_staticFileHandler.handleDelete(context));
 }
 
 

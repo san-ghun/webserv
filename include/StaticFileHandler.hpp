@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/10/22 19:59:31 by minakim          ###   ########.fr       */
+/*   Updated: 2024/11/07 15:16:30 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,15 +34,19 @@ class	StaticFileHandler
 		StaticFileHandler(const StaticFileHandler& other);
 		StaticFileHandler& operator=(const StaticFileHandler& other);
 
-		HttpResponse	handleget(const Context& context);
-		HttpResponse	handlepost(const Context& context);
+		HttpResponse	handleGet(const Context& context);
+		HttpResponse	handlePost(const Context& context);
+		HttpResponse	handleDelete(const Context& context);		
 
 
-		std::string		getFullPath() const;
+		std::string		getRelativePath() const;
 		std::string		resolveMimeType(const std::string path) const;
 
 	private:
-		std::string							_handledPath;
+		/// @brief 							relativePath to clarify that
+		///									it’s constructed relative to the server root
+		///									and location.
+		std::string							_relativePath;
 		std::map<std::string, std::string>	_mimeTypes;
 
 
@@ -68,11 +72,11 @@ class	StaticFileHandler
 		HttpResponse	_handleRoot(const Context& context);
 		HttpResponse	_handleNotFound(const Context& context);
 
-		std::string		_buildPathWithUri(const Context& context) const;
-		std::string		_buildAbsolutePathWithRoot(const Context& context) const;
-		std::string		_buildAbsolutePathWithIndex(const Context& context) const;
+		std::string		_buildRelativePathWithUri(const Context& context) const;
+		std::string		_buildRelativePathWithRootAndIndex(const Context& context) const;
+		std::string		_buildRelativePathWithIndex(const Context& context) const;
 
-		void			_setHandledPath(const std::string& fullPath);
+		void			_setRelativePath(const std::string& resolvedPath);
 };
 
 #endif

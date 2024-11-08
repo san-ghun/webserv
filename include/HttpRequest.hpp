@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/10/23 11:19:30 by minakim          ###   ########.fr       */
+/*   Updated: 2024/11/07 14:34:54 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,9 +29,8 @@ struct ReadedLines
 {
     std::string					request;
     std::vector<std::string>	headers;
-    std::string	bodyLines;
+    std::string					bodyLines;
 };
-
 
 class	HttpRequest
 {
@@ -56,7 +55,8 @@ public:
 	std::string							getVersion() const;
 	std::map<std::string, std::string>	getHeaders() const;
 	std::string							getBody() const;
-	
+	std::map<std::string, std::string>	getQueryStringsMap() const;
+	std::vector<std::string>			getQueryStrings() const;
 	size_t								getContentLength() const;
 	
 	void								setUri(const std::string& uri);
@@ -66,6 +66,8 @@ public:
 	void								setBody(const std::vector<std::string>& bodyLines, e_body_type type);
 	void								setBody(const std::string& bodyLines, e_body_type type);
 	void								setContentLength(const ssize_t& contentLength);
+
+	bool								hasQueryStrings() const;
 	
 	bool								hasBody() const;
 
@@ -73,14 +75,14 @@ public:
 	static std::string					trim(const std::string& str);
 	
 private:
-	std::string							_method;			// GET, POST, DELETE
-	std::string							_uri;				//
-	std::string							_version;			// HTTP/1.1
-	std::map<std::string, std::string>	_headers;			// key: value
-	std::string							_body;				// raw, chunked, formdata
-	e_body_type							_type;				// type of body @see e_body_type
-	std::pair<bool, size_t>				_content;		// from Headers["Content-Length"], if not found NOT_SET -1
-
+	std::string												_method;		// GET, POST, DELETE
+	std::string												_uri;			// /index.html or /index.html?name=42
+	std::string												_version;		// HTTP/1.1
+	std::map<std::string, std::string>						_headers;		// key: value
+	std::string												_body;			// raw, chunked, formdata
+	e_body_type												_type;			// type of body @see e_body_type
+	std::pair<bool, size_t>									_content;		// from Headers["Content-Length"], if not found NOT_SET -1
+	std::pair<bool, std::map<std::string, std::string> >	_queryStrings;	// bool: is there query string, map: key: value, std::string(s)
 	
 	ReadedLines							_splitRequestData(const std::string& requestData);
 	
@@ -91,6 +93,11 @@ private:
 	std::vector<std	::string>			_convertPartToHeaders(std::istringstream& iss);
 	std	::string						_convertPartToBodyLines(std::istringstream& iss);
 
+	bool								_processUriQuery();
+	bool								_processQueryStrings(size_t pos);
+	bool								_setUriWithoutQuery(size_t pos);
+	bool								_parseQueryParameters(const std::string& queryString);
+	bool								_parseNextQueryParameter(std::istringstream& iss, std::string& key, std::string& value);
 };
 
 // TODO: implement "<< operator" for HttpRequest
