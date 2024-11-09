@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/11/08 18:05:55 by minakim          ###   ########.fr       */
+/*   Updated: 2024/11/09 12:49:13 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,8 +44,8 @@ HttpResponse	RequestHandler::handleRequest(const Context& context)
 {
 	if (!_isImplementMethods(context))
 		return (HttpResponse::notImplemented_501(context));
-	if (_isRedirectionNeeded(context))
-		return (HttpResponse::redirect_301(context, _getRedirectUrl(context)));
+	// if (_isRedirectionNeeded(context))
+	// 	return (HttpResponse::redirect_301(context, _getRedirectUrl(context)));
 	if (_isCGIReqeust(context))
 		return (_handleCGIRequest(context));
 	else if (_isAllowedMethod(context))
@@ -55,6 +55,7 @@ HttpResponse	RequestHandler::handleRequest(const Context& context)
 
 std::string RequestHandler::_getRedirectUrl(const Context& context)
 {
+	(void)context;
 	return ("test\n");
 }
 

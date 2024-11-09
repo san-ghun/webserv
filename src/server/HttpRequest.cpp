@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/11/08 17:59:44 by minakim          ###   ########.fr       */
+/*   Updated: 2024/11/09 12:50:50 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,7 +149,7 @@ bool HttpRequest::_parseRequestLine(const std::string& requestLine)
 	iss >> _method >> _uri >> _version;
 	if (_method.empty() || _uri.empty() || _version.empty())
 		return (false);
-	if (!_processUriQuery());
+	if (!_processUriQuery())
 		return (false);
 	return (true);
 }
@@ -192,6 +192,7 @@ bool	HttpRequest::_setUriWithoutQuery(size_t pos)
 	_uri = _uri.substr(0, pos);
 	if (_uri.empty())
 		return (false);
+	return (true);
 }
 
 /// @brief Parses the query string and extracts the key-value pairs.
@@ -206,6 +207,7 @@ bool	HttpRequest::_parseQueryParameters(const std::string& queryString)
 		_queryStrings.second.insert(std::make_pair(key, value));
 	if (_queryStrings.first && _queryStrings.second.empty())
 		throw std::runtime_error("method found query string but failed to parse it");
+	return (true);
 }
 
 bool HttpRequest::_parseNextQueryParameter
@@ -337,6 +339,11 @@ std::string	HttpRequest::getBody() const
 size_t	HttpRequest::getContentLength() const
 {
 	return (_contentLenght.second);
+}
+
+HttpRequest::e_body_type	HttpRequest::getBodyType() const
+{
+	return (_type);
 }
 
 

@@ -1,6 +1,8 @@
 #include "Util.hpp"
 #include <sstream>
-
+#include <fstream>
+#include <sys/stat.h>
+#include <unistd.h>
 
 
 // FIXME: error handling or copy from cpp06
@@ -39,4 +41,99 @@ size_t		toSizeT(const std::string& value)
 	size_t				result;
 	iss >> result;
 	return (result);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// Utility functions: File, Directory
+////////////////////////////////////////////////////////////////////////////////
+
+/// @brief Checks if a file exists.
+/// @param path The path of the file.
+bool	isFile(const std::string path)
+{
+	struct stat buffer;
+	if (stat(path.c_str(), &buffer) != 0)
+		return (false);
+	if (S_ISREG(buffer.st_mode))
+		return (true);
+	return (false);
+}
+
+/// @brief Checks if a file exists.
+/// @param path The path of the file.
+bool	isDir(const std::string path)
+{
+	struct stat buffer;
+
+	if (stat(path.c_str(), &buffer) != 0)
+		return (false);
+	if (S_ISDIR(buffer.st_mode))
+		return (true);
+	return (false);
+}
+
+bool	createFile(const std::string& path)
+{
+	std::ofstream	file(path.c_str());
+	if (file.is_open())
+	{
+		file.close();
+		return (true);
+	}
+	return (false);
+}
+
+bool	deleteFile(const std::string& path)
+{
+	if (remove(path.c_str()) == 0)
+		return (true);
+	return (false);
+}
+
+bool	createDir(const std::string& path)
+{
+	if (isDir(path))
+		return (true);
+	if (mkdir(path.c_str(), 0777) == 0)
+		return (true);
+	return (false);
+}
+
+bool	deleteDir(const std::string& path)
+{
+	if (rmdir(path.c_str()) == 0)
+		return (true);
+	return (false);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// Utility functions: Permissions
+////////////////////////////////////////////////////////////////////////////////
+
+bool	hasWritePermission(const std::string& path)
+{
+	if (access(path.c_str(), W_OK) == 0)
+		return (true);
+	return (false);
+}
+
+bool	hasReadPermission(const std::string& path)
+{
+	if (access(path.c_str(), R_OK) == 0)
+		return (true);
+	return (false);
+}
+
+bool	hasExecutePermission(const std::string& path)
+{
+	if (access(path.c_str(), X_OK) == 0)
+		return (true);
+	return (false);
+}
+
+bool	deleteFileOrDir(const std::string& path)
+{
+	if (remove(path.c_str()) == 0)
+		return (true);
+	return (false);
 }

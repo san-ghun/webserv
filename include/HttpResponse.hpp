@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/11/08 18:24:36 by minakim          ###   ########.fr       */
+/*   Updated: 2024/11/09 15:09:45 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,9 +40,6 @@ enum e_status
 	STATUS_REDIRECTION,
 	STATUS_ERROR
 };
-
-bool	isFile(const std::string path);
-bool	isDir(const std::string path);
 
 class	HttpResponse
 {
@@ -83,7 +80,7 @@ class	HttpResponse
 		static HttpResponse		redirect_301(const Context& context, const std::string& location);
 
 		static HttpResponse		success_200(const Context& context);
-
+		static HttpResponse		success_200(const Context& context, const std::map<std::string, std::string>& body);
 
 		static e_status			checkStatusRange(int code);
 
@@ -109,12 +106,6 @@ class	HttpResponse
 		HttpResponse		createSimpleHttpResponse(int code);
 		t_page_detail		constructPageDetail(const std::string& path);
 };
-
-class Body
-{
-public:
-	Body()
-}
 
 // TODO: implement "<< operator" for HttpResponse
 // std::ostream& operator<<(std::ostream& os, const HttpResponse& response);

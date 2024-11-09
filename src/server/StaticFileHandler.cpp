@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/11/08 18:43:22 by minakim          ###   ########.fr       */
+/*   Updated: 2024/11/09 15:21:38 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ HttpResponse StaticFileHandler::handleGet(const Context& context)
 		return (HttpResponse::createErrorResponse(status, context));
 	if (context.getRequest().getUri() == "/")
 		return (_handleRoot(context));
-	_setRelativePath(_buildRelativePathWithUri(context));
+	_setRelativePath(_buildPathWithUri(context));
 	if (isDir(_relativePath))
 	{
 		if (context.getLocation().isListdir())
@@ -85,17 +85,61 @@ HttpResponse StaticFileHandler::handlePost(const Context& context)
 	int status = _verifyHeaders(context);
 	if (HttpResponse::checkStatusRange(status) != STATUS_SUCCESS)
 		return (HttpResponse::createErrorResponse(status, context));
-	// TODO: implement, _buildRelativePathWithUriToUpload
-	_setRelativePath(_buildRelativePathWithUri(context));
-
-	// TODO: implement, make new logic
-	HttpResponse resp(context);
-	return (resp);
+	_setRelativePath(_buildUploadPath(context));
+	if (createDir(_relativePath))
+		return (_processBodyBasedOnType(context));
+	return (HttpResponse::notFound_404(context));
 }
 
-// TODO: implement, handlePost
+////////////////////////////////////////////////////////////////////////////////
+/// Public methods: handleDelete
+////////////////////////////////////////////////////////////////////////////////
+HttpResponse StaticFileHandler::handleDelete(const Context& context)
+{
+	_initMimeTypes();
+	int status = _verifyHeaders(context);
+	if (HttpResponse::checkStatusRange(status) != STATUS_SUCCESS)
+		return (HttpResponse::createErrorResponse(status, context));
+	_setRelativePath(_buildPathWithUri(context));
+	if (isFile(_relativePath) || isDir(_relativePath))
+	{
+		// TODO: implement: check if the file is deletable
+		if (!hasWritePermission(_relativePath))
+			return (HttpResponse::forbidden_403(context));
+		if (!hasReadPermission(_relativePath) && deleteFileOrDir(_relativePath))
+			return (HttpResponse::noContent_204(context));
+		return (HttpResponse::internalServerError_500(context));
+	}
+	return (_handleNotFound(context));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// Public methods: handleCgiGet
+////////////////////////////////////////////////////////////////////////////////
+
+HttpResponse StaticFileHandler::handleCgiGet(const Context& context)
+{
+	(void)context;
+	return (HttpResponse::notImplemented_501(context));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// Public methods: handleCgiPost
+////////////////////////////////////////////////////////////////////////////////
+
+HttpResponse StaticFileHandler::handleCgiPost(const Context& context)
+{
+	(void)context;
+	return (HttpResponse::notImplemented_501(context));
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
 HttpResponse	StaticFileHandler::_processBodyBasedOnType(const Context& context)
 {
+
+	std::cout << "TEST | body type: " << context.getRequest().getBodyType() << std::endl;
+	
 	HttpRequest::e_body_type bodyType = context.getRequest().getBodyType();
 	if (bodyType == HttpRequest::RAW)
 		return (_handleRawBody(context));
@@ -109,70 +153,47 @@ HttpResponse	StaticFileHandler::_processBodyBasedOnType(const Context& context)
 HttpResponse StaticFileHandler::_handleRawBody(const Context& context)
 {
 	(void)context;
-	return (false);
+	return (HttpResponse::notImplemented_501(context));
 }
 
 HttpResponse StaticFileHandler::_handleChunkedBody(const Context& context)
 {
 	(void)context;
-	return (false);
+	return (HttpResponse::notImplemented_501(context));
+
 }
 
 HttpResponse StaticFileHandler::_handleFormDataBody(const Context& context)
 {
-	(void)context;
-	return (false);
-}
+	const std::string boundary = _extractBoundary(context.getRequest().getHeaders());
+    std::map<std::string, std::vector<std::string> > parts = _splitByBoundary(context.getRequest().getBody(), boundary);
+	return (HttpResponse::notImplemented_501(context));
 
+}
 
 ////////////////////////////////////////////////////////////////////////////////
-/// Public methods: handleDelete
+/// FormData parsing methods : multipart/form-data
 ////////////////////////////////////////////////////////////////////////////////
-HttpResponse StaticFileHandler::handleDelete(const Context& context)
+
+std::string StaticFileHandler::_extractBoundary
+			(const std::map<std::string, std::string> headers) const
 {
-	_initMimeTypes();
-	int status = _verifyHeaders(context);
-	if (HttpResponse::checkStatusRange(status) != STATUS_SUCCESS)
-		return (HttpResponse::createErrorResponse(status, context));
-	_setRelativePath(_buildRelativePathWithUri(context));
-	if (isFile(_relativePath) || isDir(_relativePath))
-	{
-		// TODO: implement: check if the file is deletable
-		if (!_hasWritePermission())
-			return (HttpResponse::forbidden_403(context));
-		if (_hasReadPermission() || _deleteFileOrDir())
-			return (HttpResponse::noContent_204(context));
-		return (HttpResponse::internalServerError_500(context));
-	}
-	return (_handleNotFound(context));
+	std::map<std::string, std::string>::const_iterator it = headers.find("Content-Type");
+	if (it == headers.end())
+		throw std::runtime_error("Content-Type header not found");
+	std::string contentType = it->second;
+	std::string boundary = "boundary=";
+	std::string::size_type pos = contentType.find(boundary);
+	if (pos == std::string::npos)
+		throw std::runtime_error("Boundary not found in Content-Type header");
+	return (contentType.substr(pos + boundary.size()));
 }
 
-bool	StaticFileHandler::_hasWritePermission()
-{
-	if (access(_relativePath.c_str(), W_OK) == 0)
-		return (true);
-	return (false);
-}
 
-bool	StaticFileHandler::_hasReadPermission()
+std::map<std::string, std::vector<std::string> >	StaticFileHandler::_splitByBoundary
+							(const std::string& body, const std::string& boundary) const
 {
-	if (access(_relativePath.c_str(), R_OK) == 0)
-		return (true);
-	return (false);
-}
-
-bool	StaticFileHandler::_hasExecutePermission()
-{
-	if (access(_relativePath.c_str(), X_OK) == 0)
-		return (true);
-	return (false);
-}
-
-bool	StaticFileHandler::_deleteFileOrDir()
-{
-	if (remove(_relativePath.c_str()) == 0)
-		return (true);
-	return (false);
+	
 }
 
 
@@ -205,7 +226,8 @@ int StaticFileHandler::_validateGetHeaders(const std::map<std::string, std::stri
 	return (200);
 }
 
-int StaticFileHandler::_validatePostHeaders(const Context& context, const std::map<std::string, std::string>& headers) const
+int StaticFileHandler::_validatePostHeaders
+	(const Context& context, const std::map<std::string, std::string>& headers) const
 {
 	if (context.getRequest().getBody().empty())
 		return (400);
@@ -222,7 +244,8 @@ int StaticFileHandler::_validateDeleteHeaders(const std::map<std::string, std::s
 	return (false);
 }
 
-bool	StaticFileHandler::_hasTargetHeader(const std::string& target, const std::map<std::string, std::string>& headers) const
+bool	StaticFileHandler::_hasTargetHeader
+		(const std::string& target, const std::map<std::string, std::string>& headers) const
 {
 	if (headers.find(target) == headers.end())
 		return (false);
@@ -240,7 +263,7 @@ HttpResponse StaticFileHandler::_handleDirRequest(const Context& context)
 	HttpRequest	modifiedRequest = context.getRequest();
 	Context&	moditiedContext = const_cast<Context&>(context);
 	
-	_setRelativePath(_buildRelativePathWithIndex(context));
+	_setRelativePath(_buildPathWithIndex(context));
 	std::cout << " relative path that with index is built: " << _relativePath << std::endl;
 	if (!isFile(_relativePath))
 		return (_handleNotFound(context));
@@ -251,54 +274,64 @@ HttpResponse StaticFileHandler::_handleDirRequest(const Context& context)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// @brief Builds the path to the default index file within the handled path.
-/// If a specific index file is set in the context's location, it uses that file; otherwise, it defaults to INDEX_HTML.
-/// This method does not handle server root.
-/// @param context The context providing location configuration.
-/// @return Full path to the default index file within the handled path.
-std::string StaticFileHandler::_buildRelativePathWithIndex(const Context& context) const
+/// @brief Validates server and location root paths.
+/// Throws an exception if either path is empty.
+/// @param serverRoot Root path of the server.
+/// @param locationRoot Root path of the location.
+void StaticFileHandler::_validateRootPaths
+	(const std::string& serverRoot, const std::string& locationRoot) const
 {
-	std::string index		= INDEX_HTML;
-	std::string readedIndex = context.getLocation().getIndex();
-	if (!readedIndex.empty())
-		index = readedIndex;
-	return (_relativePath + index);
+	if (serverRoot.empty() || locationRoot.empty())
+		throw std::runtime_error("Root path is empty");
 }
 
-/// @brief Constructs the full absolute path using the server root, location root, and default file.
+/// @brief Constructs the full path based on server root, location root, and additional path components.
 /// Uses the default index file if none is specified in the context.
-/// Throws an exception if the location root path is empty.
 /// @param context The context containing server and location configurations.
-/// @return Full absolute path, including server root, location root, and default file.
-std::string StaticFileHandler::_buildRelativePathWithRootAndIndex(const Context& context) const
+/// @param additionalPath Additional path components to append.
+/// @return Constructed path with server and location roots.
+std::string StaticFileHandler::_buildFullPath
+	(const Context& context, const std::string& additionalPath) const
 {
-	std::string	locationRoot	= context.getLocation().getRootPath();
-	std::string serverRoot		= context.getServer().root;
-	std::string	defaultFile		= _buildRelativePathWithIndex(context);
+	std::string serverRoot = context.getServer().root;
+	std::string locationRoot = context.getLocation().getRootPath();
 
-	if (locationRoot.empty())
-		throw std::runtime_error("Root path is empty");
-	std::string relativePath = "." + serverRoot + locationRoot + "/" + defaultFile;
-	return (relativePath);
+	_validateRootPaths(serverRoot, locationRoot);
+	return ("." + serverRoot + locationRoot + additionalPath);
 }
 
-/// @brief Constructs the full path using the server root, location root, and URI requested by the client.
-/// This method combines server root and location root with the requested URI to build the full absolute path.
-/// Throws an exception if either the location root or server root is empty.
-/// @param context The context containing server and location configurations, as well as the client request URI.
-/// @return Full path including server root, location root, and request URI.
-std::string StaticFileHandler::_buildRelativePathWithUri(const Context& context) const
+/// @brief Builds the path to the index file or specified default file.
+/// @param context The context for retrieving index settings.
+/// @return Path to the default or specified index file.
+std::string StaticFileHandler::_buildPathWithIndex(const Context& context) const
 {
-	std::string	locationRoot	= context.getLocation().getRootPath();
-	std::string serverRoot		= context.getServer().root;
+	std::string indexFile = context.getLocation().getIndex();
+	if (indexFile.empty())
+		indexFile = INDEX_HTML;
+	return (_buildFullPath(context, indexFile));
+}
 
-	if (locationRoot.empty() || serverRoot.empty())
-		throw std::runtime_error("Root path is empty");
-	std::string relativePath = "." + serverRoot + locationRoot + context.getRequest().getUri();
+/// @brief Constructs the full path with the URI requested by the client.
+/// @param context The context containing server and location configurations.
+/// @return Full path including server root, location root, and request URI.
+std::string StaticFileHandler::_buildPathWithUri(const Context& context) const
+{
+	return (_buildFullPath(context, context.getRequest().getUri()));
+}
 
-	std::cout << "TEST | absolute path that is built: " << relativePath << std::endl;
+/// @brief Constructs the path with upload directory.
+/// @param context The context containing server, location, and upload configurations.
+/// @return Full path for upload handling.
+std::string StaticFileHandler::_buildUploadPath(const Context& context) const
+{
+	std::string serverRoot = context.getServer().root;
+	std::string uploadRoot = context.getServer().upload_dir;
+	std::string uri = context.getRequest().getUri();
+	std::string uploadPath = context.getLocation().getUploadPath();
 
-	return(relativePath);
+	std::cout << GREEN << "uploadRoot: " << uploadRoot << " uri: " << uri 
+	<< "\n" << "." + serverRoot + uploadRoot << RESET << std::endl;
+	return ("." + serverRoot + uploadRoot);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -390,7 +423,7 @@ HttpResponse StaticFileHandler::_createResponseForFile(const Context& context) c
 /// It builds the full path of the default file and checks if the file exists.
 HttpResponse StaticFileHandler::_handleRoot(const Context& context)
 {
-	_setRelativePath(_buildRelativePathWithRootAndIndex(context));
+	_setRelativePath(_buildPathWithIndex(context));
 	if (!isFile(_relativePath))
 		return (_handleNotFound(context));
 	return (_createResponseForFile(context));

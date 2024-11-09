@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/11/08 17:48:10 by minakim          ###   ########.fr       */
+/*   Updated: 2024/11/09 15:09:13 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -380,9 +380,19 @@ HttpResponse	HttpResponse::success_200(const Context& context)
 	return (resp);
 }
 
+HttpResponse	HttpResponse::success_200(const Context& context, const std::map<std::string, std::string>& body)
+{
+	(void) body;
+	HttpResponse resp(context);
+	resp.setBody(resp._generateHtmlBody());
+	setDefaultHeaders(resp);
+	return (resp);
+}
+
 HttpResponse	HttpResponse::redirect_301(const Context& context, const std::string& location)
 {
 	// TODO: implement
+	(void)location;
 	HttpResponse resp(context);
 	resp.setBody(resp._generateHtmlBody());
 	setDefaultHeaders(resp);
@@ -466,32 +476,4 @@ std::string HttpResponse::getResponseLine() const
 	std::ostringstream oss;
 	oss << "HTTP/1.1 " << _statusCode << " " << _statusMessage << "\r\n";
 	return (oss.str());
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// Utility functions
-////////////////////////////////////////////////////////////////////////////////
-
-/// @brief Checks if a file exists.
-/// @param path The path of the file.
-bool	isFile(const std::string path)
-{
-	struct stat buffer;
-	if (stat(path.c_str(), &buffer) != 0)
-		return (false);
-	if (S_ISREG(buffer.st_mode))
-		return (true);
-	return (false);
-}
-
-/// @brief Checks if a file exists.
-/// @param path The path of the file.
-bool	isDir(const std::string path)
-{
-	struct stat buffer;
-	if (stat(path.c_str(), &buffer) != 0)
-		return (false);
-	if (S_ISDIR(buffer.st_mode))
-		return (true);
-	return (false);
 }
