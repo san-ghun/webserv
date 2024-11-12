@@ -30,24 +30,14 @@ bool	deleteFileOrDir(const std::string& path);
 
 class MultipartParser
 {
-public:
 
-	/// FomrData parser
-	typedef std::map<std::string, std::string>	Headers;
-	typedef std::pair<Headers, std::string>		Part;
-	typedef std::vector<Part>					ParsedFormData;
-
-	static ParsedFormData	parseFormData(const std::string& body, const std::string& boundary);
-	static std::string		parseChuked(const std::string& chunkedData);
-	static std::string		generateJson(const ParsedFormData& formData);
 
 private:
 
 	static std::string              _extractBoundary(const std::string& headers);
 	static std::vector<std::string>	_splitByBoundary(const std::string& body, const std::string& boundary);
-	static Part						_parseHeadersAndBody(const std::string& part);
-	static Headers					_extractHeaders(const std::string& part);
-	static std::string				_replaceWhiteSpaceWithUnderscore(const std::string& s)
+
+
 private:
 	MultipartParser();
 	~MultipartParser();

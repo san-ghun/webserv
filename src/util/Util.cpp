@@ -141,40 +141,7 @@ bool	deleteFileOrDir(const std::string& path)
 ////////////////////////////////////////////////////////////////////////////////
 /// MultipartParser
 ////////////////////////////////////////////////////////////////////////////////
-
-
-// TODO: file upload만 구현
-
-
-MultipartParser::ParsedFormData	MultipartParser::parseFormData(const std::string& body, const std::string& boundary)
-{
-	ParsedFormData	formData;
-	std::vector<std::string> parts = _splitByBoundary(body, boundary);
-
-	for (std::vector<std::string>::const_iterator it = parts.begin(); it != parts.end(); ++it)
-		Part					part = _parseHeadersAndBody(*it);
-	return (formData);
-}
-
-std::string	MultipartParser::generateJson(const ParsedFormData& formData)
-{
-	
-	
-	std::string start = "{";
-	std::string end = "}";
-	std::string json;
-	for (ParsedFormData::const_iterator it = formData.begin(); it != formData.end(); ++it)
-	{
-		if (it->first.find("filename") != it->first.end())
-			continue;
-		if ()
-			json += _FormDataToJson(it->first);
-		}
-	}
-	return (trigger ? start + json + end : "");
-}
-
-////////////////////////////////////////////////////////////////////////////////
+//
 
 std::string	MultipartParser::_extractBoundary(const std::string& headers)
 {
@@ -202,73 +169,4 @@ std::vector<std::string>	MultipartParser::_splitByBoundary(const std::string& bo
 	if (pos < body.size())
 		parts.push_back(body.substr(pos));
 	return (parts);
-}
-
-MultipartParser::Part	MultipartParser::_parseHeadersAndBody(const std::string& requestLines)
-{
-	Part					data;
-	std::string::size_type	pos = 0;
-	std::string::size_type	nextPos = 0;
-	std::string				headers;
-	std::string				body;
-
-	if ((nextPos = requestLines.find("\r\n\r\n", pos)) != std::string::npos)
-	{
-		headers = requestLines.substr(pos, nextPos - pos);
-		body = requestLines.substr(nextPos + 4);
-	}
-	data.first = _extractHeaders(headers);
-	data.second = body;
-	return (data);
-}
-
-MultipartParser::Headers	MultipartParser::_extractHeaders(const std::string& requestLines)
-{
-	Headers	headers;
-	std::string::size_type	pos = 0;
-	std::string::size_type	nextPos = 0;
-	std::string				line;
-
-	while ((nextPos = requestLines.find("\r\n", pos)) != std::string::npos)
-	{
-		line = requestLines.substr(pos, nextPos - pos);
-		pos = nextPos + 2;
-		if (line.empty())
-			break;
-		std::string::size_type sepPos = line.find(":");
-		if (sepPos != std::string::npos)
-		{
-			std::string key = line.substr(0, sepPos);
-			std::string value = line.substr(sepPos + 1);
-			if (key == "filename")
-				value = _replaceWhiteSpaceWithUnderscore(value);
-			if (!key.empty() && !value.empty())
-				headers.insert(std::make_pair(key, value));
-		}
-	}
-	return (headers);
-}
-
-std::string MultipartParser::_replaceWhiteSpaceWithUnderscore(const std::string& s)
-{
-	std::string result = s;
-	for (std::string::size_type i = 0; i < result.size(); ++i)
-	{
-		if (result[i] == ' ' || result[i] == '\t')
-			result[i] = '_';
-	}
-	return (result);
-}
-
-std::string MultipartParser::_FormDataToJson(const MultipartParser::Headers& headers)
-{
-	std::string result = "";
-	for (MultipartParser::Headers::const_iterator it = headers.begin(); it != headers.end(); ++it)
-	{
-		if (it->first == "filename" || it->first == "content-type" || 
-				it->first == "content-disposition") 
-			continue;
-		result += it->first + ": " + it->second + "\n";
-	}
-	return (result);
 }

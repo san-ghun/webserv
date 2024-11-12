@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/11/10 15:18:16 by minakim          ###   ########.fr       */
+/*   Updated: 2024/11/12 16:35:04 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,10 +100,11 @@ HttpResponse StaticFileHandler::handleDelete(const Context& context)
 	int status = _verifyHeaders(context);
 	if (HttpResponse::checkStatusRange(status) != STATUS_SUCCESS)
 		return (HttpResponse::createErrorResponse(status, context));
+	
+	// TODO: check logic for delete delete
 	_setRelativePath(_buildPathWithUri(context));
 	if (isFile(_relativePath) || isDir(_relativePath))
 	{
-		// TODO: implement: check if the file is deletable
 		if (!hasWritePermission(_relativePath))
 			return (HttpResponse::forbidden_403(context));
 		if (!hasReadPermission(_relativePath) && deleteFileOrDir(_relativePath))
@@ -166,37 +167,32 @@ HttpResponse StaticFileHandler::_handleChunkedBody(const Context& context)
 
 HttpResponse StaticFileHandler::_handleFormDataBody(const Context& context)
 {
-	const std::string boundary = _extractBoundary(context.getRequest().getHeaders());
-	
-	std::pair<std::map<std::string, std::string>, std::string> parts = context.getRequest().parseFormData(boundary);
-
-
-	if (parts.empty())
-		return (HttpResponse::badRequest_400(context));
-	
 	return (HttpResponse::notImplemented_501(context));
-
 }
+
+// non cgi
+
+// 1. formdata -> "name=aa"....  -> json // ??
+// 2. pdf... -> save file <<< 
+
 
 ////////////////////////////////////////////////////////////////////////////////
 /// FormData parsing methods : multipart/form-data
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string StaticFileHandler::_extractBoundary
-			(const std::map<std::string, std::string> headers) const
-{
-	std::map<std::string, std::string>::const_iterator it = headers.find("Content-Type");
-	if (it == headers.end())
-		throw std::runtime_error("Content-Type header not found");
-	std::string contentType = it->second;
-	std::string boundary = "boundary=";
-	std::string::size_type pos = contentType.find(boundary);
-	if (pos == std::string::npos)
-		throw std::runtime_error("Boundary not found in Content-Type header");
-	return (contentType.substr(pos + boundary.size()));
-}
-
-
+// std::string StaticFileHandler::_extractBoundary
+// 			(const std::map<std::string, std::string> headers) const
+// {
+// 	std::map<std::string, std::string>::const_iterator it = headers.find("Content-Type");
+// 	if (it == headers.end())
+// 		throw std::runtime_error("Content-Type header not found");
+// 	std::string contentType = it->second;
+// 	std::string boundary = "boundary=";
+// 	std::string::size_type pos = contentType.find(boundary);
+// 	if (pos == std::string::npos)
+// 		throw std::runtime_error("Boundary not found in Content-Type header");
+// 	return (contentType.substr(pos + boundary.size()));
+// }
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -299,7 +295,7 @@ std::string StaticFileHandler::_buildFullPath
 	std::string locationRoot = context.getLocation().getRootPath();
 
 	_validateRootPaths(serverRoot, locationRoot);
-	return ("." + serverRoot + locationRoot + additionalPath);
+	return ("." + serverRoot + locationRoot + "/" + additionalPath);
 }
 
 /// @brief Builds the path to the index file or specified default file.
