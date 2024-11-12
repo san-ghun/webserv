@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/11/12 17:07:00 by minakim          ###   ########.fr       */
+/*   Updated: 2024/11/12 17:39:48 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,70 +43,68 @@ enum e_status
 
 class	HttpResponse
 {
-	public:
-		HttpResponse(const Context& context);
-		HttpResponse(const Context& context, const std::string& filePath);
-		HttpResponse(const HttpResponse& other);
-		HttpResponse& operator=(const HttpResponse& other);
-		~HttpResponse();
+public:
+	HttpResponse(const Context& context);
+	HttpResponse(const Context& context, const std::string& filePath);
+	HttpResponse(const HttpResponse& other);
+	HttpResponse& operator=(const HttpResponse& other);
+	~HttpResponse();
+	
+	void					setStatusCode(int code);
+	void					setStatusCode(int code, const std::string statusMessage);
+	void					setHeader(const std::string key, const std::string value);
+	void					setBody(const std::string bodyContent);
+	void					setDefaultHeaders();
+	static void				setDefaultHeaders(HttpResponse& resp);
 
-		void					setStatusCode(int code);
-		void					setStatusCode(int code, const std::string statusMessage);
-		void					setHeader(const std::string key, const std::string value);
-		void					setBody(const std::string bodyContent);
-		void					setDefaultHeaders();
-		static void				setDefaultHeaders(HttpResponse& resp);
+	std::string				getBody();
+	size_t					getBodyLength();
+	std::string				getResponseLine() const;
+	std::string				generateResponseToString() const;
+	int						getStatusCode() const;
+	std::string				getStatusMessage() const;
+	void					initializefromFile(const std::string& filePath);
 
-		std::string				getBody();
-		size_t					getBodyLength();
-		std::string				getResponseLine() const;
-		std::string				generateResponseToString() const;
-		int						getStatusCode() const;
-		std::string				getStatusMessage() const;
-		void					initializefromFile(const std::string& filePath);
+	static HttpResponse		createErrorResponse(int code, const Context& context);
+	static HttpResponse		badRequest_400(const Context& context);
+	static HttpResponse		forbidden_403(const Context& context);
+	static HttpResponse		notFound_404(const Context& context);
+	static HttpResponse		methodNotAllowed_405(const Context& context);
+	static HttpResponse		requestTimeout_408(const Context& context);
+	static HttpResponse		requestEntityTooLarge_413(const Context& context);
+	static HttpResponse		imaTeapot_418(const Context& context);
+	static HttpResponse		internalServerError_500(const Context& context);
+	static HttpResponse		notImplemented_501(const Context& context);
 
-		static HttpResponse		createErrorResponse(int code, const Context& context);
-		static HttpResponse		badRequest_400(const Context& context);
-		static HttpResponse		forbidden_403(const Context& context);
-		static HttpResponse		notFound_404(const Context& context);
-		static HttpResponse		methodNotAllowed_405(const Context& context);
-		static HttpResponse		requestTimeout_408(const Context& context);
-		static HttpResponse		requestEntityTooLarge_413(const Context& context);
-		static HttpResponse		imaTeapot_418(const Context& context);
-		static HttpResponse		internalServerError_500(const Context& context);
-		static HttpResponse		notImplemented_501(const Context& context);
+	static HttpResponse		noContent_204(const Context& context);
+	static HttpResponse		redirect_301(const Context& context, const std::string& location);
 
-		static HttpResponse		noContent_204(const Context& context);
-		static HttpResponse		redirect_301(const Context& context, const std::string& location);
+	static HttpResponse		success_200(const Context& context);
+	static HttpResponse		success_200(const Context& context, const std::map<std::string, std::string>& body);
 
-		static HttpResponse		success_200(const Context& context);
-		static HttpResponse		success_200(const Context& context, const std::map<std::string, std::string>& body);
+	static e_status			checkStatusRange(int code);
 
-		static e_status			checkStatusRange(int code);
+private:
+	int									_statusCode;
+	std::string							_statusMessage;
+	std::string							_body;
+	std::map<std::string, std::string>	_headers;
+	size_t								_bodyLength;
 
-	private:
-		int									_statusCode;
-		std::string							_statusMessage;
-		std::string							_body;
-		std::map<std::string, std::string>	_headers;
-		size_t								_bodyLength;
+	std::string							_getStatusLine() const;
+	std::string							_getHeadersString() const;
+	void								_fileToBody(const std::string& filePath);
+	std::string							_generateHtmlBody();
+	void								_setDefaultHeadersImpl();
 
-		std::string							_getStatusLine() const;
-		std::string							_getHeadersString() const;
-		void								_fileToBody(const std::string& filePath);
-		std::string							_generateHtmlBody();
-		void								_setDefaultHeadersImpl();
+	static const std::map<int, std::string>&	_staticInitStatusMap();
 
-		static const std::map<int, std::string>&	_staticInitStatusMap();
+protected:
+	Context&							_context;
 
-	protected:
-		Context&							_context;
-
-		HttpResponse		createErrorResponse(int code);
-		HttpResponse		createSimpleHttpResponse(int code);
-		t_page_detail		constructPageDetail(const std::string& path);
+	HttpResponse		createErrorResponse(int code);
+	HttpResponse		createSimpleHttpResponse(int code);
+	t_page_detail		constructPageDetail(const std::string& path);
 };
 
-// TODO: implement "<< operator" for HttpResponse
-// std::ostream& operator<<(std::ostream& os, const HttpResponse& response);
 #endif
