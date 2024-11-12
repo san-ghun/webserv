@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/11/09 15:21:38 by minakim          ###   ########.fr       */
+/*   Updated: 2024/11/10 15:18:16 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,6 +141,7 @@ HttpResponse	StaticFileHandler::_processBodyBasedOnType(const Context& context)
 	std::cout << "TEST | body type: " << context.getRequest().getBodyType() << std::endl;
 	
 	HttpRequest::e_body_type bodyType = context.getRequest().getBodyType();
+
 	if (bodyType == HttpRequest::RAW)
 		return (_handleRawBody(context));
 	else if (bodyType == HttpRequest::CHUNKED)
@@ -166,7 +167,13 @@ HttpResponse StaticFileHandler::_handleChunkedBody(const Context& context)
 HttpResponse StaticFileHandler::_handleFormDataBody(const Context& context)
 {
 	const std::string boundary = _extractBoundary(context.getRequest().getHeaders());
-    std::map<std::string, std::vector<std::string> > parts = _splitByBoundary(context.getRequest().getBody(), boundary);
+	
+	std::pair<std::map<std::string, std::string>, std::string> parts = context.getRequest().parseFormData(boundary);
+
+
+	if (parts.empty())
+		return (HttpResponse::badRequest_400(context));
+	
 	return (HttpResponse::notImplemented_501(context));
 
 }
@@ -190,11 +197,6 @@ std::string StaticFileHandler::_extractBoundary
 }
 
 
-std::map<std::string, std::vector<std::string> >	StaticFileHandler::_splitByBoundary
-							(const std::string& body, const std::string& boundary) const
-{
-	
-}
 
 
 ////////////////////////////////////////////////////////////////////////////////

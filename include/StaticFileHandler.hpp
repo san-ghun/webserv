@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/11/09 15:21:23 by minakim          ###   ########.fr       */
+/*   Updated: 2024/11/10 15:08:00 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@
 # include <sys/stat.h>
 # include <dirent.h>
 # include <map>
+# include <vector>
+
 class HttpResponse;
 class HttpRequest;
 class Location;
