@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/11/12 16:35:04 by minakim          ###   ########.fr       */
+/*   Updated: 2024/11/12 16:37:54 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -169,31 +169,6 @@ HttpResponse StaticFileHandler::_handleFormDataBody(const Context& context)
 {
 	return (HttpResponse::notImplemented_501(context));
 }
-
-// non cgi
-
-// 1. formdata -> "name=aa"....  -> json // ??
-// 2. pdf... -> save file <<< 
-
-
-////////////////////////////////////////////////////////////////////////////////
-/// FormData parsing methods : multipart/form-data
-////////////////////////////////////////////////////////////////////////////////
-
-// std::string StaticFileHandler::_extractBoundary
-// 			(const std::map<std::string, std::string> headers) const
-// {
-// 	std::map<std::string, std::string>::const_iterator it = headers.find("Content-Type");
-// 	if (it == headers.end())
-// 		throw std::runtime_error("Content-Type header not found");
-// 	std::string contentType = it->second;
-// 	std::string boundary = "boundary=";
-// 	std::string::size_type pos = contentType.find(boundary);
-// 	if (pos == std::string::npos)
-// 		throw std::runtime_error("Boundary not found in Content-Type header");
-// 	return (contentType.substr(pos + boundary.size()));
-// }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Private methods

@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/11/09 15:09:45 by minakim          ###   ########.fr       */
+/*   Updated: 2024/11/12 17:07:00 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ class	HttpResponse
 		std::string				generateResponseToString() const;
 		int						getStatusCode() const;
 		std::string				getStatusMessage() const;
-		void					initializefromFile(const Context& context, const std::string& filePath);
+		void					initializefromFile(const std::string& filePath);
 
 		static HttpResponse		createErrorResponse(int code, const Context& context);
 		static HttpResponse		badRequest_400(const Context& context);
@@ -93,7 +93,7 @@ class	HttpResponse
 
 		std::string							_getStatusLine() const;
 		std::string							_getHeadersString() const;
-		void								_fileToBody( const Context& context, const std::string& filePath);
+		void								_fileToBody(const std::string& filePath);
 		std::string							_generateHtmlBody();
 		void								_setDefaultHeadersImpl();
 

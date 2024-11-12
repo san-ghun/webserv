@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/11/09 15:09:13 by minakim          ###   ########.fr       */
+/*   Updated: 2024/11/12 17:08:20 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ HttpResponse::HttpResponse(const Context& context)
 HttpResponse::HttpResponse(const Context& context, const std::string& filePath)
 	: _statusCode(200), _statusMessage("OK"), _context(const_cast<Context&>(context))
 {
-	initializefromFile(context, filePath);
+	initializefromFile(filePath);
 }
 
 /// @brief Copy constructor for the HttpResponse class.
@@ -115,10 +115,10 @@ void	HttpResponse::_setDefaultHeadersImpl()
 /// @param filePath The path to the file to be read.
 /// @return HttpResponse The created HttpResponse object.
 /// @warning If the file cannot be opened, the response point a 404 error().
-void	HttpResponse::initializefromFile(const Context& context, const std::string& filePath)
+void	HttpResponse::initializefromFile(const std::string& filePath)
 {
-	_fileToBody(context, filePath);
-	if (_body.empty()) // FIXME:if file is empty, what shuld I do?
+	_fileToBody(filePath);
+	if (_body.empty())
 		return ;
 	if (_statusCode == 200)
 		setDefaultHeaders();
@@ -133,14 +133,12 @@ void	HttpResponse::initializefromFile(const Context& context, const std::string&
 /// @param filePath The path to the file to be read.
 /// @return Return the file content as a string.
 /// If there is any error, return an empty string.
-void	HttpResponse::_fileToBody(const Context& context, const std::string& filePath)
+void	HttpResponse::_fileToBody(const std::string& filePath)
 {
 	std::ifstream	file(filePath.c_str(), std::ios::binary | std::ios::ate);
 	std::string		body = "";
 	std::streamsize fileLength;
-	
-	// FIXME: unused parameter. why?
-	(void)context;
+
 	if (!file.is_open())
 	{
 		*this = notFound_404(_context);
