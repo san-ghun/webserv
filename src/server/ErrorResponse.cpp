@@ -23,7 +23,7 @@ HttpResponse ErrorResponse::generateErrorResponse(int code)
 	t_page_detail pageData = _fetchPageData(code);
 
 	if (pageData.path.empty() || !pageData.isValid)
-		return (_createSimpleHttpResponse(code));
+		return (createSimpleHttpResponse(code));
 	HttpResponse resp(_context, pageData.path);
 	resp.setStatusCode(code);
 	return (resp);
@@ -36,7 +36,7 @@ t_page_detail ErrorResponse::_fetchPageData(int code)
 	if (it == _pageCache.end())
 	{
 		std::string	fullPath = _getFullErrorPath(_getErrorPagePath(code));
-		_pageCache[code] = _constructPageDetail(fullPath);
+		_pageCache[code] = constructPageDetail(fullPath);
 	}
 	return (_pageCache[code]);
 }

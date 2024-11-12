@@ -6,22 +6,33 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/10/23 11:29:10 by minakim          ###   ########.fr       */
+/*   Updated: 2024/11/09 12:50:50 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserv.hpp"
 #include "HttpRequest.hpp"
 
+/// @brief Default constructor, Not used as public constructor.
 HttpRequest::HttpRequest()
-	: _body(""), _type(NONE), _content(false, NOT_SET)
+	: _body(""), _type(NONE), _contentLenght(false, NOT_SET)
 {
 }
 
+/// @brief Constructs an HttpRequest object by parsing the provided request data string.
+/// @details This constructor initializes the HttpRequest object by parsing the raw request data,
+/// typically read from the server. The data is parsed by calling the `parse()` method, which
+/// processes and stores the request details within the object.
+/// @param data A `std::string` containing the raw request data, with a maximum size defined by
+/// `max-read-size` in the configuration file.
+/// @note Ensure that `data` respects the size limit specified in the configuration to avoid overflow.
+/// TODO: @minakim consider adding more specific control the size of the data
+///		- read the data (as much max-header-size) and then parse it
+///		- if the data is bigger than max-header-size, return an error
+///     - after parsing the header, read the body (as much max-body-size) and then parse it (public method)
 HttpRequest::HttpRequest(std::string& data)
-	: _body(""), _type(NONE), _content(false, NOT_SET)
+	: _body(""), _type(NONE), _contentLenght(false, NOT_SET), _queryStrings(false, std::map<std::string, std::string>())
 {
-	/// FIXME: check logic
 	if (parse(data))
 		std::cout << "TEST | HttpRequest | parse success" << std::endl;
 	else
@@ -53,6 +64,17 @@ bool HttpRequest::parse(const std::string& requestData)
 	return (true);
 }
 
+/// @brief Processes the request body based on the content type.
+/// @details The body is processed based on the content type and stored in the `_body` member.
+/// @details The body is stored as a string.
+/// @note the webserv supports the following body types:
+///			- `application/json`		-> RAW
+///			- `text/plain`				-> RAW
+///			- `multipart/form-data`		-> FORM_DATA
+///			- `chunked`					-> CHUNKED
+/// TODO: check what kind of body types are there, and how to handle them.
+/// @param bodyLines 
+/// @return true if the body was processed successfully, false otherwise.
 bool	HttpRequest::_processRequestBody(const std::string& bodyLines)
 {
 	if (!hasBody())
@@ -67,46 +89,6 @@ bool	HttpRequest::_processRequestBody(const std::string& bodyLines)
 		setBody(bodyLines, FORM_DATA);
 	return (true);
 }
-
-////////////////////////////////////////////////////////////////////////////////
-
-/*
-/// @example POST request with chunked body
-POST /upload HTTP/1.1
-Host: example.com
-Transfer-Encoding: chunked
-Content-Type: text/plain
-
-7\r\n
-Mozilla\r\n
-9\r\n
-Developer\r\n
-7\r\n
-Network\r\n
-0\r\n
-\r\n
-*/
-
-////////////////////////////////////////////////////////////////////////////////
-
-/*
-/// @example POST request with multipart/form-data
-POST /upload HTTP/1.1
-Host: example.com
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="text"
-
-Hello, World!
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="file"; filename="example.txt"
-Content-Type: text/plain
-
-(File content here)
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-*/
-
 
 ////////////////////////////////////////////////////////////////////////////////
 /// @brief Separate the request data into request line, headers, and body.
@@ -145,7 +127,6 @@ std::vector<std	::string> HttpRequest::_convertPartToHeaders(std::istringstream&
 std::string HttpRequest::_convertPartToBodyLines(std::istringstream& iss)
 {
 	std::string					readline;
-	// std::vector<std::string>	drafts;
 	std::string					drafts;
 
 	while (std::getline(iss, readline))
@@ -154,6 +135,7 @@ std::string HttpRequest::_convertPartToBodyLines(std::istringstream& iss)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
 /// @brief Parses the request line and extracts the method, path, and version.
 /// @param requestLine `_method` `_uri` `_version`, example: GET /path/resource HTTP/1.1
 /// @return bool
@@ -167,8 +149,105 @@ bool HttpRequest::_parseRequestLine(const std::string& requestLine)
 	iss >> _method >> _uri >> _version;
 	if (_method.empty() || _uri.empty() || _version.empty())
 		return (false);
+	if (!_processUriQuery())
+		return (false);
 	return (true);
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+/// @brief Processes the URI and extracts the query string.
+/// @details The query string is separated from the URI and stored in a map.
+/// 		 The URI is updated to remove the query string.
+///			 The query string is stored as a map of key-value pairs.
+bool HttpRequest::_processUriQuery()
+{
+	size_t		pos	= _uri.find("?");
+	if (pos == std::string::npos)
+		return (true);
+	return (_processQueryStrings(pos));
+}
+
+bool	HttpRequest::_processQueryStrings(size_t pos)
+{
+	std::string	uriQuery = _uri;
+	std::string	querys;
+
+	_queryStrings.first = true;
+	if (!_setUriWithoutQuery(pos))
+		return (false);
+	setUri(_uri.substr(0, pos));
+	querys = uriQuery.substr(pos + 1);
+	if (querys.empty())
+		return (false);
+	if (!_parseQueryParameters(querys))
+		return (false);
+	return (true);
+}
+
+/// @brief Removes the query string from the URI.
+/// @param pos The position of the query string in the URI.
+bool	HttpRequest::_setUriWithoutQuery(size_t pos)
+{
+	_uri = _uri.substr(0, pos);
+	if (_uri.empty())
+		return (false);
+	return (true);
+}
+
+/// @brief Parses the query string and extracts the key-value pairs.
+/// @param queryString The query string to be parsed.
+bool	HttpRequest::_parseQueryParameters(const std::string& queryString)
+{
+	std::string			key, value;
+	std::string			addAmpersandAtLast = queryString + '&';
+	std::istringstream	iss(addAmpersandAtLast);
+
+	while (_parseNextQueryParameter(iss, key, value))
+		_queryStrings.second.insert(std::make_pair(key, value));
+	if (_queryStrings.first && _queryStrings.second.empty())
+		throw std::runtime_error("method found query string but failed to parse it");
+	return (true);
+}
+
+bool HttpRequest::_parseNextQueryParameter
+					(std::istringstream& iss, std::string& key, std::string& value)
+{
+    return std::getline(iss, key, '=') && std::getline(iss, value, '&');
+}
+
+/// @brief Checks if the request has query strings.
+/// @return bool
+bool	HttpRequest::hasQueryStrings() const
+{
+	return (_queryStrings.first);
+}
+
+/// @brief Returns the query strings as a map of key-value pairs.
+/// @return a map of key-value pairs.
+std::map<std::string, std::string>	HttpRequest::getQueryStringsMap() const
+{
+	if (!hasQueryStrings())
+		return (std::map<std::string, std::string>());
+	return (_queryStrings.second);
+}
+
+/// @brief Returns the query strings as a vector of strings.
+/// @return a vector of strings in the format `key=value`.
+std::vector<std::string>	HttpRequest::getQueryStrings() const
+{
+	if (!hasQueryStrings())
+		return (std::vector<std::string>());
+	std::vector<std::string>	queryStrings;
+	for (std::map<std::string, std::string>::const_iterator	
+			it = _queryStrings.second.begin();
+			it != _queryStrings.second.end();
+			++it)
+		queryStrings.push_back(it->first + "=" + it->second);
+	return (queryStrings);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 /// @brief Parses the header lines and extracts the headers.
 /// @param headerLines key:value pairs separated by `\r\n`
@@ -196,7 +275,7 @@ bool HttpRequest::_parseHeaders(const std::vector<std::string> &headerLines)
 		_headers.insert(std::make_pair(key, value));
 	}
 	if (_headers.find("Content-Length") != _headers.end())
-		_content = std::make_pair(true, toSizeT(_headers["Content-Length"]));
+		_contentLenght = std::make_pair(true, toSizeT(_headers["Content-Length"]));
 	return (true);
 }
 
@@ -259,7 +338,12 @@ std::string	HttpRequest::getBody() const
 
 size_t	HttpRequest::getContentLength() const
 {
-	return (_content.second);
+	return (_contentLenght.second);
+}
+
+HttpRequest::e_body_type	HttpRequest::getBodyType() const
+{
+	return (_type);
 }
 
 
@@ -289,38 +373,51 @@ void	HttpRequest::setHeaders(const std::map<std::string, std::string>& headers)
 
 bool	HttpRequest::hasBody() const
 {
-        return (_content.first);
+        return (_contentLenght.first);
 }
 
+// TODO: if this fucntion is not used, remove it
+/// @brief Sets the body of the request.
+/// @param bodyLines 
+/// @param type 
 void	HttpRequest::setBody(const std::vector<std::string>& bodyLines, e_body_type type)
 {
 	if (!hasBody() || getContentLength() == 0)
 		return;
+
 	std::string bodyLinesToString = toString(bodyLines);
-	if (bodyLinesToString.length() != getContentLength())
-		throw std::runtime_error(
-		"HTTP method [" + getMethod() + "] at URI [" + getUri() + "] encountered a body length mismatch: "
-		"Expected Content-Length = " + toString(getContentLength()) + 
-		", but received body length = " + toString(bodyLinesToString.length()) + ".");
+	// TODO: if contect-length is bigger than max-body-size, need to handle it
+	// if (bodyLinesToString.length() != getContentLength())
+	// 	throw std::runtime_error(
+	// 	"HTTP method [" + getMethod() + "] at URI [" + getUri() + "] encountered a body length mismatch: "
+	// 	"Expected Content-Length = " + toString(getContentLength()) + 
+	// 	", but received body length = " + toString(bodyLinesToString.length()) + ".");
 	_body = bodyLinesToString;
 	_type = type;
 }
 
+/// @brief Sets the body of the request.
+/// @param bodyLines 
+/// @param type 
 void	HttpRequest::setBody(const std::string& bodyLines, e_body_type type)
 {
 	if (!hasBody() || getContentLength() == 0)
 		return;
-	if (bodyLines.length() != getContentLength())
-		throw std::runtime_error(
-		"HTTP method [" + getMethod() + "] at URI [" + getUri() + "] encountered a body length mismatch: "
-		"Expected Content-Length = " + toString(getContentLength()) + 
-		", but received body length = " + toString(bodyLines.length()) + ".");
-	_body = bodyLines;
+	// TODO: if contect-length is bigger than max-body-size, need to handle it
+	// if (bodyLines.length() != getContentLength())
+	// 	throw std::runtime_error(
+	// 	"HTTP method [" + getMethod() + "] at URI [" + getUri() + "] encountered a body length mismatch: "
+	// 	"Expected Content-Length = " + toString(getContentLength()) + 
+	// 	", but received body length = " + toString(bodyLines.length()) + ".");
+
 	_type = type;
+	_body = bodyLines;
 }
 
+/// @brief if the request has a body, set the content length.
+/// @param contentLength content-length
 void	HttpRequest::setContentLength(const ssize_t& contentLength)
 {
 	if (hasBody())
-		_content.second = contentLength;
+		_contentLenght.second = contentLength;
 }

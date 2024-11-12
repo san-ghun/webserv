@@ -87,6 +87,10 @@
     "numbers": "cpp",
     "ranges": "cpp",
     "span": "cpp",
-    "cinttypes": "cpp"
+    "cinttypes": "cpp",
+    "execution": "cpp",
+    "print": "cpp",
+    "queue": "cpp",
+    "stack": "cpp"
   }
 }

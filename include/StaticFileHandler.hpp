@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/10/22 19:59:31 by minakim          ###   ########.fr       */
+/*   Updated: 2024/11/12 16:27:51 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@
 # include <sys/stat.h>
 # include <dirent.h>
 # include <map>
+# include <vector>
+
 class HttpResponse;
 class HttpRequest;
 class Location;
@@ -34,45 +36,65 @@ class	StaticFileHandler
 		StaticFileHandler(const StaticFileHandler& other);
 		StaticFileHandler& operator=(const StaticFileHandler& other);
 
-		HttpResponse	handleget(const Context& context);
-		HttpResponse	handlepost(const Context& context);
+		HttpResponse	handleGet(const Context& context);
+		HttpResponse	handlePost(const Context& context);
+		HttpResponse	handleDelete(const Context& context);
+
+		HttpResponse	handleCgiGet(const Context& context);
+		HttpResponse	handleCgiPost(const Context& context);
 
 
-		std::string		getFullPath() const;
+
+		std::string		getRelativePath() const;
 		std::string		resolveMimeType(const std::string path) const;
 
-	private:
-		std::string							_handledPath;
-		std::map<std::string, std::string>	_mimeTypes;
+private:
+	/// @brief 							relativePath to clarify that
+	///									it’s constructed relative to the server root
+	///									and location.
+	std::string							_relativePath;
+	std::map<std::string, std::string>	_mimeTypes;
 
+private:
+	void			_initMimeTypes();
+	int				_verifyHeaders(const Context& context) const;
+	int				_validateGetHeaders(const std::map<std::string, std::string>& headers) const;
+	int				_validatePostHeaders(const Context& context, const std::map<std::string, std::string>& headers) const;
+	int				_validateDeleteHeaders(const std::map<std::string, std::string>& headers) const;
+	
+	// Handle specific request types, return HttpResponse
+	HttpResponse 	_processBodyBasedOnType(const Context& context);
+	HttpResponse 	_handleRawBody(const Context& context);
+	HttpResponse 	_handleChunkedBody(const Context& context);
+	HttpResponse 	_handleFormDataBody(const Context& context);
+	HttpResponse	_handleDirListing(const Context& context);
+	HttpResponse	_handleDirRequest(const Context& context);
+	HttpResponse	_handleFileRequest(const Context& context);
+	HttpResponse	_handleRoot(const Context& context);
+	HttpResponse	_handleNotFound(const Context& context);
+	HttpResponse	_createResponseForFile(const Context& context) const;
+	HttpResponse	_createDirListingResponse(const Context& context) const;
+	
+	// Helper methods
+	bool			_hasTargetHeader(const std::string& target, const std::map<std::string, std::string>& headers) const;
+	
+	// Directory listing methods
+	std::string		_genDirListingHtml(const std::string& path) const;
+	std::string		_genListing(const std::string& path) const;
+	
+	/// Path building methods
+	void			_validateRootPaths(const std::string& serverRoot, const std::string& locationRoot) const;
+	std::string		_buildFullPath(const Context& context, const std::string& additionalPath) const;
+	std::string		_buildPathWithIndex(const Context& context) const;
+	std::string		_buildPathWithUri(const Context& context) const;
+	std::string		_buildUploadPath(const Context& context) const;
+	void			_setRelativePath(const std::string& resolvedPath);
 
-		void			_initMimeTypes();
+	// FormData parsing methods : multipart/form-data
+	std::string 				_extractBoundary(const std::map<std::string, std::string> headers) const;
+	std::map<std::string, std::vector<std::string> > \
+								_splitByBoundary(const std::string& body, const std::string& boundary) const;
 
-		int				_verifyHeaders(const Context& context) const;
-		int				_validateGetHeaders(const std::map<std::string, std::string>& headers) const;
-		int				_validatePostHeaders(const Context& context, const std::map<std::string, std::string>& headers) const;
-		int				_validateDeleteHeaders(const std::map<std::string, std::string>& headers) const;
-		bool			_hasTargetHeader(const std::string& target, const std::map<std::string, std::string>& headers) const;
-
-
-		HttpResponse	_handleDirListing(const Context& context);
-		HttpResponse	_handleDirRequest(const Context& context);
-		HttpResponse	_handleFileRequest(const Context& context);
-
-
-		HttpResponse	_createResponseForFile(const Context& context) const;
-
-		HttpResponse	_createDirListingResponse(const Context& context) const;
-		std::string		_genDirListingHtml(const std::string& path) const;
-		std::string		_genListing(const std::string& path) const;
-		HttpResponse	_handleRoot(const Context& context);
-		HttpResponse	_handleNotFound(const Context& context);
-
-		std::string		_buildPathWithUri(const Context& context) const;
-		std::string		_buildAbsolutePathWithRoot(const Context& context) const;
-		std::string		_buildAbsolutePathWithIndex(const Context& context) const;
-
-		void			_setHandledPath(const std::string& fullPath);
 };
 
 #endif

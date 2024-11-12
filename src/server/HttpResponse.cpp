@@ -6,7 +6,7 @@
 /*   By: minakim <minakim@student.42berlin.de>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/30 16:23:00 by sanghupa          #+#    #+#             */
-/*   Updated: 2024/10/22 14:12:58 by minakim          ###   ########.fr       */
+/*   Updated: 2024/11/12 17:08:20 by minakim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ HttpResponse::HttpResponse(const Context& context)
 HttpResponse::HttpResponse(const Context& context, const std::string& filePath)
 	: _statusCode(200), _statusMessage("OK"), _context(const_cast<Context&>(context))
 {
-	initializefromFile(context, filePath);
+	initializefromFile(filePath);
 }
 
 /// @brief Copy constructor for the HttpResponse class.
@@ -115,10 +115,10 @@ void	HttpResponse::_setDefaultHeadersImpl()
 /// @param filePath The path to the file to be read.
 /// @return HttpResponse The created HttpResponse object.
 /// @warning If the file cannot be opened, the response point a 404 error().
-void	HttpResponse::initializefromFile(const Context& context, const std::string& filePath)
+void	HttpResponse::initializefromFile(const std::string& filePath)
 {
-	_fileToBody(context, filePath);
-	if (_body.empty()) // FIXME:if file is empty, what shuld I do?
+	_fileToBody(filePath);
+	if (_body.empty())
 		return ;
 	if (_statusCode == 200)
 		setDefaultHeaders();
@@ -133,14 +133,12 @@ void	HttpResponse::initializefromFile(const Context& context, const std::string&
 /// @param filePath The path to the file to be read.
 /// @return Return the file content as a string.
 /// If there is any error, return an empty string.
-void	HttpResponse::_fileToBody(const Context& context, const std::string& filePath)
+void	HttpResponse::_fileToBody(const std::string& filePath)
 {
 	std::ifstream	file(filePath.c_str(), std::ios::binary | std::ios::ate);
 	std::string		body = "";
 	std::streamsize fileLength;
-	
-	// FIXME: unused parameter. why?
-	(void)context;
+
 	if (!file.is_open())
 	{
 		*this = notFound_404(_context);
@@ -246,7 +244,7 @@ void	HttpResponse::setStatusCode(int code)
 /// @brief Generates a simple HTML response for a given HTTP status code.
 /// @param code The HTTP status code for which to generate the response. 
 /// @return Return the generated HTML response.
-HttpResponse	HttpResponse::_createSimpleHttpResponse(int code)
+HttpResponse	HttpResponse::createSimpleHttpResponse(int code)
 {
 	HttpResponse resp(_context);
 	resp.setStatusCode(code);
@@ -274,7 +272,7 @@ std::string	HttpResponse::_generateHtmlBody()
 /// `t_page_detail` is a struct that contains the path of the file and a boolean flag indicating if the file is valid.
 /// @param path 
 /// @return `t_page_detail`
-t_page_detail	HttpResponse::_constructPageDetail(const std::string& path)
+t_page_detail	HttpResponse::constructPageDetail(const std::string& path)
 {
 	t_page_detail	page;
 	page.path = path;
@@ -364,6 +362,11 @@ HttpResponse	HttpResponse::notImplemented_501(const Context& context)
 	return (createErrorResponse(501, context));
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+/// Public member functions: static success responses.
+////////////////////////////////////////////////////////////////////////////////
+
 /// @brief Creates a successful HTTP response with status code 200.
 /// @details All `Response` object constructors initialize the status code to 200 and the status message to "OK".
 /// @return Return the generated HTML response.
@@ -371,6 +374,33 @@ HttpResponse	HttpResponse::success_200(const Context& context)
 {
 	HttpResponse resp(context);
 	resp.setBody(resp._generateHtmlBody());
+	setDefaultHeaders(resp);
+	return (resp);
+}
+
+HttpResponse	HttpResponse::success_200(const Context& context, const std::map<std::string, std::string>& body)
+{
+	(void) body;
+	HttpResponse resp(context);
+	resp.setBody(resp._generateHtmlBody());
+	setDefaultHeaders(resp);
+	return (resp);
+}
+
+HttpResponse	HttpResponse::redirect_301(const Context& context, const std::string& location)
+{
+	// TODO: implement
+	(void)location;
+	HttpResponse resp(context);
+	resp.setBody(resp._generateHtmlBody());
+	setDefaultHeaders(resp);
+	return (resp);
+}
+
+HttpResponse	HttpResponse::noContent_204(const Context& context)
+{
+	HttpResponse resp(context);
+	resp.setStatusCode(204);
 	setDefaultHeaders(resp);
 	return (resp);
 }
@@ -444,32 +474,4 @@ std::string HttpResponse::getResponseLine() const
 	std::ostringstream oss;
 	oss << "HTTP/1.1 " << _statusCode << " " << _statusMessage << "\r\n";
 	return (oss.str());
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// Utility functions
-////////////////////////////////////////////////////////////////////////////////
-
-/// @brief Checks if a file exists.
-/// @param path The path of the file.
-bool	isFile(const std::string path)
-{
-	struct stat buffer;
-	if (stat(path.c_str(), &buffer) != 0)
-		return (false);
-	if (S_ISREG(buffer.st_mode))
-		return (true);
-	return (false);
-}
-
-/// @brief Checks if a file exists.
-/// @param path The path of the file.
-bool	isDir(const std::string path)
-{
-	struct stat buffer;
-	if (stat(path.c_str(), &buffer) != 0)
-		return (false);
-	if (S_ISDIR(buffer.st_mode))
-		return (true);
-	return (false);
 }
